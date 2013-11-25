@@ -1,2 +1,2 @@
-zander.server
+Zander Server - C++ Dependency Manager
 =============

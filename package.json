@@ -9,6 +9,7 @@
     "start": "node server.js",
     "test" : "mocha test",
     "spec" : "mocha test/spec",
-    "unit" : "mocha test/unit"
+    "unit" : "mocha test/unit",
+    "smoke" : "mocha smoke"
   }
 }

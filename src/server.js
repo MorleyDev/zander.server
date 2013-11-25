@@ -1,6 +1,6 @@
-
 function startServer() {
     "use strict";
+
     var server = require('restify')
         .createServer({name : "zander", port : 1337});
 
