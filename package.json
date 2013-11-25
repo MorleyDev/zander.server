@@ -7,8 +7,10 @@
   "devDependencies": { "mocha" : "1.14.0", "chai" : "1.8.1" },
   "scripts": {
     "start": "node server.js",
-    "test" : "mocha test",
-    "spec" : "mocha test/spec",
-    "unit" : "mocha test/unit"
+    "test" : "mocha test --recursive",
+    "spec" : "mocha test/spec --recursive",
+    "unit" : "mocha test/unit --recursive",
+    "smoke" : "mocha smoke --recursive"
   }
 }
+
