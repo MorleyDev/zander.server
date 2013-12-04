@@ -2,7 +2,7 @@ function startServer() {
     "use strict";
 
     var server = require('restify')
-        .createServer({name : "zander", port : 1337});
+        .createServer({name : "zander"});
 
     server.get("/verify", function (request, response, next) {
         response.send(200);
