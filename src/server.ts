@@ -2,7 +2,6 @@
 /// <reference path="controller/VerifyController.ts" />
 /// <reference path="model/HttpResponse.ts" />
 /// <reference path="model/HttpRequest.ts" />
-/// <reference path="model/HttpMethod.ts" />
 
 function startServer() {
 
@@ -25,8 +24,6 @@ function startServer() {
                 return next();
             };
         }
-
-
 
         require("linq")
             .From(["get", "head", "post", "put", "delete", "trace", "options", "connect", "patch"])
