@@ -6,6 +6,6 @@ before(function (done) {
     process.env.zander_port = configuration.port;
     process.env.zander_host = configuration.host;
 
-    require('../../src/server.js').startServer();
+    require('../lib/server.js').startServer();
     done();
 });

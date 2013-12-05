@@ -3,14 +3,14 @@
   "main": "server.js",
   "author": "Jason Morley (http://www.morleydev.co.uk)",
   "license": "MIT",
-  "dependencies": { "restify" : "2.6.0" },
-  "devDependencies": { "mocha" : "1.14.0", "chai" : "1.8.1" },
+  "dependencies": { "restify" : "2.6.0", "linq" : "1.0.2" },
+  "devDependencies": { "mocha" : "1.14.0", "chai" : "1.8.1", "typescript":"0.9.1-1" },
   "scripts": {
+    "prepublish": "tsc src/server.ts --out lib/server.js",
     "start": "node server.js",
-    "test" : "mocha test --recursive",
-    "spec" : "mocha test/spec --recursive",
-    "unit" : "mocha test/unit --recursive",
+    "test" : "npm run-script unit && npm run-script spec",
+    "spec" : "mocha spec --recursive",
+    "unit" : "tsc unit/tests.ts --out lib/unit.js && mocha lib/unit.js",
     "smoke" : "mocha smoke --recursive"
   }
 }
-
