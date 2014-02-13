@@ -2,20 +2,20 @@ var assert = require("chai").assert;
 var restify = require("restify");
 
 describe("Given a Rest Client", function () {
-    "use strict";
 
     var configuration = require(__dirname + "/../config.json");
     var client = restify.createClient({  url: "http://" + configuration.host + ":" + configuration.port });
 
-    describe("When GET the verify endpoint", function () {
+    describe("When GET an endpoint that does not exist", function () {
         var response;
+        const path = "/idonotexist";
 
         before(function (done) {
-            client.get("/verify", function (err, req) {
+            client.get(path, function (err, req) {
                 req.on('result', function (err, res) {
                     response = res;
 
-                    res.body = "";
+                    res.body = '';
                     res.setEncoding('utf8');
                     res.on('data', function(chunk) {
                         res.body += chunk;
@@ -27,11 +27,13 @@ describe("Given a Rest Client", function () {
                 });
             });
         });
-        it("Then has an empty body", function() {
-           assert.equal(response.body, "");
+        it("Then the response has the expected body", function () {
+            const body = JSON.parse(response.body);
+            assert.equal(body.code, "ResourceNotFound");
+            assert.equal(body.message, path + " does not exist");
         });
-        it("Then a 200 response is returned", function () {
-            assert.equal(response.statusCode, 200);
+        it("Then a 404 response is returned", function () {
+            assert.equal(response.statusCode, 404);
         });
     });
 });
