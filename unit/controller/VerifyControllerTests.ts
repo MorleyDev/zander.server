@@ -15,13 +15,16 @@ describe("Given a VerifyController", function () {
     describe("When making a get request", function() {
 
         var result : model.HttpResponse;
-        before(function() {
-            result = verifyController.get(new model.HttpRequest())
+        before(function(done) {
+            verifyController.get(new model.HttpRequest(), function(r : model.HttpResponse) {
+                result = r;
+                done();
+            })
         });
-        it("Then a 200 is returned", function () {
+        it("Then a 200 is returned via the callback", function () {
             assert.equal(200, result.statusCode)
         });
-        it("Then no body is returned", function () {
+        it("Then no body is returned via the callback", function () {
             assert.isNull(result.content);
         });
     });

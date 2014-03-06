@@ -4,9 +4,8 @@
 module controller {
 
     export class VerifyController {
-        public get(request : model.HttpRequest) : model.HttpResponse {
-            return new model.HttpResponse(200, null);
+        public get(request : model.HttpRequest, callback : (m : model.HttpResponse) => void) {
+            callback(new model.HttpResponse(200, null));
         }
     }
-
 }
