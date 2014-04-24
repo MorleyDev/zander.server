@@ -1,6 +1,13 @@
-var data = require("./config.json");
-process.env.zander_host = process.env.zander_host || data.host;
-process.env.zander_port = process.env.zander_port || data.port;
+var config = require("./config.json");
+config.host = process.env.zander_host || data.host;
+config.port = process.env.zander_port || data.port;
 
-require("./lib/server.js").startServer();
-console.log("Zander server running: " + process.env.zander_host + ":" + process.env.zander_port);
+const zander = require("./lib/server.js");
+
+zander.bootstrapDatabase(config, function(err) {
+    if (err)
+        throw err;
+
+    zander.startServer(config);
+    console.log("Zander server running: " + config.host + ":" + config.port);
+});

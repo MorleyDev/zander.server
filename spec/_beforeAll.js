@@ -3,9 +3,12 @@ before(function (done) {
 
     var configuration = require(__dirname + "/config.json");
 
-    process.env.zander_port = configuration.port;
-    process.env.zander_host = configuration.host;
+    var zander = require('../lib/server.js');
+    zander.bootstrapDatabase(configuration, function(err) {
+        if (err)
+            throw "Failed to bootstrap database";
 
-    require('../lib/server.js').startServer();
-    done();
+        zander.startServer(configuration);
+        done();
+    })
 });
