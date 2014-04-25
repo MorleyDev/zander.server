@@ -1,12 +1,16 @@
 /// <reference path="../typings/node/node.d.ts" />
 /// <reference path="controller/VerifyController.ts" />
+/// <reference path="controller/UserController.ts" />
 /// <reference path="model/HttpResponse.ts" />
 /// <reference path="model/HttpRequest.ts" />
 /// <reference path="data/bootstrap_database.ts" />
 
 function startServer(configuration) {
 
-    var server = require("restify").createServer({name: "zander"});
+    var restify = require("restify");
+    var server = restify.createServer({name: "zander"})
+        .use(restify.fullResponse())
+        .use(restify.bodyParser());
 
     function addController(path:string, controller) {
 
@@ -15,6 +19,7 @@ function startServer(configuration) {
                 var httpRequest:model.HttpRequest = new model.HttpRequest();
                 httpRequest.headers = request.headers;
                 httpRequest.parameters = request.parameters;
+                httpRequest.body = request.body;
 
                 method(httpRequest, function (httpResponse:model.HttpResponse) {
                     httpResponse.content != null
@@ -37,6 +42,7 @@ function startServer(configuration) {
     }
 
     addController("/verify", new controller.VerifyController());
+    addController("/user", new controller.UserController());
 
     server.listen(configuration.port || 1337, configuration.host || "127.0.0.1");
 }

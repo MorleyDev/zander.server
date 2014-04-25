@@ -20,14 +20,6 @@ function bootstrap_database(type : DatabaseType, callback) {
             });
         })
     };
-    builderStack[1] = function(db, callback) {
-        db.query("CREATE TABLE " + tableName_zanderDetails + "2 (version INT NOT NULL)", function(err) {
-            console.log("Created table2");
-            if (err)
-                callback(err);
-            callback(null)
-        });
-    };
 
     function bootstrap(currentVersion, db, callback) {
         var upperVersion = builderStack.length - 1;
