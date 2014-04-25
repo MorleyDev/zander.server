@@ -13,7 +13,8 @@ module validate {
             return false;
         if (dto.username.length < 3 || dto.username.length > 20)
             return false;
-        if (dto.username.match("^[a-zA-Z0-9_]*$"))
+        if (!dto.username.match("^[a-zA-Z0-9_]*$"))
+            return false;
 
         return true;
     }
