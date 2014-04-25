@@ -11,19 +11,19 @@ module controller {
             try {
                 validate.ValidateCreateUserDto(createUserDto)
             } catch(e) {
-                callback(new model.HttpResponse(400, { "Error" : e }));
+                callback(new model.HttpResponse(400, { "code":"BadRequest", "message" : e }));
                 return;
             }
-            callback(new model.HttpResponse(401, { "Error" : "Unauthorized" }));
+            callback(new model.HttpResponse(401, { "message" : "Unauthorized" }));
         }
         public put(request : model.HttpRequest, callback : (m : model.HttpResponse) => void) {
-            callback(new model.HttpResponse(403, null));
+            callback(new model.HttpResponse(403, { "code":"Forbidden", "message" : "Missing Url Arguments"}));
         }
         public del(request : model.HttpRequest, callback : (m : model.HttpResponse) => void) {
-            callback(new model.HttpResponse(403, null));
+            callback(new model.HttpResponse(403, { "code":"Forbidden", "message" : "Missing Url Arguments"}));
         }
         public get(request : model.HttpRequest, callback : (m : model.HttpResponse) => void) {
-            callback(new model.HttpResponse(403, null));
+            callback(new model.HttpResponse(403, { "code":"Forbidden", "message" : "Missing Url Arguments"}));
         }
     }
 }

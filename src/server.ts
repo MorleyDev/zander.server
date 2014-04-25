@@ -14,8 +14,11 @@ function startServer(configuration) {
 
     function addController(path:string, controller) {
 
+        console.log("Register controller to path " + path);
+
         function createControllerRequestHandler(method:(r:model.HttpRequest, c:(h:model.HttpResponse) => void) => void) {
             return function (request, response, next) {
+
                 var httpRequest:model.HttpRequest = new model.HttpRequest();
                 httpRequest.headers = request.headers;
                 httpRequest.parameters = request.parameters;
@@ -37,6 +40,7 @@ function startServer(configuration) {
                 return controller[x] != null;
             })
             .forEach(function (x) {
+                console.log("Register " + x + " to path " + path);
                 server[x](path, createControllerRequestHandler(controller[x]))
             });
     }

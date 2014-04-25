@@ -1,6 +1,6 @@
 var config = require("./config.json");
-config.host = process.env.zander_host || data.host;
-config.port = process.env.zander_port || data.port;
+config.host = process.env.zander_host || config.host;
+config.port = process.env.zander_port || config.port;
 
 if (!config.goduser)
     config.goduser = { };
