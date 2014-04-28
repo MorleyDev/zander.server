@@ -5,19 +5,30 @@ enum DatabaseType {
 function bootstrap_database(type : DatabaseType, finalCallback) {
 
     var tableName_zanderDetails = "ZanderDetails";
+    var tableName_users = "Users";
 
     var nodeSql = require('nodesql');
 
     var builderStack = [];
     builderStack[0] = function(db, callback) {
         db.query("CREATE TABLE " + tableName_zanderDetails + " (id INT NOT NULL, version INT NOT NULL)", function(err) {
-            console.log("Created table");
+            console.log("Created version table");
             if (err)
                 callback(err);
 
             db.insert(tableName_zanderDetails, { id : 0, version : -1 }, function(err) {
                 callback(err)
             });
+        })
+    };
+    builderStack[1] = function(db, callback) {
+        db.query("CREATE TABLE " + tableName_users + " (id VARCHAR(36) NOT NULL, " +
+            "username VARCHAR(20) NOT NULL, " +
+            "email VARCHAR(30) NOT NULL, " +
+            "password CHAR(128) NOT NULL, " +
+            "timestamp INTEGER NOT NULL)", function(err) {
+            console.log("Created user table");
+            callback(err);
         })
     };
 
