@@ -2,7 +2,7 @@ enum DatabaseType {
     SqlLite
 }
 
-function bootstrap_database(type : DatabaseType, callback) {
+function bootstrap_database(type : DatabaseType, finalCallback) {
 
     var tableName_zanderDetails = "ZanderDetails";
 
@@ -63,12 +63,12 @@ function bootstrap_database(type : DatabaseType, callback) {
             var connection = new sqlite3.Database(':memory:',
                 function() {
                     var db = nodeSql.createSqliteStrategy(connection);
-                    bootstrap_with_connection(db, callback)
+                    bootstrap_with_connection(db, function(err) { finalCallback(err, db); });
                 });
             break;
 
         default:
-            callback("Unrecognised database type")
+            finalCallback("Unrecognised database type", null);
     }
 }
 

@@ -10,7 +10,7 @@ module validate {
             throw "Password Not Provided";
 
         if (dto.password.length < 3)
-            throw "Password Too Short";
+            throw "Passwords must be 3 or more characters";
         if (dto.username.length < 3 || dto.username.length > 20)
             throw "Username Not Between 3-20 Characters";
         if (!dto.username.match("^[a-zA-Z0-9_\\-]*$"))

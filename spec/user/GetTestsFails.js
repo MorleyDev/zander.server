@@ -21,8 +21,21 @@ describe("Given a Rest Client and no credentials", function () {
                 done();
             });
         });
-        it("Then a 403 Forbidden response is returned", function () {
-            assert.equal(response.statusCode, 403);
+        it("Then a 405 Method Not Allowed response is returned", function () {
+            assert.equal(response.statusCode, 405);
+        });
+    });
+    describe("When GET a specific non-existant user endpoint", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/user/user_no_exist", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 401 Not Authenticated response is returned", function () {
+            assert.equal(response.statusCode, 401);
         });
     });
 });
@@ -47,8 +60,21 @@ describe("Given a Rest Client and god credentials", function () {
                 done();
             });
         });
-        it("Then a 403 Forbidden response is returned", function () {
-            assert.equal(response.statusCode, 403);
+        it("Then a 405 Method Not Allowed response is returned", function () {
+            assert.equal(response.statusCode, 405);
+        });
+    });
+    describe("When GET a specific non-existing user endpoint", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/user/non_user", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 404 Not Found response is returned", function () {
+            assert.equal(response.statusCode, 404);
         });
     });
 });

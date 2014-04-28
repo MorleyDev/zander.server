@@ -1,20 +1,30 @@
 module.exports.CreateUserPostDto = function(username, email, password) {
-    this["username"] = username;
-    this["email"] = email;
-    this["password"] = password;
-    return this;
+
+    return {
+        "username" : username,
+        "email" : email,
+        "password" : password
+    };
+};
+
+module.exports.CreateUserPutDto = function(email, password) {
+    return {
+        "email" : email,
+        "password" : password
+    };
 };
 
 module.exports.CreateUserPostResponseDto = function(username, email, href)
 {
-    this["username"] = username;
-    this["email"] = email;
-    this["_href"] = href;
-    return this;
+    return {
+        "username" : username,
+        "email" : email,
+        "_href" : href
+    };
 };
 
-module.exports.CreateUserGetResponseDto = function(username, email) {
-    this["username"] = username;
-    this["email"] = email;
-    return this;
+module.exports.CreateUserGetResponseDto = function(email) {
+    return {
+        "email" : email
+    };
 };

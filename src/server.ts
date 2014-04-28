@@ -3,14 +3,20 @@
 /// <reference path="controller/UserController.ts" />
 /// <reference path="model/HttpResponse.ts" />
 /// <reference path="model/HttpRequest.ts" />
+/// <reference path="service/AuthenticateUserAsTarget.ts" />
 /// <reference path="data/bootstrap_database.ts" />
+/// <reference path="data/AuthenticateUser.ts" />
 
-function startServer(configuration) {
+function startServer(configuration, database) {
 
     var restify = require("restify");
     var server = restify.createServer({name: "zander"})
         .use(restify.fullResponse())
-        .use(restify.bodyParser());
+        .use(restify.bodyParser())
+        .use(restify.authorizationParser());
+
+    if (configuration.throttle)
+        server.use(restify.throttle(configuration.throttle));
 
     function addController(path:string, controller) {
 
@@ -19,16 +25,24 @@ function startServer(configuration) {
         function createControllerRequestHandler(method:(r:model.HttpRequest, c:(h:model.HttpResponse) => void) => void) {
             return function (request, response, next) {
 
-                var httpRequest:model.HttpRequest = new model.HttpRequest();
-                httpRequest.headers = request.headers;
-                httpRequest.parameters = request.parameters;
-                httpRequest.body = request.body;
+                try {
+                    var httpRequest:model.HttpRequest = new model.HttpRequest();
+                    httpRequest.authorization = request.authorization;
+                    httpRequest.headers = request.headers;
+                    httpRequest.parameters = request.params;
+                    httpRequest.body = request.body;
 
-                method(httpRequest, function (httpResponse:model.HttpResponse) {
-                    httpResponse.content != null
-                        ? response.send(httpResponse.statusCode, httpResponse.content)
-                        : response.send(httpResponse.statusCode);
-                });
+                    method(httpRequest, function (httpResponse:model.HttpResponse) {
+                        httpResponse.content != null
+                            ? response.send(httpResponse.statusCode, httpResponse.content)
+                            : response.send(httpResponse.statusCode);
+                    });
+
+                }
+                catch(e) {
+                    console.log(e);
+                    response.send(500, { "code" : "InternalServerError" });
+                }
                 return next();
             };
         }
@@ -45,10 +59,19 @@ function startServer(configuration) {
             });
     }
 
-    addController("/verify", new controller.VerifyController());
-    addController("/user", new controller.UserController());
+    var controllers = { };
+    controllers["verify"] = new controller.VerifyController();
 
-    server.listen(configuration.port || 1337, configuration.host || "127.0.0.1");
+    var authenticateUser = new data.AuthenticateUser(configuration, database);
+    var authenticateUserAsTarget = new service.AuthenticateUserAsTarget(authenticateUser);
+    controllers["user"] = new controller.UserController(authenticateUserAsTarget);
+
+    addController("/verify", controllers["verify"]);
+    addController("/user", controllers["user"]);
+    addController("/user/:target", controllers["user"]);
+
+    server.listen(configuration.port, configuration.host);
+    return controllers;
 }
 
 module.exports.startServer = startServer;
