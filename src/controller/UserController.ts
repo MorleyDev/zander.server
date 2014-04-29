@@ -1,7 +1,7 @@
 /// <reference path="../model/HttpResponse.ts" />
 /// <reference path="../model/HttpRequest.ts" />
 /// <reference path="../model/dto/CreateUserDto.ts" />
-/// <reference path="../validate/ValidateCreateUserDto.ts" />
+/// <reference path="../validate/ValidateUserDto.ts" />
 /// <reference path="../service/AuthenticateUserAsTarget.ts" />
 /// <reference path="../data/user/CRUD.ts" />
 
@@ -81,6 +81,8 @@ module controller {
                     });
                 }, function(error) {
                     callback(new model.HttpResponse(401, { "code" : "Unauthorized", "message" : error }));
+                }, function (reject) {
+                    callback(new model.HttpResponse(403, { "code" : "Forbidden", "message" : reject }));
                 });
             }
         }
@@ -116,6 +118,8 @@ module controller {
                         });
                     }, function (error) {
                         callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": error }));
+                    }, function (reject) {
+                        callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": reject }));
                     });
             } else
                 callback(new model.HttpResponse(405, {
@@ -149,6 +153,8 @@ module controller {
                         });
                     }, function(error) {
                         callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": error }));
+                    }, function (reject) {
+                        callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": reject }));
                     });
             } else
                 callback(new model.HttpResponse(405, {
@@ -162,6 +168,7 @@ module controller {
             var getUser = this.getUser;
 
             if (request.parameters.target) {
+
                 this.authenticateUser.authenticate(false,
                     request.authorization,
                     request.parameters.target,
@@ -184,6 +191,8 @@ module controller {
                         });
                     }, function(error) {
                         callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": error }));
+                    }, function (reject) {
+                        callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": reject }));
                     });
             } else
                 callback(new model.HttpResponse(405, { "code":"MethodNotAllowed",

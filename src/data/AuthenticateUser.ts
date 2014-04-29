@@ -1,13 +1,17 @@
+/// <reference path="HashPassword.ts" />
+
 module data
 {
     export class AuthenticateUser
     {
         private _goduser;
-        private _connection;
+        private _hashType;
+        private _database;
 
-        constructor(configuration, connection) {
+        constructor(configuration, database) {
             this._goduser = configuration.goduser;
-            this._connection = connection;
+            this._hashType = configuration.hashAlgorithm;
+            this._database = database;
         }
 
         authenticateGodUser(authorization, success, failure) {
@@ -34,15 +38,31 @@ module data
         }
 
         authenticateStandardUser(authorization, success, failure) {
+
+            var hashType = this._hashType;
             if (!authorization || !authorization.scheme) {
                 failure("No or Incorrect Authentication details provided");
             }
             else if (authorization.scheme != "Basic" || !authorization.basic) {
                 failure("Unrecognised authorization scheme");
             }
-            else
-                failure( "No or Incorrect Authentication details provided");
-
+            else {
+                var username = authorization.basic.username;
+                var password = authorization.basic.password;
+                this._database.selectOne("Users", { username: username }, function(err, user) {
+                    if (err)
+                        throw err;
+                    else if (!user) {
+                        failure("No or Incorrect Authentication details provided");
+                    } else {
+                        var hashedPassword = HashPassword(hashType, user.id, password);
+                        if (user.password == hashedPassword)
+                            success(username);
+                        else
+                            failure("No or Incorrect Authentication details provided");
+                    }
+                });
+            }
         }
     }
 }

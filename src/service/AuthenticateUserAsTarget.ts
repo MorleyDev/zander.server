@@ -11,23 +11,22 @@ module service
             this.authenticateUser = authenticateUser;
         }
 
-        authenticate(requireSuper, authorization, target, success, fail) {
+        authenticate(requireSuper, authorization, target, success, fail, reject) {
+
             var authenticateUser = this.authenticateUser;
             authenticateUser.authenticateGodUser(authorization, function (username) {
                 success(new model.LoggedInUserDetails(username, true));
             }, function (error) {
-                if (requireSuper) {
+                authenticateUser.authenticateStandardUser(authorization, function (username) {
+                    if ( requireSuper )
+                        reject("Do not possess required permission level");
+                    else if (target == username)
+                        success(new model.LoggedInUserDetails(username, false));
+                    else
+                        reject("Resource Not Found");
+                }, function (error) {
                     fail(error);
-                } else {
-                    authenticateUser.authenticateStandardUser(authorization, function(username) {
-                        if (target == username)
-                            success(new model.LoggedInUserDetails(username, false));
-                        else
-                            fail("No or Incorrect Authentication details provided");
-                    }, function(error) {
-                        fail(error);
-                    });
-                }
+                });
             });
         }
     }

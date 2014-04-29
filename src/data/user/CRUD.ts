@@ -1,5 +1,6 @@
+/// <reference path="../HashPassword.ts" />
+
 var uuid = require("uuid");
-var crypto = require("crypto");
 
 module data.user {
     export class CreateUserInDatabase {
@@ -20,7 +21,7 @@ module data.user {
                     id: id,
                     username: username,
                     email: email,
-                    password: crypto.createHmac(this._hashType, id).update(password).digest("hex"),
+                    password: HashPassword(this._hashType, id, password),
                     timestamp: timestamp
                 };
                 this._database.insert("Users", userDto, function (err, insertId) {
@@ -72,7 +73,7 @@ module data.user {
         }
 
         execute(id, email, password, callback) {
-            var hashedPassword = crypto.createHmac(this._hashType, id).update(password).digest("hex");
+            var hashedPassword = HashPassword(this._hashType, id, password);
 
             var _database = this._database;
             _database.update("Users",
