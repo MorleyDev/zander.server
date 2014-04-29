@@ -9,7 +9,7 @@ describe("Given a Rest Client and no credentials", function () {
     var client;
 
     before(function (done) {
-        client = restify.createJsonClient({  url: "http://" + configuration.host + ":" + configuration.port });
+        client = restify.createJsonClient({  url: "http://localhost:" + configuration.port });
         done();
     });
     describe("When PUT the user endpoint", function () {
@@ -47,7 +47,7 @@ describe("Given a Rest Client and god credentials", function () {
 
     var client;
     before(function (done) {
-        client = restify.createJsonClient({ url: "http://" + configuration.host + ":" + configuration.port });
+        client = restify.createJsonClient({ url: "http://localhost:" + configuration.port });
         client.basicAuth(configuration.goduser.name, configuration.goduser.password);
         done();
     });
@@ -62,6 +62,50 @@ describe("Given a Rest Client and god credentials", function () {
         });
         it("Then a 405 Method Not Allowed response is returned", function () {
             assert.equal(response.statusCode, 405);
+        });
+    });
+    describe("When PUT an existing user on the user endpoint and missing email", function () {
+        var response;
+        before(function (done) {
+            client.post("/user",
+                require("../models/UserDtos").CreateUserPostDto("some_user", "email@address.com", "saldiawiui"),
+                function(err, req, res, obj) {
+                    client.put("/user/some_user", { "password": "somepassword" }, function (err, req, res, obj) {
+                        response = res;
+                        done();
+                    });
+                }
+            );
+        });
+        after(function (done) {
+            client.del("/user/some_user", function(err, req, res) {
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
+    describe("When PUT a user on the user endpoint and missing password", function () {
+        var response;
+        before(function (done) {
+            client.post("/user",
+                require("../models/UserDtos").CreateUserPostDto("some_user", "email@address.com", "saldiawiui"),
+                function (err, req, res, obj) {
+                    client.put("/user/some_user", { "email": "email@someplace.co.uk" }, function (err, req, res, obj) {
+                        response = res;
+                        done();
+                    });
+                }
+            );
+        });
+        after(function (done) {
+            client.del("/user/some_user", function(err, req, res) {
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
         });
     });
 });

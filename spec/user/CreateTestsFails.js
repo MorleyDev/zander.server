@@ -10,7 +10,7 @@ describe("Given a Rest Client and no credentials", function () {
 
     var client;
     before(function (done) {
-        client = restify.createJsonClient({  url: "http://" + configuration.host + ":" + configuration.port });
+        client = restify.createJsonClient({  url: "http://localhost:" + configuration.port });
         done();
     });
     describe("When POST the user endpoint", function () {
@@ -63,8 +63,8 @@ describe("Given a Rest Client and incorrect credentials", function () {
     var configuration = require(__dirname + "/../config.json");
 
     var client;
-    before(function (done) {
-        client = restify.createJsonClient({  url: "http://" + configuration.host + ":" + configuration.port });
+    beforeEach(function (done) {
+        client = restify.createJsonClient({  url: "http://localhost:" + configuration.port });
         client.basicAuth(configuration.goduser.name, "wrong_password");
         done();
     });
@@ -72,7 +72,7 @@ describe("Given a Rest Client and incorrect credentials", function () {
         var response;
         var errorObj;
 
-        before(function (done) {
+        beforeEach(function (done) {
             var createUserDto = models.CreateUserPostDto("some_username", "email@host.com", "some_password");
 
             client.post("/user", createUserDto, function (err, req, res, obj) {
@@ -91,14 +91,14 @@ describe("Given a Rest Client and incorrect credentials", function () {
     });
 });
 
-describe("Given a Rest Client and correct credentials", function () {
+describe("Given a Rest Client and god credentials", function () {
     "use strict";
 
     var configuration = require(__dirname + "/../config.json");
 
     var client;
-    beforeEach(function (done) {
-        client = restify.createJsonClient({  url: "http://" + configuration.host + ":" + configuration.port });
+    before(function (done) {
+        client = restify.createJsonClient({  url: "http://localhost:" + configuration.port });
         client.basicAuth(configuration.goduser.name, configuration.goduser.password);
         done();
     });
@@ -271,6 +271,48 @@ describe("Given a Rest Client and correct credentials", function () {
         });
         it("Then a 400 Bad Request response is returned", function () {
             assert.equal(response.statusCode, 400);
+        });
+    });
+    describe("When POST the user endpoint", function () {
+
+        beforeEach(function (done) {
+            var createUserDto = {
+                "username" : "some_user",
+                "email" : "some@email.com",
+                "password" : "foieiufghaijfhsjakdfhka"
+            };
+            client.post("/user", createUserDto, function (err, req, res, obj) {
+                done();
+            });
+        });
+        afterEach(function (done) {
+            client.del("/user/some_user", function (err) {
+                done();
+            });
+        });
+        describe("for an existing user", function () {
+            var response;
+            var errorObj;
+
+            beforeEach(function (done) {
+                var createUserDto = {
+                    "username": "some_user",
+                    "email": "some_ither@email.com",
+                    "password": "foieiufasgahghaijfhsjakdfhka"
+                };
+                client.post("/user", createUserDto, function (err, req, res, obj) {
+                    response = res;
+                    errorObj = obj;
+                    done();
+                });
+            });
+            it("Then the expected error code was returned", function () {
+                assert.equal(errorObj["code"], "Conflict");
+                assert.equal(errorObj["message"], "User already exists");
+            });
+            it("Then a 409 Conflict response is returned", function () {
+                assert.equal(response.statusCode, 409);
+            });
         });
     });
 });

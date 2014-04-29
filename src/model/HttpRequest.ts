@@ -5,5 +5,6 @@ module model {
         public headers;
         public parameters;
         public body;
+        public log;
     }
 }

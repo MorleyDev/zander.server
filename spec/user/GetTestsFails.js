@@ -9,7 +9,7 @@ describe("Given a Rest Client and no credentials", function () {
     var client;
 
     before(function (done) {
-        client = restify.createJsonClient({  url: "http://" + configuration.host + ":" + configuration.port });
+        client = restify.createJsonClient({  url: "http://localhost:" + configuration.port });
         done();
     });
     describe("When GET the user endpoint", function () {
@@ -25,7 +25,7 @@ describe("Given a Rest Client and no credentials", function () {
             assert.equal(response.statusCode, 405);
         });
     });
-    describe("When GET a specific non-existant user endpoint", function () {
+    describe("When GET a specific non-existent user endpoint", function () {
         var response;
 
         before(function (done) {
@@ -47,7 +47,7 @@ describe("Given a Rest Client and god credentials", function () {
 
     var client;
     before(function (done) {
-        client = restify.createJsonClient({ url: "http://" + configuration.host + ":" + configuration.port });
+        client = restify.createJsonClient({ url:"http://localhost:" + configuration.port });
         client.basicAuth(configuration.goduser.name, configuration.goduser.password);
         done();
     });

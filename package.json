@@ -4,13 +4,13 @@
   "author": "Jason Morley (http://www.morleydev.co.uk)",
   "license": "MIT",
   "version":"1.0.0",
-  "dependencies": { "restify" : "2.6.0", "nodesql" : "0.2.4", "sqlite3" : "2.2.3" },
+  "dependencies": { "restify" : "2.6.0", "nodesql" : "0.2.4", "sqlite3" : "2.2.3", "uuid" : "1.4.1" },
   "devDependencies": { "mocha" : "1.14.0", "chai" : "1.8.1", "typescript":"0.9.1-1" },
   "scripts": {
     "prepublish": "tsc src/server.ts --out lib/server.js",
     "start": "node server.js",
     "test" : "npm run-script unit && npm run-script spec",
-    "spec" : "mocha spec --recursive",
+    "spec" : "mocha spec --recursive --reporter spec",
     "unit" : "tsc unit/tests.ts --out lib/unit.js && mocha lib/unit.js",
     "smoke" : "mocha smoke --recursive",
     "full-build" : "npm install && npm test"

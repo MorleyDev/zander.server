@@ -1,4 +1,4 @@
-/* var assert = require("chai").assert;
+var assert = require("chai").assert;
 var restify = require("restify");
 var models = require("../models/UserDtos.js");
 
@@ -9,7 +9,7 @@ describe("Given a Rest Client and god credentials", function () {
 
     var client;
     before(function (done) {
-        client = restify.createJsonClient({  url: "http://" + configuration.host + ":" + configuration.port });
+        client = restify.createJsonClient({  url: "http://localhost:" + configuration.port });
         client.basicAuth(configuration.goduser.name, configuration.goduser.password);
         done();
     });
@@ -39,7 +39,7 @@ describe("Given a Rest Client and god credentials", function () {
             });
         });
         it("Then the expected response dto was returned", function () {
-            assert.equal(actualResultPutUserDto, expectedPutDto);
+            assert.deepEqual(actualResultPutUserDto, expectedPutDto);
         });
         it("Then a 200 OK response is returned", function () {
             assert.equal(response.statusCode, 200);
@@ -58,11 +58,10 @@ describe("Given a Rest Client and god credentials", function () {
             });
         });
         it("Then the expected result dto was returned", function () {
-            assert.equal(expectedPutDto, actualResultUserDto);
+            assert.deepEqual(expectedPutDto, actualResultUserDto);
         });
         it("Then a 200 OK is returned", function () {
             assert.equal(response.statusCode, 200);
         });
     });
 });
-*/

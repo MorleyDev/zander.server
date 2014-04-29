@@ -8,7 +8,7 @@ describe("Given a Rest Client and no credentials", function () {
 
     var client;
     before(function (done) {
-        client = restify.createJsonClient({  url: "http://" + configuration.host + ":" + configuration.port });
+        client = restify.createJsonClient({  url: "http://localhost:" + configuration.port });
         done();
     });
     describe("When DELETE the user endpoint", function () {
@@ -46,7 +46,7 @@ describe("Given a Rest Client and god credentials", function () {
 
     var client;
     before(function (done) {
-        client = restify.createJsonClient({ url: "http://" + configuration.host + ":" + configuration.port });
+        client = restify.createJsonClient({ url: "http://localhost:" + configuration.port });
         client.basicAuth(configuration.goduser.name, configuration.goduser.password);
         done();
     });

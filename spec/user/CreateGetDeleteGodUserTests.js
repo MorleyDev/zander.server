@@ -1,4 +1,4 @@
-/* var assert = require("chai").assert;
+var assert = require("chai").assert;
 var restify = require("restify");
 var models = require("../models/UserDtos.js");
 var errors = require("../models/ErrorDtos.js");
@@ -10,7 +10,7 @@ describe("Given a Rest Client and god credentials", function () {
 
     var client;
     before(function (done) {
-        client = restify.createJsonClient({  url: "http://" + configuration.host + ":" + configuration.port });
+        client = restify.createJsonClient({  url: "http://localhost:" + configuration.port });
         client.basicAuth(configuration.goduser.name, configuration.goduser.password);
         done();
     });
@@ -18,11 +18,11 @@ describe("Given a Rest Client and god credentials", function () {
     var expectedUsername = "some_username";
     var expectedEmail = "email@host.com";
     var expectedPassword = "some_password";
-    var expectedHref = "http://" + configuration.host + ":" + configuration.port + "/user/" + expectedUsername;
+    var expectedHref = configuration.host + "/user/" + expectedUsername;
     var expectedResultPostUserDto = models.CreateUserPostResponseDto(expectedUsername, expectedEmail, expectedHref);
 
     describe("When POST the user endpoint", function () {
-        var actualResultUserDto = null;
+        var actualResultUserDto;
 
         var response;
         before(function (done) {
@@ -35,7 +35,7 @@ describe("Given a Rest Client and god credentials", function () {
             });
         });
         it("Then the expected result dto was returned", function () {
-            assert.equal(actualResultUserDto, expectedResultPostUserDto);
+            assert.deepEqual(actualResultUserDto, expectedResultPostUserDto);
         });
         it("Then a 201 Created response is returned", function () {
             assert.equal(response.statusCode, 201);
@@ -55,7 +55,7 @@ describe("Given a Rest Client and god credentials", function () {
             });
         });
         it("Then the expected result dto was returned", function () {
-            assert.equal(actualResultUserDto, expectedResultGetUserDto);
+            assert.deepEqual(actualResultUserDto, expectedResultGetUserDto);
         });
         it("Then a 200 OK is returned", function () {
             assert.equal(response.statusCode, 200);
@@ -86,11 +86,10 @@ describe("Given a Rest Client and god credentials", function () {
             });
         });
         it("Then the expected error code was returned", function() {
-            assert.equal(errorObj, errors.CreateErrorDto("ResourceNotFound", "User not found"));
+            assert.deepEqual(errorObj, errors.CreateErrorDto("ResourceNotFound", "User not found"));
         });
         it("Then a 404 Not Found is returned", function () {
             assert.equal(response.statusCode, 404);
         });
     });
 });
- */

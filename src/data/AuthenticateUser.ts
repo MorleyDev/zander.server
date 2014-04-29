@@ -10,22 +10,39 @@ module data
             this._connection = connection;
         }
 
-        authenticateGodUser(authorization) {
+        authenticateGodUser(authorization, success, failure) {
             if (!authorization || !authorization.scheme) {
-                throw "No or Incorrect Authentication details provided";
+                failure("No or Incorrect Authentication details provided");
+                return;
             }
             if (authorization.scheme != "Basic" || !authorization.basic) {
-                throw "Unrecognised authorization scheme";
+                failure( "Unrecognised authorization scheme");
+                return;
             }
 
             var username = authorization.basic.username;
             var password = authorization.basic.password;
-            if (this._goduser && username && password) {
-                if (username == this._goduser.name && password == this._goduser.password) {
-                    return;
-                }
+            if (this._goduser
+                && username
+                && password
+                && username == this._goduser.name
+                && password == this._goduser.password) {
+                success(username);
             }
-            throw "No or Incorrect Authentication details provided";
+            else
+                failure("No or Incorrect Authentication details provided");
+        }
+
+        authenticateStandardUser(authorization, success, failure) {
+            if (!authorization || !authorization.scheme) {
+                failure("No or Incorrect Authentication details provided");
+            }
+            else if (authorization.scheme != "Basic" || !authorization.basic) {
+                failure("Unrecognised authorization scheme");
+            }
+            else
+                failure( "No or Incorrect Authentication details provided");
+
         }
     }
 }

@@ -5,7 +5,7 @@ describe("Given a Rest Client", function () {
     "use strict";
 
     var configuration = require(__dirname + "/../config.json");
-    var client = restify.createClient({  url: "http://" + configuration.host + ":" + configuration.port });
+    var client = restify.createClient({  url: "http://localhost:" + configuration.port });
 
     describe("When GET the verify endpoint", function () {
         var response;

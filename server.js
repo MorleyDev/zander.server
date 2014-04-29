@@ -8,17 +8,17 @@ function parseConfig(config) {
 
     config.goduser.name = process.env.zander_god_username || config.goduser.name;
     config.goduser.password = process.env.zander_god_password || config.goduser.password;
+    config.hashAlgorithm = config.hashAlgorithm || "sha256";
 
 }
 var config = parseConfig(require("./config.json"));
 
 const zander = require("./lib/server.js");
 
-var controllers;
     zander.bootstrapDatabase(config, function(err, database) {
     if (err)
         throw err;
 
-    controllers = zander.startServer(config, database);
+    zander.startServer(config, database);
     console.log("Zander server running: " + config.host + ":" + config.port);
 });

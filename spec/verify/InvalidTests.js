@@ -6,7 +6,7 @@ var restify = require("restify");
         "use strict";
 
         var configuration = require(__dirname + "/../config.json");
-        var client = restify.createClient({  url: "http://" + configuration.host + ":" + configuration.port });
+        var client = restify.createClient({  url: "http://localhost:" + configuration.port });
 
         describe("When " + method + " the existing verify endpoint", function () {
             var response;

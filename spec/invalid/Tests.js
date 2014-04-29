@@ -5,7 +5,7 @@ var restify = require("restify");
     describe("Given a Rest Client", function () {
 
         var configuration = require(__dirname + "/../config.json");
-        var client = restify.createClient({  url: "http://" + configuration.host + ":" + configuration.port });
+        var client = restify.createClient({  url: "http://localhost:" + configuration.port });
 
         describe("When " + method + " is performed on an endpoint that does not exist", function () {
             var response;

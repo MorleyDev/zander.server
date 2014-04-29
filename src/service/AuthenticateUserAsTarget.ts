@@ -11,13 +11,24 @@ module service
             this.authenticateUser = authenticateUser;
         }
 
-        authenticate(authorization, getTarget, success, fail) {
-            try {
-                this.authenticateUser.authenticateGodUser(authorization);
-                success(new model.LoggedInUserDetails(authorization.username, true));
-            } catch(e) {
-                fail(e);
-            }
+        authenticate(requireSuper, authorization, target, success, fail) {
+            var authenticateUser = this.authenticateUser;
+            authenticateUser.authenticateGodUser(authorization, function (username) {
+                success(new model.LoggedInUserDetails(username, true));
+            }, function (error) {
+                if (requireSuper) {
+                    fail(error);
+                } else {
+                    authenticateUser.authenticateStandardUser(authorization, function(username) {
+                        if (target == username)
+                            success(new model.LoggedInUserDetails(username, false));
+                        else
+                            fail("No or Incorrect Authentication details provided");
+                    }, function(error) {
+                        fail(error);
+                    });
+                }
+            });
         }
     }
 }

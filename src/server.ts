@@ -6,6 +6,7 @@
 /// <reference path="service/AuthenticateUserAsTarget.ts" />
 /// <reference path="data/bootstrap_database.ts" />
 /// <reference path="data/AuthenticateUser.ts" />
+/// <reference path="data/user/CRUD.ts" />
 
 function startServer(configuration, database) {
 
@@ -13,7 +14,8 @@ function startServer(configuration, database) {
     var server = restify.createServer({name: "zander"})
         .use(restify.fullResponse())
         .use(restify.bodyParser())
-        .use(restify.authorizationParser());
+        .use(restify.authorizationParser())
+        .use(restify.requestLogger());
 
     if (configuration.throttle)
         server.use(restify.throttle(configuration.throttle));
@@ -24,23 +26,22 @@ function startServer(configuration, database) {
 
         function createControllerRequestHandler(method:(r:model.HttpRequest, c:(h:model.HttpResponse) => void) => void) {
             return function (request, response, next) {
-
                 try {
                     var httpRequest:model.HttpRequest = new model.HttpRequest();
                     httpRequest.authorization = request.authorization;
                     httpRequest.headers = request.headers;
                     httpRequest.parameters = request.params;
                     httpRequest.body = request.body;
+                    httpRequest.log = request.log;
 
                     method(httpRequest, function (httpResponse:model.HttpResponse) {
                         httpResponse.content != null
                             ? response.send(httpResponse.statusCode, httpResponse.content)
                             : response.send(httpResponse.statusCode);
                     });
-
                 }
                 catch(e) {
-                    console.log(e);
+                    request.log.error(e);
                     response.send(500, { "code" : "InternalServerError" });
                 }
                 return next();
@@ -55,23 +56,46 @@ function startServer(configuration, database) {
             })
             .forEach(function (x) {
                 console.log("Register " + x + " to path " + path);
-                server[x](path, createControllerRequestHandler(controller[x]))
+
+                var controllerHandler = function (request, callback) {
+                    controller[x](request, callback);
+                };
+                server[x](path, createControllerRequestHandler(controllerHandler))
             });
     }
 
-    var controllers = { };
-    controllers["verify"] = new controller.VerifyController();
+    var datas = {
+        "user" : {
+            "authenticate" : new data.AuthenticateUser(configuration, database),
+            "create": new data.user.CreateUserInDatabase(configuration.hashAlgorithm, database),
+            "get": new data.user.GetUserFromDatabase(database),
+            "delete" : new data.user.DeleteUserFromDatabase(database),
+            "update" : new data.user.UpdateUserInDatabase(configuration.hashAlgorithm, database)
+        }
+    };
 
-    var authenticateUser = new data.AuthenticateUser(configuration, database);
-    var authenticateUserAsTarget = new service.AuthenticateUserAsTarget(authenticateUser);
-    controllers["user"] = new controller.UserController(authenticateUserAsTarget);
+    var services = {
+        "authenticate" : {
+            "user" : new service.AuthenticateUserAsTarget(datas.user.authenticate)
+        }
+    };
 
-    addController("/verify", controllers["verify"]);
-    addController("/user", controllers["user"]);
-    addController("/user/:target", controllers["user"]);
+    var controllers = {
+        "verify" : new controller.VerifyController(),
+        "user" : new controller.UserController(configuration,
+            services.authenticate.user,
+            datas.user.create,
+            datas.user.get,
+            datas.user.delete,
+            datas.user.update)
 
-    server.listen(configuration.port, configuration.host);
-    return controllers;
+    };
+
+    addController("/verify", controllers.verify);
+    addController("/user", controllers.user);
+    addController("/user/:target", controllers.user);
+
+    server.listen(configuration.port);
 }
 
 module.exports.startServer = startServer;
