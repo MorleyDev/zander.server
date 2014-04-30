@@ -1,8 +1,9 @@
 enum DatabaseType {
-    SqlLite
+    SqlLite,
+    MySQL
 }
 
-function bootstrap_database(type : DatabaseType, finalCallback) {
+function bootstrap_database(type : DatabaseType, config, finalCallback) {
 
     var tableName_zanderDetails = "ZanderDetails";
     var tableName_users = "Users";
@@ -71,11 +72,18 @@ function bootstrap_database(type : DatabaseType, finalCallback) {
     switch(type) {
         case DatabaseType.SqlLite:
             var sqlite3 = require('sqlite3').verbose();
-            var connection = new sqlite3.Database(':memory:',
+            var connection = new sqlite3.Database(config.sqlite || ':memory:',
                 function() {
                     var db = nodeSql.createSqliteStrategy(connection);
                     bootstrap_with_connection(db, function(err) { finalCallback(err, db); });
                 });
+            break;
+
+        case DatabaseType.MySQL:
+            var mysql = require('mysql');
+            var connection = mysql.createConnection(config.mysql);
+            var db = nodeSql.createMySqlStrategy(connection);
+            bootstrap_with_connection(db, function(err) { finalCallback(err, db); });
             break;
 
         default:
@@ -84,7 +92,11 @@ function bootstrap_database(type : DatabaseType, finalCallback) {
 }
 
 function bootstrap_with_config(config, callback) {
-    bootstrap_database(DatabaseType.SqlLite, callback);
+    if (config.mysql)
+        bootstrap_database(DatabaseType.MySQL, config, callback);
+    else {
+        bootstrap_database(DatabaseType.SqlLite, config, callback);
+    }
 }
 
 module.exports.bootstrapDatabase = bootstrap_with_config;
