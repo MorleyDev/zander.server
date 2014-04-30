@@ -7,8 +7,11 @@ function parseConfig(config) {
 
     config.goduser.name = process.env.zander_god_username || config.goduser.name;
     config.goduser.password = process.env.zander_god_password || config.goduser.password;
+    if (config.goduser.name && config.goduser.name.length <= 20)
+        console.log("[WARNING] Super user with name of 20 characters or less");
+
     config.hashAlgorithm = config.hashAlgorithm || "sha256";
-    config.throttle = config.throttle || { "burst" : 100, "rate" : 50, "ip" : true }
+    config.throttle = config.throttle || { "burst" : 100, "rate" : 50, "ip" : true };
 
     return config;
 }

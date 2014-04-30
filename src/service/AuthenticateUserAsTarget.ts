@@ -15,7 +15,7 @@ module service
 
             var authenticateUser = this.authenticateUser;
             authenticateUser.authenticateGodUser(authorization, function (username) {
-                success(new model.LoggedInUserDetails(username, true, null));
+                success(new model.LoggedInUserDetails(username, true, "00000000-0000-0000-0000-000000000000"));
             }, function (error) {
                 authenticateUser.authenticateStandardUser(authorization, function (username, userid) {
                     if ( requireSuper )

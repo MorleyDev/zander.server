@@ -92,7 +92,7 @@ module controller
                                 request.log.error(err);
                                 callback(new model.HttpResponse(500, { "code": "InternalServerError" }))
                             } else if (project) {
-                                if (project.userId == user.userId) {
+                                if (user.isSuper || project.userId == user.userId) {
                                     updateProject.execute(project.name, updateRequestDto.git, function (err) {
                                         if (err) {
                                             request.log.error(err);
@@ -135,7 +135,7 @@ module controller
                                 request.log.error(err);
                                 callback(new model.HttpResponse(500, { "code" : "InternalServerError" }))
                             } else if (project) {
-                                if (project.userId == user.userId) {
+                                if (user.isSuper || project.userId == user.userId) {
                                     deleteProject.execute(project.name, function (err) {
                                         if (err) {
                                             request.log.error(err);
