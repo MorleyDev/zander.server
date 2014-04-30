@@ -1,12 +1,14 @@
 /// <reference path="../typings/node/node.d.ts" />
 /// <reference path="controller/VerifyController.ts" />
 /// <reference path="controller/UserController.ts" />
+/// <reference path="controller/ProjectController.ts" />
 /// <reference path="model/HttpResponse.ts" />
 /// <reference path="model/HttpRequest.ts" />
 /// <reference path="service/AuthenticateUserAsTarget.ts" />
 /// <reference path="data/bootstrap_database.ts" />
 /// <reference path="data/AuthenticateUser.ts" />
 /// <reference path="data/user/CRUD.ts" />
+/// <reference path="data/project/CRUD.ts" />
 
 function startServer(configuration, database) {
 
@@ -71,6 +73,12 @@ function startServer(configuration, database) {
             "get": new data.user.GetUserFromDatabase(database),
             "delete" : new data.user.DeleteUserFromDatabase(database),
             "update" : new data.user.UpdateUserInDatabase(configuration.hashAlgorithm, database)
+        },
+        "project" : {
+            "create" : new data.project.CreateProjectInDatabase(database),
+            "get" : new data.project.GetProjectFromDatabase(database),
+            "delete" : new data.project.DeleteProjectFromDatabase(database),
+            "update" : new data.project.UpdateProjectInDatabase(database)
         }
     };
 
@@ -87,13 +95,21 @@ function startServer(configuration, database) {
             datas.user.create,
             datas.user.get,
             datas.user.delete,
-            datas.user.update)
+            datas.user.update),
+        "project" : new controller.ProjectController(configuration,
+            services.authenticate.user,
+            datas.project.create,
+            datas.project.get,
+            datas.project.delete,
+            datas.project.update)
 
     };
 
     addController("/verify", controllers.verify);
     addController("/user", controllers.user);
     addController("/user/:target", controllers.user);
+    addController("/project", controllers.project);
+    addController("/project/:target", controllers.project);
 
     server.listen(configuration.port);
 }

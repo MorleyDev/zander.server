@@ -7,6 +7,7 @@ function bootstrap_database(type : DatabaseType, config, finalCallback) {
 
     var tableName_zanderDetails = "ZanderDetails";
     var tableName_users = "Users";
+    var tableName_projects = "Projects";
 
     var nodeSql = require('nodesql');
 
@@ -33,13 +34,12 @@ function bootstrap_database(type : DatabaseType, config, finalCallback) {
         })
     };
     builderStack[2] = function(db, callback) {
-        db.query("CREATE TABLE " + tableName_users + " (id VARCHAR(36) NOT NULL, " +
-            "id VARCHAR(36) NOT NULL, " +
-            "userid VARCHAR(36) NOT NULL, " +
+        db.query("CREATE TABLE " + tableName_projects + " (id VARCHAR(36) NOT NULL, " +
+            "userId VARCHAR(36) NOT NULL, " +
             "name VARCHAR(20) NOT NULL, " +
             "git VARCHAR(50) NOT NULL, " +
             "timestamp INTEGER NOT NULL)", function(err) {
-            console.log("Created user table");
+            console.log("Created project table");
             callback(err);
         })
     };

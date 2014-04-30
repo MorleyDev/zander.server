@@ -57,7 +57,7 @@ module data
                     } else {
                         var hashedPassword = HashPassword(hashType, user[0].id, password);
                         if (user[0].password == hashedPassword)
-                            success(username);
+                            success(username, user[0].id);
                         else
                             failure("No or Incorrect Authentication details provided");
                     }

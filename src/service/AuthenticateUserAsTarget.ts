@@ -15,13 +15,13 @@ module service
 
             var authenticateUser = this.authenticateUser;
             authenticateUser.authenticateGodUser(authorization, function (username) {
-                success(new model.LoggedInUserDetails(username, true));
+                success(new model.LoggedInUserDetails(username, true, null));
             }, function (error) {
-                authenticateUser.authenticateStandardUser(authorization, function (username) {
+                authenticateUser.authenticateStandardUser(authorization, function (username, userid) {
                     if ( requireSuper )
                         reject("Do not possess required permission level");
-                    else if (target == username)
-                        success(new model.LoggedInUserDetails(username, false));
+                    else if (!target || target == username)
+                        success(new model.LoggedInUserDetails(username, false, userid));
                     else
                         reject("Resource Not Found");
                 }, function (error) {

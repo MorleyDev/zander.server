@@ -1,26 +1,31 @@
-function ProjectCreatePostDto(_name, _git) {
-    this["git"]= _git;
-    this["name"] = _name;
-    return this;
-}
+module.exports.ProjectCreatePostDto = function(_name, _git) {
+    return {
+        "git" : _git,
+        "name" : _name
+    };
+};
 
-function ProjectCreateResponseDto(_name, _git) {
-    this["name"] = _name;
-    this["git"] = _git;
-    return this;
-}
+module.exports.ProjectCreateResponseDto = function(_href, _git) {
+    return {
+        "_href": _href,
+        "git": _git
+    };
+};
 
-function ProjectGetResponseDto(_git) {
-    this["git"] = _git;
-    return this;
-}
+module.exports.ProjectGetResponseDto = function(_git) {
+    return {
+        "git" : _git
+    };
+};
 
-function ProjectUpdatePutDto(_git) {
-    this["git"] = _git;
-    return this;
-}
+module.exports.ProjectUpdatePutDto = function(_git) {
+    return {
+        "git" : _git
+    };
+};
 
-function ProjectUpdatePutResponseDto(_git) {
-    this["git"] = _git;
-    return this;
-}
+module.exports.ProjectUpdatePutResponseDto = function(_git) {
+    return {
+    "git" : _git
+    };
+};
