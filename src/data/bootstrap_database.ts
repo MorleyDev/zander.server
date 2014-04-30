@@ -32,6 +32,17 @@ function bootstrap_database(type : DatabaseType, config, finalCallback) {
             callback(err);
         })
     };
+    builderStack[2] = function(db, callback) {
+        db.query("CREATE TABLE " + tableName_users + " (id VARCHAR(36) NOT NULL, " +
+            "id VARCHAR(36) NOT NULL, " +
+            "userid VARCHAR(36) NOT NULL, " +
+            "name VARCHAR(20) NOT NULL, " +
+            "git VARCHAR(50) NOT NULL, " +
+            "timestamp INTEGER NOT NULL)", function(err) {
+            console.log("Created user table");
+            callback(err);
+        })
+    };
 
     function bootstrap(currentVersion, db, callback) {
         var upperVersion = builderStack.length - 1;
