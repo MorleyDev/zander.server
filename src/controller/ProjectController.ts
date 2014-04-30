@@ -3,6 +3,7 @@
 /// <reference path="../model/LoggedInUser.ts" />
 /// <reference path="../service/AuthenticateUserAsTarget.ts" />
 /// <reference path="../data/project/CRUD.ts" />
+/// <reference path="../validate/ValidateProjectDto.ts" />
 
 module controller
 {
@@ -43,30 +44,35 @@ module controller
                 }));
             } else {
                 this.authenticateUser.authenticate(false, request.authorization, null, function(user : model.LoggedInUserDetails) {
-                    getProject.execute(projectCreateDto.name, function(project, err) {
-                        if (err) {
-                            request.log.error(err);
-                            callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
-                        } else if (project) {
-                            callback(new model.HttpResponse(409, {
-                                "code" : "Conflict",
-                                "message" : "Project already exists"
-                            }));
-                        } else {
-                            createProject.execute(user.userId, projectCreateDto.name, projectCreateDto.git, function(err) {
+                    validate.ValidateCreateProjectDto(projectCreateDto,
+                        function(projectCreateDto) {
+                            getProject.execute(projectCreateDto.name, function(project, err) {
                                 if (err) {
                                     request.log.error(err);
                                     callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
-                                } else {
-                                    callback(new model.HttpResponse(201, {
-                                        _href: configuration.host + "/project/" + projectCreateDto.name,
-                                        git: projectCreateDto.git
+                                } else if (project) {
+                                    callback(new model.HttpResponse(409, {
+                                        "code" : "Conflict",
+                                        "message" : "Project already exists"
                                     }));
+                                } else {
+                                    createProject.execute(user.userId, projectCreateDto.name, projectCreateDto.git, function(err) {
+                                        if (err) {
+                                            request.log.error(err);
+                                            callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
+                                        } else {
+                                            callback(new model.HttpResponse(201, {
+                                                _href: configuration.host + "/project/" + projectCreateDto.name,
+                                                git: projectCreateDto.git
+                                            }));
+                                        }
+                                    });
                                 }
                             });
-                        }
-
-                    })
+                        },
+                        function(failure) {
+                            callback(new model.HttpResponse(400, { "code" : "BadRequest", "message" : failure }));
+                    });
                 }, function(error) {
                     callback(new model.HttpResponse(401, { "code" : "Unauthorized", "message" : error }));
                 }, function (reject) {
@@ -79,36 +85,45 @@ module controller
 
             var getProject = this.getProject;
             var updateProject = this.updateProject;
+            var authenticateUser = this.authenticateUser;
 
             if (request.parameters.target) {
                 var targetProject = request.parameters.target;
-                this.authenticateUser.authenticate(false,
+
+                authenticateUser.authenticate(false,
                     request.authorization,
                     null,
                     function (user) {
-                        var updateRequestDto = request.body;
-                        getProject.execute(targetProject, function(project, err) {
-                            if (err) {
-                                request.log.error(err);
-                                callback(new model.HttpResponse(500, { "code": "InternalServerError" }))
-                            } else if (project) {
-                                if (user.isSuper || project.userId == user.userId) {
-                                    updateProject.execute(project.name, updateRequestDto.git, function (err) {
-                                        if (err) {
-                                            request.log.error(err);
-                                            callback(new model.HttpResponse(500, { "code": "InternalServerError" }))
-                                        } else {
-                                            callback(new model.HttpResponse(200, {
-                                                "git" : updateRequestDto.git
-                                            }));
-                                        }
-                                    });
+                        validate.ValidateUpdateProjectDto(request.body, function (updateRequestDto) {
+                            getProject.execute(targetProject, function (project, err) {
+                                if (err) {
+                                    request.log.error(err);
+                                    callback(new model.HttpResponse(500, { "code": "InternalServerError" }))
+                                } else if (project) {
+                                    if (user.isSuper || project.userId == user.userId) {
+                                        updateProject.execute(project.name, updateRequestDto.git, function (err) {
+                                            if (err) {
+                                                request.log.error(err);
+                                                callback(new model.HttpResponse(500, { "code": "InternalServerError" }))
+                                            } else {
+                                                callback(new model.HttpResponse(200, {
+                                                    "git": updateRequestDto.git
+                                                }));
+                                            }
+                                        });
+                                    } else {
+                                        callback(new model.HttpResponse(403, { "code": "Forbidden" }));
+                                    }
                                 } else {
-                                    callback(new model.HttpResponse(403, { "code": "Forbidden" }));
+                                    callback(new model.HttpResponse(404, {
+                                        "code": "ResourceNotFound",
+                                        "message": "Project not found"
+                                    }));
                                 }
-                            } else {
-                                callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Project not found" }));
-                            }
+                            });
+
+                        }, function (failure) {
+                            callback(new model.HttpResponse(400, { "code": "BadRequest", "message": failure }));
                         });
                     }, function (error) {
                         callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": error }));

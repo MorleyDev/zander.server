@@ -1,5 +1,6 @@
 var assert = require("chai").assert;
 var restify = require("restify");
+var models = require("../models/ProjectDtos.js");
 
 describe("Given a Rest Client and no credentials", function () {
     "use strict";
@@ -36,6 +37,50 @@ describe("Given a Rest Client and no credentials", function () {
         });
         it("Then a 401 Not Authenticated response is returned", function () {
             assert.equal(response.statusCode, 401);
+        });
+    });
+});
+
+describe("Given a Rest Client and credentials", function () {
+    "use strict";
+
+    var configuration = require(__dirname + "/../config.json");
+
+    var project = "some-project";
+
+    var client;
+    before(function (done) {
+        client = restify.createJsonClient({  url: "http://localhost:" + configuration.port });
+        client.basicAuth(configuration.goduser.name, configuration.goduser.password);
+
+        client.post("/project", models.ProjectCreatePostDto(project, "http://some.git/url"), function (err, req, res, obj) {
+            done();
+        });
+    });
+    describe("When PUT the project endpoint without a git url", function () {
+        var response;
+
+        before(function (done) {
+            client.put("/project/" + project, { }, function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
+    describe("When PUT the project endpoint without an empty git url", function () {
+        var response;
+
+        before(function (done) {
+            client.put("/project/" + project, models.ProjectUpdatePutDto(""), function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
         });
     });
 });
