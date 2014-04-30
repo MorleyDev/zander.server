@@ -41,11 +41,14 @@ module data.user {
         }
 
         execute(username, callback) {
-            this._database.selectOne("Users", { username: username }, function (err, row) {
+            this._database.select("Users", { username: username }, function (err, row) {
                 if (err) {
                     callback(null, err);
                 } else {
-                    callback(row, null);
+                    if (row && row.length > 0)
+                        callback(row[0], null);
+                    else
+                        callback(null, null);
                 }
             });
         }

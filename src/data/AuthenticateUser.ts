@@ -49,14 +49,14 @@ module data
             else {
                 var username = authorization.basic.username;
                 var password = authorization.basic.password;
-                this._database.selectOne("Users", { username: username }, function(err, user) {
+                this._database.select("Users", { username: username }, function(err, user) {
                     if (err)
                         throw err;
-                    else if (!user) {
+                    else if (!user || user.length < 1) {
                         failure("No or Incorrect Authentication details provided");
                     } else {
-                        var hashedPassword = HashPassword(hashType, user.id, password);
-                        if (user.password == hashedPassword)
+                        var hashedPassword = HashPassword(hashType, user[0].id, password);
+                        if (user[0].password == hashedPassword)
                             success(username);
                         else
                             failure("No or Incorrect Authentication details provided");

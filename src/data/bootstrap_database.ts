@@ -61,18 +61,22 @@ function bootstrap_database(type : DatabaseType, config, finalCallback) {
     }
 
     function bootstrap_with_connection(db, callback) {
-        db.selectOne(tableName_zanderDetails, function(err, value) {
-            if (err)
+        db.select(tableName_zanderDetails, function(err, value) {
+            if (err || !value || value.length < 1) {
                 bootstrap(-1, db, callback);
+            }
             else
-                bootstrap(value.version, db, callback);
+                bootstrap(value[0].version, db, callback);
         })
     }
 
     switch(type) {
         case DatabaseType.SqlLite:
             var sqlite3 = require('sqlite3').verbose();
-            var connection = new sqlite3.Database(config.sqlite || ':memory:',
+            var databaseString = config.sqlite || ':memory:';
+            console.log("Sqlite connection: " + databaseString);
+
+            var connection = new sqlite3.Database(databaseString,
                 function() {
                     var db = nodeSql.createSqliteStrategy(connection);
                     bootstrap_with_connection(db, function(err) { finalCallback(err, db); });
