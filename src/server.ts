@@ -78,7 +78,8 @@ function startServer(configuration, database) {
             "create" : new data.project.CreateProjectInDatabase(database),
             "get" : new data.project.GetProjectFromDatabase(database),
             "delete" : new data.project.DeleteProjectFromDatabase(database),
-            "update" : new data.project.UpdateProjectInDatabase(database)
+            "update" : new data.project.UpdateProjectInDatabase(database),
+            "deleteForUser" : new data.project.DeleteUsersProjectsFromDatabase(database)
         }
     };
 
@@ -95,7 +96,8 @@ function startServer(configuration, database) {
             datas.user.create,
             datas.user.get,
             datas.user.delete,
-            datas.user.update),
+            datas.user.update,
+            datas.project.deleteForUser),
         "project" : new controller.ProjectController(configuration,
             services.authenticate.user,
             datas.project.create,

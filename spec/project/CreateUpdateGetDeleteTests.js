@@ -11,14 +11,15 @@ describe("Given a rest client and user", function () {
     var client;
     var noCredentialClient;
     var otherUserClient;
+    var godClient;
+    var username = "asdfasfusername";
     before(function(done) {
         noCredentialClient = restify.createJSONClient({ url: "http://localhost:" + configuration.port });
-        var godClient = restify.createJSONClient({ url: "http://localhost:" + configuration.port });
+        godClient = restify.createJSONClient({ url: "http://localhost:" + configuration.port });
         godClient.basicAuth(configuration.goduser.name, configuration.goduser.password);
 
         var otherUsername = "adksjlkauser";
 
-        var username = "asdfasfusername";
         var password = "awsdpassword";
         godClient.post("/user", userModels.CreateUserPostDto(username, "mail@email.com", password), function(err, req, res, obj) {
             client = restify.createJsonClient({ url: "http://localhost:" + configuration.port });
@@ -200,4 +201,20 @@ describe("Given a rest client and user", function () {
         });
     });
 
+    describe("When the user who created a project is deleted and then the project is retrieved", function () {
+        var response;
+        before(function (done) {
+            client.post("/project", models.ProjectCreatePostDto(projectName, projectGit), function (err, req, res, obj) {
+                client.del("/user/" + username, function (err, req, res) {
+                    noCredentialClient.get("/project/" + projectName, function (err, req, res, obj) {
+                        response = res;
+                        done();
+                    });
+                })
+            });
+        })
+        it("Then the expected response of 404 Not Found is returned", function () {
+            assert.equal(response.statusCode, 404)
+        })
+    })
 });

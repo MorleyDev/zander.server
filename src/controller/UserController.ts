@@ -4,6 +4,7 @@
 /// <reference path="../validate/ValidateUserDto.ts" />
 /// <reference path="../service/AuthenticateUserAsTarget.ts" />
 /// <reference path="../data/user/CRUD.ts" />
+/// <reference path="../data/project/CRUD.ts" />
 
 module controller {
 
@@ -15,19 +16,22 @@ module controller {
         private getUser : data.user.GetUserFromDatabase;
         private deleteUser : data.user.DeleteUserFromDatabase;
         private updateUser : data.user.UpdateUserInDatabase;
+        private deleteProjects : data.project.DeleteUsersProjectsFromDatabase
 
         constructor(configuration,
                     authenticateUser : service.AuthenticateUserAsTarget,
                     createUser : data.user.CreateUserInDatabase,
                     getUser : data.user.GetUserFromDatabase,
                     deleteUser : data.user.DeleteUserFromDatabase,
-                    updateUser : data.user.UpdateUserInDatabase) {
+                    updateUser : data.user.UpdateUserInDatabase,
+                    deleteProjects : data.project.DeleteUsersProjectsFromDatabase) {
             this.configuration = configuration;
             this.authenticateUser = authenticateUser;
             this.createUser = createUser;
             this.getUser = getUser;
             this.deleteUser = deleteUser;
             this.updateUser = updateUser;
+            this.deleteProjects = deleteProjects
         }
 
         public post(request : model.HttpRequest, callback : (m : model.HttpResponse) => void) {
@@ -130,21 +134,29 @@ module controller {
         public del(request : model.HttpRequest, callback : (m : model.HttpResponse) => void) {
             var getUser = this.getUser;
             var deleteUser = this.deleteUser;
+            var deleteProjects = this.deleteProjects;
+
             if (request.parameters.target) {
                 this.authenticateUser.authenticate(false, request.authorization, request.parameters.target,
                     function(user) {
                         validate.ValidateUsername(request.parameters.target, function (target) {
                             getUser.execute(target, function (user, err) {
                                 if (user)
-                                    deleteUser.execute(user.username, function(err) {
-                                      if (err) {
-                                          request.log.error(err);
-                                          callback(new model.HttpResponse(500, {"code": "InternalServerError"}));
-                                      }
-                                      else
-                                        callback(new model.HttpResponse(204, { }));
+                                    deleteProjects.execute(user.id, function(err) {
+                                        if (err) {
+                                            request.log.error(err);
+                                            callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
+                                        } else {
+                                            deleteUser.execute(user.username, function (err) {
+                                                if (err) {
+                                                    request.log.error(err);
+                                                    callback(new model.HttpResponse(500, {"code": "InternalServerError"}));
+                                                }
+                                                else
+                                                    callback(new model.HttpResponse(204, { }));
+                                            });
+                                        }
                                     });
-
                                 else
                                     callback(new model.HttpResponse(404, { }));
                             });

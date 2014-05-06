@@ -59,6 +59,18 @@ module data.project {
         }
     }
 
+    export class DeleteUsersProjectsFromDatabase {
+        private _database;
+
+        constructor(database) {
+            this._database = database;
+        }
+
+        execute(userid, callback) {
+            this._database.delete("Projects", { userid: userid }, callback);
+        }
+    }
+
     export class UpdateProjectInDatabase {
         private _database;
 
