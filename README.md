@@ -8,8 +8,9 @@ After downloading the server, the dependencies must be installed via the Node Pa
 ## Configuration
 Configuration file, config.json, is loaded from the server installed directory. This file is in JSON format, and is used to specify several aspects of the server’s behaviour.
 
+
 | JSON Value Name | Description  | Default |
-|-|-|-|
+|------|-----|------|
 | port | The port for the rest server to listen. | 1337 |
 | host | The host to use for the base of the links returned by the API. | "127.0.0.1" |
 | goduser | If specified, enable superusers. A superuser is required to create regular users. | null |
@@ -29,11 +30,11 @@ If you wish to use a tool like forever to run the server, then server.js in the 
 
 ### User Endpoint
 #### Create User
-Url: /user
-Expected Headers: 
-Authorization: [Base64 Username:Password]
-Content-Type: application/json
-Http Method: POST
+* Url: /user
+* Expected Headers:
+ * Authorization: [Base64 Username:Password]
+ * Content-Type: application/json
+* Http Method: POST
 
 Expected Request Body: 
 
@@ -52,18 +53,20 @@ Success Response Body:
     }
 
 Possible Status Codes 
+
+
 |Code | Description |
-|-|-|
+|------|-----|------|
 | 201 CREATED | Successfully retrieved the user |
 | 400 BAD REQUEST | Failed to specify username, password and/or email address, or the username or password were invalid. Username must be between 3 and 20 characters. Username must only contain alphanumeric characters, - and  _. Password must be 3 or more characters long. |
 | 401 UNAUTHORIZED | Failed to specify the authorization header |
 | 403 FORBIDDEN |Authenticated user does do not have permission to create a user Notes: Only god user can create users.
 
 #### Get User
-Url: /user/[name]
-Expected Headers: 
-Authorization: [Base64 Username:Password]
-Http Method: GET
+* Url: /user/[name] 
+* Expected Headers:
+ * Authorization: [Base64 Username:Password]
+* Http Method: GET
 
 Success Response Body: 
 
@@ -72,18 +75,20 @@ Success Response Body:
     }
 
 Possible Status Codes
+
+
 | Code | Description |
-|-|-|
+|------|-----|------|
 | 200 OK | Successfully retrieved the user |
 | 401 UNAUTHORIZED | Failed to specify the authorization header |
 | 404 NOT FOUND | User did not exist, or the authenticated user does not have write access to that user. Notes: Only god users can access any user, others can only access themselves. |
 
 #### Update User
-Url: /user/[name]
-Expected Headers: 
-Authorization: [Base64 Username:Password]
-Content-Type: application/json
-Http Method: PUT
+* Url: /user/[name]
+* Expected Headers:
+ * Authorization: [Base64 Username:Password]
+ * Content-Type: application/json
+* Http Method: PUT
 
 Expected Request Body: 
 
@@ -99,35 +104,39 @@ Success Response Body:
     }
 
 Possible Status Codes
+
+
 | Code | Description |
-|-|-|
+|------|-----|------|
 | 200 OK | Successfully updated the user |
 | 400 BAD REQUEST | Failed to specify the email and/or password in the request body |
 | 401 UNAUTHORIZED | Failed to specify the authorization header |
 | 404 NOT FOUND | User did not exist, or the authenticated user does not have write access to that user. Notes: Only god users can update any user, others can only update themselves. |
 
 #### Delete User
-Url: /user/[name]
-Expected Headers: 
-Authorization: [Base64 Username:Password]
-Http Method: DELETE
+* Url: /user/[name]
+* Expected Headers:
+ * Authorization: [Base64 Username:Password]
+* Http Method: DELETE
 
 Possible Status Codes
+
+
 | Code | Description |
-|-|-|
+|------|-----|------|
 | 204 NO CONTENT | Successfully deleted the user |
 | 401 UNAUTHORIZED | Failed to specify the authorization header |
 | 404 NOT FOUND | User did not exist, or the authenticated user does not have write access to that user. |
 
 Notes: Deleting a user also deletes all projects created by that user. Only god users can delete any user, others can only update themselves.
 
-#### Project Endpoint
-Create Project
-Url: /project
-Expected Headers: 
-Authorization: [Base64 Username:Password]
-Content-Type: application/json
-Http Method: POST
+### Project Endpoint
+####Create Project
+* Url: /project
+* Expected Headers:
+ * Authorization: [Base64 Username:Password]
+ * Content-Type: application/json
+* Http Method: POST
 
 Expected Request Body: 
 
@@ -145,16 +154,18 @@ Success Response Body:
     }
 
 Possible Status Codes
+
+
 | Code | Description |
-|-|-|
+|------|-----|------|
 | 201 CREATED | Successfully created the project |
 | 400 BAD REQUEST | Failed to specify the name or git url, or project name was invalid. Project name must be between 3 and 20 characters long, and only contain alphanumeric characters, - and _ |
 | 401 UNAUTHORIZED | Failed to specify the authorization header |
 Notes: Any user can create a project.
 
 #### Get Project
-Url: /project/[name]
-Http Method: GET
+* Url: /project/[name]
+* Http Method: GET
 
 Success Response Body: 
 
@@ -163,35 +174,38 @@ Success Response Body:
     }
 
 Possible Status Codes
+
+
 | Code | Description |
-|-|-|
+|------|-----|------|
 | 200 CREATED | Successfully retrieved the project |
 | 404 NOT FOUND | The specified project does not exist |
 
 Notes: Authentication is not needed to read project details.
 
 #### Update Project
-Url: /project/[name]
-Expected Headers: 
-Authorization: [Base64 Username:Password]
-Content-Type: application/json
-Http Method: PUT
+* Url: /project/[name]
+* Expected Headers:
+ * Authorization: [Base64 Username:Password]
+ * Content-Type: application/json
+* Http Method: PUT
 
 Expected Request Body: 
 
     {
         "git" : "[git url]"
     }
-
+    
 Success Response Body: 
 
     {
         "git" : "[git url]"
     }
-
+    
 Possible Status Codes
+
 | Code | Description |
-|-|-|
+|------|-----|------|
 | 200 OK | Successfully updated the project |
 | 400 BAD REQUEST | Did not specify the git url in the request body |
 | 401 UNAUTHORIZED | Failure to specify the Authorization header |
@@ -201,15 +215,16 @@ Possible Status Codes
 Notes: Only super users can update any project, other users can only update projects they created.
 
 #### Delete Project
-Url: /project/[name]
-Expected Headers: 
-Authentication: [Base64 Username:Password]
-Http Method: DELETE
+* Url: /project/[name]
+* Expected Headers:
+ * Authentication: [Base64 Username:Password]
+* Http Method: DELETE
 
 Possible Status Codes
 
+
 | Code | Description |
-|-|-|
+|------|-----|------|
 | 204 NO CONTENT | Successfully deleted the project |
 | 401 UNAUTHORIZED | Failure to specify the Authorization header |
 | 403 FORBIDDEN | The authenticated user does not have permission to write to this project |
