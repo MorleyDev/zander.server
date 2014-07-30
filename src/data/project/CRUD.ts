@@ -1,3 +1,5 @@
+/// <reference path="../../../typings/uuid/UUID.d.ts" />
+
 var uuid = require("uuid");
 
 module data.project {
@@ -8,21 +10,24 @@ module data.project {
             this._database = database;
         }
 
-        execute(userId:string, project:string, git:string, callback) {
-            try {
-                var projectDto = {
-                    id: uuid.v1(),
-                    userId: userId,
-                    name: project,
-                    git: git,
-                    timestamp: Date.now()
-                };
-                this._database.insert("Projects", projectDto, function (err, insertId) {
+        public run(userId:string, project:string, git:string) : any {
+            var projectDto = {
+                id: uuid.v1(),
+                userId: userId,
+                name: project,
+                git: git,
+                timestamp: Date.now()
+            };
+            return this._database.insert("Projects", projectDto);
+        }
+
+        public execute(userId:string, project:string, git:string, callback) {
+            this.run(userId, project, git)
+                .then(function (id) {
+                    callback(undefined);
+                }, function(err) {
                     callback(err);
                 });
-            } catch (e) {
-                callback(e);
-            }
         }
     }
 
@@ -33,16 +38,17 @@ module data.project {
             this._database = database;
         }
 
-        execute(name, callback) {
-            this._database.select("Projects", { name: name }, function (err, row) {
-                if (err) {
-                    callback(null, err);
-                } else {
-                    if (row && row.length > 0)
-                        callback(row[0], null);
-                    else
-                        callback(null, null);
-                }
+        public run(name) : any {
+            return this._database.selectOne("Projects", { name: name });
+        }
+
+        public execute(name, callback) {
+            this.run(name)
+                .then((row) => {
+                callback(null, row);
+            },
+            (err) => {
+                callback(err, null);
             });
         }
     }
@@ -54,8 +60,17 @@ module data.project {
             this._database = database;
         }
 
-        execute(name, callback) {
-            this._database.delete("Projects", { name: name }, callback);
+        public execute(name, callback) {
+            this.run(name)
+                .then(function () {
+                    callback(undefined);
+                }, function(err) {
+                    callback(err);
+                });
+        }
+
+        public run(name) : any {
+            return this._database.delete("Projects", { name: name });
         }
     }
 
@@ -66,8 +81,17 @@ module data.project {
             this._database = database;
         }
 
-        execute(userid, callback) {
-            this._database.delete("Projects", { userid: userid }, callback);
+        public execute(userid, callback) {
+            this.run(userid)
+                .then(() => {
+                callback(undefined);
+            }, (err) => {
+                callback(err);
+            });
+        }
+
+        public run(userid) : any {
+            return this._database.delete("Projects", { userid: userid });
         }
     }
 
@@ -78,8 +102,17 @@ module data.project {
             this._database = database;
         }
 
-        execute(name, git, callback) {
-            this._database.update("Projects", { git: git }, { name: name }, callback);
+        public execute(name, git, callback) {
+            this.run(name,git)
+                .then(function() {
+                    callback(undefined);
+                }, function(err) {
+                    callback(err);
+                });
+        }
+
+        public run(name, git) {
+            return this._database.update("Projects", { git: git }, { name: name });
         }
     }
 }

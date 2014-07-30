@@ -1,34 +1,51 @@
+
+function _ValidateProjectName(name : string) : any {
+    if (!name)
+        return {
+            reason: "Project Name Not Provided",
+            success: false
+        };
+    else if (name.length < 3 || name.length > 20)
+        return {
+            reason: "Project Name Not Between 3-20 Characters",
+            success: false
+        };
+    else if (!name.match("^[a-zA-Z0-9_\\-]*$"))
+        return {
+            reason: "Project Name Must Only Contain Alphanumeric Characters or Underscore",
+            success: false
+        };
+    else
+        return {
+            reason: undefined,
+            success: true
+        };
+}
+
+function _ValidateProjectGit(git : string) : any {
+    if (!git) {
+        return {
+            reason: "Password Not Provided",
+            success: undefined
+        };
+    }
+    return {
+        reason: undefined,
+        success: true
+    };
+}
+
 module validate {
 
-    export function ValidateProjectName(name : string, success, failure) {
-        if (!name)
-            failure("Project Name Not Provided");
-        else if (name.length < 3 || name.length > 20)
-            failure("Project Name Not Between 3-20 Characters");
-        else if (!name.match("^[a-zA-Z0-9_\\-]*$"))
-            failure("Project Name Must Only Contain Alphanumeric Characters or Underscore");
-        else
-            success(name);
+    export function ValidateCreateProjectDto(dto) {
+        var result = _ValidateProjectName(dto.name);
+        if (result.success) {
+            return _ValidateProjectGit(dto.git);
+        }
+        return result;
     }
 
-    export function ValidateProjectGit(git : string, success, failure) {
-        if (!git)
-            failure("Password Not Provided");
-        else
-            success(git)
-    }
-
-    export function ValidateCreateProjectDto(dto, success, failure) {
-        ValidateProjectName(dto.name, function(name) {
-            ValidateProjectGit(dto.git, function(git) {
-                success(dto);
-            }, failure)
-        }, failure);
-    }
-
-    export function ValidateUpdateProjectDto(dto, success, failure) {
-        ValidateProjectGit(dto.git, function (git) {
-            success(dto);
-        }, failure)
+    export function ValidateUpdateProjectDto(dto) {
+        return _ValidateProjectGit(dto.git);
     }
 }

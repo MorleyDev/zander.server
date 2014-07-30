@@ -6,6 +6,8 @@
 /// <reference path="../data/user/CRUD.ts" />
 /// <reference path="../data/project/CRUD.ts" />
 
+var q = require('q');
+
 module controller {
 
     export class UserController {
@@ -46,12 +48,11 @@ module controller {
                     "message": "POST not supported on user"
                 }));
             } else {
-                this.authenticateUser.authenticate(true, request.authorization, null, function(user) {
+                this.authenticateUser.authenticate(true, request.authorization, null, (user) => {
 
                     var createUserDto:model.dto.CreateUserDto = request.body;
-                    validate.ValidateCreateUserDto(createUserDto, function (dto:model.dto.CreateUserDto) {
-
-                        getUser.execute(dto.username, function (user, err) {
+                    validate.ValidateCreateUserDto(createUserDto, (createUserDto:model.dto.CreateUserDto) => {
+                        getUser.execute(createUserDto.username, (err, user) => {
                             if (err) {
                                 request.log.error(err);
                                 callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
@@ -62,30 +63,31 @@ module controller {
                                         "message" : "User already exists"
                                     }));
                                 } else {
-                                    createUser.execute(dto.username, dto.email, dto.password, function (err) {
+
+                                    createUser.execute(createUserDto.username, createUserDto.email, createUserDto.password, (err) => {
                                         if (err) {
                                             request.log.error(err);
                                             callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
                                         } else {
                                             callback(new model.HttpResponse(201, {
-                                                "email": dto.email,
-                                                "username": dto.username,
-                                                "_href": configuration.host + "/user/" + dto.username
+                                                "email": createUserDto.email,
+                                                "username": createUserDto.username,
+                                                "_href": configuration.host + "/user/" + createUserDto.username
                                             }));
                                         }
                                     });
                                 }
                             }
                         });
-                    }, function (err) {
+                    }, (err) => {
                         callback(new model.HttpResponse(400, {
                             "code": "BadRequest",
                             "message": err
                         }));
                     });
-                }, function(error) {
+                }, (error) => {
                     callback(new model.HttpResponse(401, { "code" : "Unauthorized", "message" : error }));
-                }, function (reject) {
+                }, (reject) => {
                     callback(new model.HttpResponse(403, { "code" : "Forbidden", "message" : reject }));
                 });
             }
@@ -100,14 +102,14 @@ module controller {
                 this.authenticateUser.authenticate(false,
                     request.authorization,
                     request.parameters.target,
-                    function (user) {
-                        validate.ValidateUpdateUserDto(request.body, function(dto) {
-                            getUser.execute(request.parameters.target, function(user, err) {
+                    (user) => {
+                        validate.ValidateUpdateUserDto(request.body, (dto) => {
+                            getUser.execute(request.parameters.target, (err, user) => {
                                 if (err) {
                                     request.log.error(err);
                                     callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
                                 } else {
-                                    updateUser.execute(user.id, dto.email, dto.password, function(err) {
+                                    updateUser.execute(user.id, dto.email, dto.password, (err) => {
                                         if (err) {
                                             request.log.error(err);
                                             callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
@@ -117,12 +119,12 @@ module controller {
                                     });
                                 }
                             });
-                        }, function(error) {
+                        }, (error) => {
                             callback(new model.HttpResponse(400, { "code":"BadRequest", "message":error }));
                         });
-                    }, function (error) {
+                    }, (error) => {
                         callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": error }));
-                    }, function (reject) {
+                    }, (reject) => {
                         callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": reject }));
                     });
             } else
@@ -138,16 +140,16 @@ module controller {
 
             if (request.parameters.target) {
                 this.authenticateUser.authenticate(false, request.authorization, request.parameters.target,
-                    function(user) {
-                        validate.ValidateUsername(request.parameters.target, function (target) {
-                            getUser.execute(target, function (user, err) {
+                    (user) => {
+                        validate.ValidateUsername(request.parameters.target, (target) => {
+                            getUser.execute(target, (err, user) => {
                                 if (user)
-                                    deleteProjects.execute(user.id, function(err) {
+                                    deleteProjects.execute(user.id, (err) => {
                                         if (err) {
                                             request.log.error(err);
                                             callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
                                         } else {
-                                            deleteUser.execute(user.username, function (err) {
+                                            deleteUser.execute(user.username, (err) => {
                                                 if (err) {
                                                     request.log.error(err);
                                                     callback(new model.HttpResponse(500, {"code": "InternalServerError"}));
@@ -160,12 +162,12 @@ module controller {
                                 else
                                     callback(new model.HttpResponse(404, { }));
                             });
-                        }, function (err) {
+                        }, (err) => {
                             callback(new model.HttpResponse(400, { "code": "BadRequest", "message": err }));
                         });
-                    }, function(error) {
+                    }, (error) => {
                         callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": error }));
-                    }, function (reject) {
+                    }, (reject) => {
                         callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": reject }));
                     });
             } else
@@ -184,9 +186,9 @@ module controller {
                 this.authenticateUser.authenticate(false,
                     request.authorization,
                     request.parameters.target,
-                    function(user) {
-                        validate.ValidateUsername(request.parameters.target, function (target) {
-                            getUser.execute(target, function (user, err) {
+                    (user) => {
+                        validate.ValidateUsername(request.parameters.target, (target) => {
+                            getUser.execute(target, (err, user) => {
                                 if (err) {
                                     request.log.error(err);
                                     callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
@@ -198,12 +200,12 @@ module controller {
                                         "message" : "User not found"
                                     }));
                             });
-                        }, function (err) {
+                        }, (err) => {
                             callback(new model.HttpResponse(400, { "code": "BadRequest", "message": err }));
                         });
-                    }, function(error) {
+                    }, (error) => {
                         callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": error }));
-                    }, function (reject) {
+                    }, (reject) => {
                         callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": reject }));
                     });
             } else

@@ -10,6 +10,8 @@
 /// <reference path="data/user/CRUD.ts" />
 /// <reference path="data/project/CRUD.ts" />
 
+var q = require("q");
+
 function startServer(configuration, database) {
 
     var restify = require("restify");
@@ -28,24 +30,23 @@ function startServer(configuration, database) {
 
         function createControllerRequestHandler(method:(r:model.HttpRequest, c:(h:model.HttpResponse) => void) => void) {
             return function (request, response, next) {
-                try {
-                    var httpRequest:model.HttpRequest = new model.HttpRequest();
-                    httpRequest.authorization = request.authorization;
-                    httpRequest.headers = request.headers;
-                    httpRequest.parameters = request.params;
-                    httpRequest.body = request.body;
-                    httpRequest.log = request.log;
+                var httpRequest:model.HttpRequest = new model.HttpRequest();
+                httpRequest.authorization = request.authorization;
+                httpRequest.headers = request.headers;
+                httpRequest.parameters = request.params;
+                httpRequest.body = request.body;
+                httpRequest.log = request.log;
 
-                    method(httpRequest, function (httpResponse:model.HttpResponse) {
+                q.nfcall(method, httpRequest)
+                    .then((httpResponse:model.HttpResponse) => {
                         httpResponse.content != null
                             ? response.send(httpResponse.statusCode, httpResponse.content)
                             : response.send(httpResponse.statusCode);
+                    }, (e) => {
+                        request.log.error(e);
+                        response.send(500, { "code": "InternalServerError" })
                     });
-                }
-                catch(e) {
-                    request.log.error(e);
-                    response.send(500, { "code" : "InternalServerError" });
-                }
+
                 return next();
             };
         }
@@ -60,45 +61,51 @@ function startServer(configuration, database) {
                 console.log("Register " + x + " to path " + path);
 
                 var controllerHandler = function (request, callback) {
-                    controller[x](request, callback);
+                    try {
+                        controller[x](request, function (m) {
+                            callback(undefined, m);
+                        });
+                    } catch (err) {
+                        callback(err, undefined);
+                    }
                 };
                 server[x](path, createControllerRequestHandler(controllerHandler))
             });
     }
 
     var datas = {
-        "user" : {
-            "authenticate" : new data.AuthenticateUser(configuration, database),
+        "user": {
+            "authenticate": new data.AuthenticateUser(configuration, database),
             "create": new data.user.CreateUserInDatabase(configuration.hashAlgorithm, database),
             "get": new data.user.GetUserFromDatabase(database),
-            "delete" : new data.user.DeleteUserFromDatabase(database),
-            "update" : new data.user.UpdateUserInDatabase(configuration.hashAlgorithm, database)
+            "delete": new data.user.DeleteUserFromDatabase(database),
+            "update": new data.user.UpdateUserInDatabase(configuration.hashAlgorithm, database)
         },
-        "project" : {
-            "create" : new data.project.CreateProjectInDatabase(database),
-            "get" : new data.project.GetProjectFromDatabase(database),
-            "delete" : new data.project.DeleteProjectFromDatabase(database),
-            "update" : new data.project.UpdateProjectInDatabase(database),
-            "deleteForUser" : new data.project.DeleteUsersProjectsFromDatabase(database)
+        "project": {
+            "create": new data.project.CreateProjectInDatabase(database),
+            "get": new data.project.GetProjectFromDatabase(database),
+            "delete": new data.project.DeleteProjectFromDatabase(database),
+            "update": new data.project.UpdateProjectInDatabase(database),
+            "deleteForUser": new data.project.DeleteUsersProjectsFromDatabase(database)
         }
     };
 
     var services = {
-        "authenticate" : {
-            "user" : new service.AuthenticateUserAsTarget(datas.user.authenticate)
+        "authenticate": {
+            "user": new service.AuthenticateUserAsTarget(datas.user.authenticate)
         }
     };
 
     var controllers = {
-        "verify" : new controller.VerifyController(),
-        "user" : new controller.UserController(configuration,
+        "verify": new controller.VerifyController(),
+        "user": new controller.UserController(configuration,
             services.authenticate.user,
             datas.user.create,
             datas.user.get,
             datas.user.delete,
             datas.user.update,
             datas.project.deleteForUser),
-        "project" : new controller.ProjectController(configuration,
+        "project": new controller.ProjectController(configuration,
             services.authenticate.user,
             datas.project.create,
             datas.project.get,

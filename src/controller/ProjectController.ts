@@ -5,23 +5,19 @@
 /// <reference path="../data/project/CRUD.ts" />
 /// <reference path="../validate/ValidateProjectDto.ts" />
 
-module controller
-{
+var q = require("q");
+
+module controller {
     export class ProjectController {
 
         private configuration;
-        private authenticateUser : service.AuthenticateUserAsTarget;
-        private createProject : data.project.CreateProjectInDatabase;
-        private getProject : data.project.GetProjectFromDatabase;
-        private deleteProject : data.project.DeleteProjectFromDatabase;
-        private updateProject : data.project.UpdateProjectInDatabase;
+        private authenticateUser:service.AuthenticateUserAsTarget;
+        private createProject:data.project.CreateProjectInDatabase;
+        private getProject:data.project.GetProjectFromDatabase;
+        private deleteProject:data.project.DeleteProjectFromDatabase;
+        private updateProject:data.project.UpdateProjectInDatabase;
 
-        constructor(configuration,
-                    authenticateUser : service.AuthenticateUserAsTarget,
-                    createProject : data.project.CreateProjectInDatabase,
-                    getProject : data.project.GetProjectFromDatabase,
-                    deleteProject : data.project.DeleteProjectFromDatabase,
-                    updateProject : data.project.UpdateProjectInDatabase) {
+        constructor(configuration, authenticateUser:service.AuthenticateUserAsTarget, createProject:data.project.CreateProjectInDatabase, getProject:data.project.GetProjectFromDatabase, deleteProject:data.project.DeleteProjectFromDatabase, updateProject:data.project.UpdateProjectInDatabase) {
             this.configuration = configuration;
             this.authenticateUser = authenticateUser;
             this.createProject = createProject;
@@ -30,7 +26,14 @@ module controller
             this.updateProject = updateProject;
         }
 
-        public post(request : model.HttpRequest, callback : (m : model.HttpResponse) => void) {
+        private createInternalServerError(log) {
+            return function (err) {
+                log.error(err);
+                return new model.HttpResponse(500, { "code": "InternalServerError" });
+            };
+        }
+
+        public post(request:model.HttpRequest, callback:(m:model.HttpResponse) => void) {
 
             var configuration = this.configuration;
             var getProject = this.getProject;
@@ -43,45 +46,43 @@ module controller
                     "message": "POST not supported on user"
                 }));
             } else {
-                this.authenticateUser.authenticate(false, request.authorization, null, function(user : model.LoggedInUserDetails) {
-                    validate.ValidateCreateProjectDto(projectCreateDto,
-                        function(projectCreateDto) {
-                            getProject.execute(projectCreateDto.name, function(project, err) {
-                                if (err) {
-                                    request.log.error(err);
-                                    callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
-                                } else if (project) {
-                                    callback(new model.HttpResponse(409, {
-                                        "code" : "Conflict",
-                                        "message" : "Project already exists"
-                                    }));
-                                } else {
-                                    createProject.execute(user.userId, projectCreateDto.name, projectCreateDto.git, function(err) {
-                                        if (err) {
-                                            request.log.error(err);
-                                            callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
-                                        } else {
-                                            callback(new model.HttpResponse(201, {
-                                                _href: configuration.host + "/project/" + projectCreateDto.name,
-                                                git: projectCreateDto.git
-                                            }));
-                                        }
-                                    });
-                                }
-                            });
-                        },
-                        function(failure) {
-                            callback(new model.HttpResponse(400, { "code" : "BadRequest", "message" : failure }));
-                    });
-                }, function(error) {
-                    callback(new model.HttpResponse(401, { "code" : "Unauthorized", "message" : error }));
-                }, function (reject) {
-                    callback(new model.HttpResponse(403, { "code" : "Forbidden", "message" : reject }));
+                this.authenticateUser.authenticate(false, request.authorization, null, (user:model.LoggedInUserDetails) => {
+                    this.createProjectForUser(configuration, user, request, projectCreateDto, getProject, createProject, callback);
+                }, (incorrect) => {
+                    callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": incorrect }));
+                }, (reject) => {
+                    callback(new model.HttpResponse(403, { "code": "Forbidden", "message": reject }));
                 });
             }
         }
 
-        public put(request : model.HttpRequest, callback : (m : model.HttpResponse) => void) {
+        createProjectForUser(configuration, user, request, projectCreateDto, getProject, createProject, callback) {
+            var result = validate.ValidateCreateProjectDto(projectCreateDto);
+
+            if (!result.success)
+                callback(new model.HttpResponse(400, { "code": "BadRequest", "message": result.reason }));
+            else {
+                getProject
+                    .run(projectCreateDto.name)
+                    .then((project) => {
+                        if (project)
+                            return new model.HttpResponse(409, {
+                                "code": "Conflict",
+                                "message": "Project already exists"
+                            });
+                        return createProject
+                            .run(user.userId, projectCreateDto.name, projectCreateDto.git)
+                            .then(function () {
+                                return new model.HttpResponse(201, {
+                                    _href: configuration.host + "/project/" + projectCreateDto.name,
+                                    git: projectCreateDto.git
+                                });
+                            }, this.createInternalServerError(request.log));
+                    }, this.createInternalServerError(request.log)).then(callback);
+            }
+        }
+
+        public put(request:model.HttpRequest, callback:(m:model.HttpResponse) => void) {
 
             var getProject = this.getProject;
             var updateProject = this.updateProject;
@@ -90,115 +91,91 @@ module controller
             if (request.parameters.target) {
                 var targetProject = request.parameters.target;
 
-                authenticateUser.authenticate(false,
-                    request.authorization,
-                    null,
-                    function (user) {
-                        validate.ValidateUpdateProjectDto(request.body, function (updateRequestDto) {
-                            getProject.execute(targetProject, function (project, err) {
-                                if (err) {
-                                    request.log.error(err);
-                                    callback(new model.HttpResponse(500, { "code": "InternalServerError" }))
-                                } else if (project) {
-                                    if (user.isSuper || project.userId == user.userId) {
-                                        updateProject.execute(project.name, updateRequestDto.git, function (err) {
-                                            if (err) {
-                                                request.log.error(err);
-                                                callback(new model.HttpResponse(500, { "code": "InternalServerError" }))
-                                            } else {
-                                                callback(new model.HttpResponse(200, {
-                                                    "git": updateRequestDto.git
-                                                }));
-                                            }
-                                        });
-                                    } else {
-                                        callback(new model.HttpResponse(403, { "code": "Forbidden" }));
-                                    }
-                                } else {
-                                    callback(new model.HttpResponse(404, {
-                                        "code": "ResourceNotFound",
-                                        "message": "Project not found"
-                                    }));
-                                }
-                            });
+                authenticateUser.authenticate(false, request.authorization, null, (user) => {
+                    var result = validate.ValidateUpdateProjectDto(request.body);
+                    if (!result.success)
+                        callback(new model.HttpResponse(400, { "code": "BadRequest", "message": result.reason }));
+                    else {
+                        getProject
+                            .run(targetProject)
+                            .then((project) => {
+                                if (project) {
+                                    if (!user.isSuper && project.userId != user.userId)
+                                        return new model.HttpResponse(403, { "code": "Forbidden" });
 
-                        }, function (failure) {
-                            callback(new model.HttpResponse(400, { "code": "BadRequest", "message": failure }));
-                        });
-                    }, function (error) {
-                        callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": error }));
-                    }, function (reject) {
-                        callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": reject }));
-                    });
+                                    return updateProject
+                                        .run(project.name, request.body.git)
+                                        .then(function () {
+                                            return new model.HttpResponse(200, { "git": request.body.git });
+                                        }, this.createInternalServerError(request.log));
+                                }
+                                return new model.HttpResponse(404, {
+                                    "code": "ResourceNotFound",
+                                    "message": "Project not found"
+                                });
+                            }, this.createInternalServerError(request.log))
+                            .then(callback);
+                    }
+                }, (error) => {
+                    callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": error }));
+                }, (reject) => {
+                    callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": reject }));
+                });
             } else
                 callback(new model.HttpResponse(405, {
                     "code": "MethodNotAllowed",
                     "message": "Missing Url Arguments"
                 }));
         }
-        public del(request : model.HttpRequest, callback : (m : model.HttpResponse) => void) {
+
+        public del(request:model.HttpRequest, callback:(m:model.HttpResponse) => void) {
 
             var getProject = this.getProject;
             var deleteProject = this.deleteProject;
 
             if (request.parameters.target) {
-                var targetProject = request.parameters.target;
-                this.authenticateUser.authenticate(false, request.authorization, null,
-                    function(user) {
-                        getProject.execute(targetProject, function(project, err) {
-                            if (err) {
-                                request.log.error(err);
-                                callback(new model.HttpResponse(500, { "code" : "InternalServerError" }))
-                            } else if (project) {
-                                if (user.isSuper || project.userId == user.userId) {
-                                    deleteProject.execute(project.name, function (err) {
-                                        if (err) {
-                                            request.log.error(err);
-                                            callback(new model.HttpResponse(500, { "code": "InternalServerError" }))
-                                        } else {
-                                            callback(new model.HttpResponse(204, { }));
-                                        }
-                                    });
-                                } else {
-                                    callback(new model.HttpResponse(403, { "code" : "Forbidden" }));
-                                }
-                            } else {
-                                callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Project not found" }));
-                            }
-                        })
-                    }, function(error) {
-                        callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": error }));
-                    }, function (reject) {
-                        callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": reject }));
-                    });
+                this.authenticateUser.authenticate(false, request.authorization, null, (user) => {
+                    getProject
+                        .run(request.parameters.target)
+                        .then((project) => {
+                            if (!project)
+                                return new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Project not found" });
+                            if (!user.isSuper && project.userId != user.userId)
+                                return new model.HttpResponse(403, { "code": "Forbidden" });
+
+                            return deleteProject.run(project.name)
+                                .then(function () {
+                                    return new model.HttpResponse(204, { });
+                                }, this.createInternalServerError(request.log)).then(callback);
+                        }, this.createInternalServerError(request.log))
+                        .then(callback);
+                }, (error) => {
+                    callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": error }));
+                }, (reject) => {
+                    callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": reject }));
+                });
             } else
                 callback(new model.HttpResponse(405, {
-                    "code":"MethodNotAllowed",
-                    "message" : "Missing Url Arguments"
+                    "code": "MethodNotAllowed",
+                    "message": "Missing Url Arguments"
                 }));
         }
 
-        public get(request : model.HttpRequest, callback : (m : model.HttpResponse) => void) {
+        public get(request:model.HttpRequest, callback:(m:model.HttpResponse) => void) {
 
             var getProject = this.getProject;
             if (request.parameters.target) {
-                var targetProject = request.parameters.target;
-                getProject.execute(targetProject, function(project, err) {
-                    if (err) {
-                        request.log.error(err);
-                        callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
-                    } else if (project) {
-                        callback(new model.HttpResponse(200, { "git" : project.git }));
-                    }else {
-                        callback(new model.HttpResponse(404, {
-                            "code" : "ResourceNotFound",
-                            "message" : "Project not found"
-                        }));
-                    }
-                });
+                getProject
+                    .run(request.parameters.target)
+                    .then((project) => {
+                        if (project)
+                            return new model.HttpResponse(200, { "git": project.git });
+                        return new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Project not found" });
+                    }, this.createInternalServerError(request.log))
+                    .then(callback);
             } else
-                callback(new model.HttpResponse(405, { "code":"MethodNotAllowed",
-                    "message" : "Missing Url Arguments"
+                callback(new model.HttpResponse(405, { "code": "MethodNotAllowed",
+                    "message": "Missing Url Arguments"
                 }));
         }
     }

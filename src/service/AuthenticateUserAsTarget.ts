@@ -14,10 +14,10 @@ module service
         authenticate(requireSuper, authorization, target, success, fail, reject) {
 
             var authenticateUser = this.authenticateUser;
-            authenticateUser.authenticateGodUser(authorization, function (username) {
+            authenticateUser.authenticateGodUser(authorization, (username) => {
                 success(new model.LoggedInUserDetails(username, true, "00000000-0000-0000-0000-000000000000"));
             }, function (error) {
-                authenticateUser.authenticateStandardUser(authorization, function (username, userid) {
+                authenticateUser.authenticateStandardUser(authorization, (username, userid) => {
                     if ( requireSuper )
                         reject("Do not possess required permission level");
                     else if (!target || target == username)

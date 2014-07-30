@@ -1,4 +1,5 @@
 /// <reference path="../HashPassword.ts" />
+/// <reference path="../../../typings/uuid/UUID.d.ts" />
 
 var uuid = require("uuid");
 
@@ -24,7 +25,7 @@ module data.user {
                     password: HashPassword(this._hashType, id, password),
                     timestamp: timestamp
                 };
-                this._database.insert("Users", userDto, function (err, insertId) {
+                this._database.insert("Users", userDto, (err, insertId) => {
                     callback(err);
                 });
             } catch (e) {
@@ -43,10 +44,10 @@ module data.user {
         execute(username, callback) {
             this._database.select("Users", { username: username }, function (err, row) {
                 if (err) {
-                    callback(null, err);
+                    callback(err, null);
                 } else {
                     if (row && row.length > 0)
-                        callback(row[0], null);
+                        callback(null, row[0]);
                     else
                         callback(null, null);
                 }
@@ -81,7 +82,7 @@ module data.user {
             var _database = this._database;
             _database.update("Users",
                 { email: email },
-                { id: id }, function(err) {
+                { id: id }, (err) => {
                     if (err)
                         callback(err);
                     else

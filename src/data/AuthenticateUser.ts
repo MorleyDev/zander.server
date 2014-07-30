@@ -49,7 +49,7 @@ module data
             else {
                 var username = authorization.basic.username;
                 var password = authorization.basic.password;
-                this._database.select("Users", { username: username }, function(err, user) {
+                this._database.select("Users", { username: username }, (err, user) => {
                     if (err)
                         throw err;
                     else if (!user || user.length < 1) {
