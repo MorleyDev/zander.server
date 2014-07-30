@@ -144,21 +144,19 @@ module controller {
                         validate.ValidateUsername(request.parameters.target, (target) => {
                             getUser.execute(target, (err, user) => {
                                 if (user)
-                                    deleteProjects.execute(user.id, (err) => {
-                                        if (err) {
+                                    deleteProjects.run(user.id).then(() => {
+                                        deleteUser.execute(user.username, (err) => {
+                                            if (err) {
+                                                request.log.error(err);
+                                                callback(new model.HttpResponse(500, {"code": "InternalServerError"}));
+                                            }
+                                            else
+                                                callback(new model.HttpResponse(204, { }));
+                                        });
+                                    }, (err) => {
                                             request.log.error(err);
                                             callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
-                                        } else {
-                                            deleteUser.execute(user.username, (err) => {
-                                                if (err) {
-                                                    request.log.error(err);
-                                                    callback(new model.HttpResponse(500, {"code": "InternalServerError"}));
-                                                }
-                                                else
-                                                    callback(new model.HttpResponse(204, { }));
-                                            });
-                                        }
-                                    });
+                                        });
                                 else
                                     callback(new model.HttpResponse(404, { }));
                             });

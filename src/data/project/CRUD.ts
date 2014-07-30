@@ -20,15 +20,6 @@ module data.project {
             };
             return this._database.insert("Projects", projectDto);
         }
-
-        public execute(userId:string, project:string, git:string, callback) {
-            this.run(userId, project, git)
-                .then(function (id) {
-                    callback(undefined);
-                }, function(err) {
-                    callback(err);
-                });
-        }
     }
 
     export class GetProjectFromDatabase {
@@ -38,18 +29,8 @@ module data.project {
             this._database = database;
         }
 
-        public run(name) : any {
+        public run(name : string) : any {
             return this._database.selectOne("Projects", { name: name });
-        }
-
-        public execute(name, callback) {
-            this.run(name)
-                .then((row) => {
-                callback(null, row);
-            },
-            (err) => {
-                callback(err, null);
-            });
         }
     }
 
@@ -58,15 +39,6 @@ module data.project {
 
         constructor(database) {
             this._database = database;
-        }
-
-        public execute(name, callback) {
-            this.run(name)
-                .then(function () {
-                    callback(undefined);
-                }, function(err) {
-                    callback(err);
-                });
         }
 
         public run(name) : any {
@@ -81,16 +53,7 @@ module data.project {
             this._database = database;
         }
 
-        public execute(userid, callback) {
-            this.run(userid)
-                .then(() => {
-                callback(undefined);
-            }, (err) => {
-                callback(err);
-            });
-        }
-
-        public run(userid) : any {
+        public run(userid : string) : any {
             return this._database.delete("Projects", { userid: userid });
         }
     }
@@ -102,16 +65,7 @@ module data.project {
             this._database = database;
         }
 
-        public execute(name, git, callback) {
-            this.run(name,git)
-                .then(function() {
-                    callback(undefined);
-                }, function(err) {
-                    callback(err);
-                });
-        }
-
-        public run(name, git) {
+        public run(name : string, git : string) {
             return this._database.update("Projects", { git: git }, { name: name });
         }
     }
