@@ -2,6 +2,7 @@
 /// <reference path="../model/HttpRequest.ts" />
 /// <reference path="../model/LoggedInUser.ts" />
 /// <reference path="../service/AuthenticateUserAsTarget.ts" />
+/// <reference path="../service/MapAuthenticationToResult.ts" />
 /// <reference path="../data/project/CRUD.ts" />
 /// <reference path="../validate/ValidateProjectDto.ts" />
 
@@ -11,33 +12,13 @@ module controller {
     export class ProjectController {
 
         private configuration;
-        private authenticateUser: service.AuthenticateUserAsTarget;
+        private authenticateUser: service.AuthenticateUserAndRespond;
         private createProject: data.project.CreateProjectInDatabase;
         private getProject: data.project.GetProjectFromDatabase;
         private deleteProject: data.project.DeleteProjectFromDatabase;
         private updateProject: data.project.UpdateProjectInDatabase;
 
-        private internalAuthenticate(authorization, onSuccess) {
-            return this.authenticateUser.run(false, authorization, null)
-                .then((result:service.LogInResult) => {
-                    switch (result.type) {
-                        case service.LogInResultType.Success:
-                            return onSuccess(result);
-
-                        case service.LogInResultType.Rejection:
-                            return new model.HttpResponse(403, { "code": "Forbidden", "message": result.reason });
-
-                        case service.LogInResultType.Failure:
-                            return new model.HttpResponse(401, { "code": "Unauthorized", "message": result.reason });
-
-                        default:
-                            return new model.HttpResponse(500, { "code": "InternalServerError" });
-
-                    }
-                });
-        }
-
-        constructor(configuration, authenticateUser:service.AuthenticateUserAsTarget, createProject:data.project.CreateProjectInDatabase, getProject:data.project.GetProjectFromDatabase, deleteProject:data.project.DeleteProjectFromDatabase, updateProject:data.project.UpdateProjectInDatabase) {
+        constructor(configuration, authenticateUser:service.AuthenticateUserAndRespond, createProject:data.project.CreateProjectInDatabase, getProject:data.project.GetProjectFromDatabase, deleteProject:data.project.DeleteProjectFromDatabase, updateProject:data.project.UpdateProjectInDatabase) {
             this.configuration = configuration;
             this.authenticateUser = authenticateUser;
             this.createProject = createProject;
@@ -63,7 +44,7 @@ module controller {
                 if (request.parameters.target)
                     return new model.HttpResponse(405, { "code": "MethodNotAllowed", "message": "POST not supported on user" });
 
-                return this.internalAuthenticate(request.authorization, (result) => {
+                return this.authenticateUser.atLeastUser(request.authorization, (result) => {
                     return ProjectController.createProjectForUser(configuration, result.user, request, getProject, createProject);
                 });
             }).then(callback);
@@ -97,16 +78,18 @@ module controller {
 
         public put(request:model.HttpRequest, callback:(m:model.HttpResponse) => void) {
 
-            if (request.parameters.target) {
-                this.internalAuthenticate(request.authorization, (loginUser : service.LogInResult) => {
+            q.fcall(() => {
+                if (!request.parameters.target)
+                    return new model.HttpResponse(405, {
+                        "code": "MethodNotAllowed",
+                        "message": "Missing Url Arguments"
+                    });
+
+                return this.authenticateUser.atLeastUser(request.authorization, (loginUser:service.LogInResult) => {
                     var targetProject = request.parameters.target;
                     return ProjectController.updateProjectForUser(request, targetProject, loginUser.user, this.getProject, this.updateProject);
-                }).then(callback);
-            } else
-                callback(new model.HttpResponse(405, {
-                    "code": "MethodNotAllowed",
-                    "message": "Missing Url Arguments"
-                }));
+                });
+            }).then(callback);
         }
 
         private static updateProjectForUser(request, targetProject, user, getProject, updateProject) {
@@ -135,16 +118,18 @@ module controller {
         }
 
         public del(request:model.HttpRequest, callback:(m:model.HttpResponse) => void) {
-            if (request.parameters.target) {
+            q.fcall(() => {
+                if (request.parameters.target) {
 
-                this.internalAuthenticate(request.authorization, (result) => {
-                    return ProjectController.deleteProjectForUser(request, result, this.getProject, this.deleteProject);
-                }).then(callback);
-            } else
-                callback(new model.HttpResponse(405, {
-                    "code": "MethodNotAllowed",
-                    "message": "Missing Url Arguments"
-                }));
+                    return this.authenticateUser.atLeastUser(request.authorization, (result) => {
+                        return ProjectController.deleteProjectForUser(request, result, this.getProject, this.deleteProject);
+                    });
+                } else
+                    return new model.HttpResponse(405, {
+                        "code": "MethodNotAllowed",
+                        "message": "Missing Url Arguments"
+                    });
+            }).then(callback);
         }
 
         private static deleteProjectForUser(request, login, getProject, deleteProject) {

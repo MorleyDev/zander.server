@@ -92,7 +92,8 @@ function startServer(configuration, database) {
 
     var services = {
         "authenticate": {
-            "user": new service.AuthenticateUserAsTarget(datas.user.authenticate)
+            "user": new service.AuthenticateUserAsTarget(datas.user.authenticate),
+            "userHttpResult": new service.AuthenticateUserAndRespond(new service.AuthenticateUserAsTarget(datas.user.authenticate))
         }
     };
 
@@ -100,13 +101,14 @@ function startServer(configuration, database) {
         "verify": new controller.VerifyController(),
         "user": new controller.UserController(configuration,
             services.authenticate.user,
+            services.authenticate.userHttpResult,
             datas.user.create,
             datas.user.get,
             datas.user.delete,
             datas.user.update,
             datas.project.deleteForUser),
         "project": new controller.ProjectController(configuration,
-            services.authenticate.user,
+            services.authenticate.userHttpResult,
             datas.project.create,
             datas.project.get,
             datas.project.delete,

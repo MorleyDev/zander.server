@@ -14,14 +14,16 @@ module controller {
 
         private configuration;
         private authenticateUser : service.AuthenticateUserAsTarget;
+        private authenticateUserAndRespond : service.AuthenticateUserAndRespond;
         private createUser : data.user.CreateUserInDatabase;
         private getUser : data.user.GetUserFromDatabase;
         private deleteUser : data.user.DeleteUserFromDatabase;
         private updateUser : data.user.UpdateUserInDatabase;
-        private deleteProjects : data.project.DeleteUsersProjectsFromDatabase
+        private deleteProjects : data.project.DeleteUsersProjectsFromDatabase;
 
         constructor(configuration,
                     authenticateUser : service.AuthenticateUserAsTarget,
+                    authenticateUserAndRespond : service.AuthenticateUserAndRespond,
                     createUser : data.user.CreateUserInDatabase,
                     getUser : data.user.GetUserFromDatabase,
                     deleteUser : data.user.DeleteUserFromDatabase,
@@ -29,6 +31,7 @@ module controller {
                     deleteProjects : data.project.DeleteUsersProjectsFromDatabase) {
             this.configuration = configuration;
             this.authenticateUser = authenticateUser;
+            this.authenticateUserAndRespond = authenticateUserAndRespond;
             this.createUser = createUser;
             this.getUser = getUser;
             this.deleteUser = deleteUser;
@@ -103,6 +106,7 @@ module controller {
                     request.authorization,
                     request.parameters.target,
                     (user) => {
+
                         validate.ValidateUpdateUserDto(request.body, (dto) => {
                             getUser.execute(request.parameters.target, (err, user) => {
                                 if (err) {
@@ -141,8 +145,8 @@ module controller {
             if (request.parameters.target) {
                 this.authenticateUser.authenticate(false, request.authorization, request.parameters.target,
                     (user) => {
-                        validate.ValidateUsername(request.parameters.target, (target) => {
-                            getUser.execute(target, (err, user) => {
+                        validate.ValidateUsername(request.parameters.target, () => {
+                            getUser.execute(request.parameters.target, (err, user) => {
                                 if (user)
                                     deleteProjects.run(user.id).then(() => {
                                         deleteUser.execute(user.username, (err) => {
@@ -177,39 +181,33 @@ module controller {
 
         public get(request : model.HttpRequest, callback : (m : model.HttpResponse) => void) {
 
-            var getUser = this.getUser;
+            q.fcall(() => {
+                if (!request.parameters.target)
+                    return (new model.HttpResponse(405, { "code": "MethodNotAllowed",
+                        "message": "Missing Url Arguments"
+                    }));
 
-            if (request.parameters.target) {
-
-                this.authenticateUser.authenticate(false,
-                    request.authorization,
-                    request.parameters.target,
-                    (user) => {
-                        validate.ValidateUsername(request.parameters.target, (target) => {
-                            getUser.execute(target, (err, user) => {
-                                if (err) {
+                return this.authenticateUserAndRespond.atLeastIsUser(request.authorization, request.parameters.target,
+                    (loginUser:service.LogInResult) => {
+                        var validation = validate._ValidateUsername(request.parameters.target);
+                        if (validation.success)
+                            return this.getUser.run(request.parameters.target)
+                                .then((user) => {
+                                    if (user)
+                                        return new model.HttpResponse(200, { "email": user.email });
+                                    else
+                                        return new model.HttpResponse(404, {
+                                            "code": "ResourceNotFound",
+                                            "message": "User not found"
+                                        });
+                                }, (err) => {
                                     request.log.error(err);
-                                    callback(new model.HttpResponse(500, { "code": "InternalServerError" }));
-                                } else if (user)
-                                    callback(new model.HttpResponse(200, { "email": user.email }));
-                                else
-                                    callback(new model.HttpResponse(404, {
-                                        "code" : "ResourceNotFound",
-                                        "message" : "User not found"
-                                    }));
-                            });
-                        }, (err) => {
-                            callback(new model.HttpResponse(400, { "code": "BadRequest", "message": err }));
-                        });
-                    }, (error) => {
-                        callback(new model.HttpResponse(401, { "code": "Unauthorized", "message": error }));
-                    }, (reject) => {
-                        callback(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": reject }));
+                                    return new model.HttpResponse(500, { "code": "InternalServerError" });
+                                });
+                        else
+                            return new model.HttpResponse(400, { "code": "BadRequest", "message": validation.reason });
                     });
-            } else
-                callback(new model.HttpResponse(405, { "code":"MethodNotAllowed",
-                    "message" : "Missing Url Arguments"
-                }));
+            }).then(callback);
         }
     }
 }

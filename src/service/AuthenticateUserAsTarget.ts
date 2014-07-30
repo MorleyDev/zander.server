@@ -54,7 +54,8 @@ module service
 
         authenticate(requireSuper : boolean, authorization, targetUsername, success, fail, reject) {
 
-            this.run(requireSuper, authorization, targetUsername).then((result : LogInResult) => {
+            this.run(requireSuper, authorization, targetUsername)
+                .then((result : LogInResult) => {
                 switch(result.type) {
                     case LogInResultType.Success:
                         success(result.user);
