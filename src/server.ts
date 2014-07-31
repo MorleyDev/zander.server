@@ -17,6 +17,7 @@ function startServer(configuration : model.Configuration, database : any) {
 
     var restify = require("restify");
     var server = restify.createServer({name: "zander"})
+        .pre(restify.pre.sanitizePath())
         .use(restify.fullResponse())
         .use(restify.bodyParser())
         .use(restify.authorizationParser())
@@ -86,9 +87,9 @@ function startServer(configuration : model.Configuration, database : any) {
     };
 
     addController("/verify", controllers.verify);
-    addController("/user", controllers.users);
+    addController("/user/", controllers.users);
     addController("/user/:target", controllers.user);
-    addController("/project", controllers.projects);
+    addController("/project/", controllers.projects);
     addController("/project/:target", controllers.project);
 
     server.listen(configuration.port);
