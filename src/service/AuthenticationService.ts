@@ -62,27 +62,6 @@ module service {
             });
         }
 
-        public run(requireSuper : boolean, authorization, targetUsername : string) : Q.IPromise<LogInResult> {
-            var authenticateUser = this.authenticateUser;
-
-            return authenticateUser.authenticateGodUser(authorization).then((result) => {
-                if (result.success)
-                    return Q(new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, true, result.userid)));
-
-                return authenticateUser.authenticateStandardUser(authorization)
-                    .then((result:data.AuthenticationResult) => {
-                        if (result.success) {
-                            if (requireSuper)
-                                return new LogInResult(LogInResultType.Rejection, "Do not possess required permission level", undefined);
-                            if (!targetUsername || targetUsername == result.username)
-                                return new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, false, result.userid));
-                            return new LogInResult(LogInResultType.Rejection, "Resource Not Found", undefined);
-                        }
-                        return new LogInResult(LogInResultType.Failure, result.reason, undefined);
-                    });
-            });
-        }
-
         private static LogInResultToHttpStatusCode(result : service.LogInResult, onSuccess : (result : model.LoggedInUserDetails) => Q.IPromise<model.HttpResponse>) {
             switch (result.type) {
                 case service.LogInResultType.Success:
