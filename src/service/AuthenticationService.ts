@@ -18,9 +18,9 @@ module service {
             this.user = user;
         }
 
-        type : LogInResultType;
-        reason : string;
-        user : model.LoggedInUserDetails;
+        public type : LogInResultType;
+        public reason : string;
+        public user : model.LoggedInUserDetails;
     }
 
     export class AuthenticationService {
@@ -33,13 +33,13 @@ module service {
         public atLeastUser(authorization, onSuccess : (result : model.LoggedInUserDetails) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
             return this
                 .requireAtLeastUser(authorization)
-                .then((result:service.LogInResult) => { return AuthenticationService.LogInResultToHttpStatusCode(result, onSuccess); });
+                .then(AuthenticationService.handleLogInResult(onSuccess));
         }
 
         public atLeastSuper(authorization, onSuccess : (result : model.LoggedInUserDetails) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
             return this
                 .requireSuper(authorization)
-                .then((result:service.LogInResult) => { return AuthenticationService.LogInResultToHttpStatusCode(result, onSuccess); });
+                .then(AuthenticationService.handleLogInResult(onSuccess));
         }
 
         private requireAtLeastUser(authorization) : Q.IPromise<LogInResult> {
@@ -74,19 +74,22 @@ module service {
             });
         }
 
-        private static LogInResultToHttpStatusCode(result : service.LogInResult, onSuccess : (result : model.LoggedInUserDetails) => Q.IPromise<model.HttpResponse>) {
-            switch (result.type) {
-                case service.LogInResultType.Success:
-                    return onSuccess(result.user);
+        private static handleLogInResult(onSuccess : (result : model.LoggedInUserDetails) => Q.IPromise<model.HttpResponse>)
+                : (result: service.LogInResult) => Q.IPromise<model.HttpResponse> {
+            return function (result:service.LogInResult) {
+                switch (result.type) {
+                    case service.LogInResultType.Success:
+                        return onSuccess(result.user);
 
-                case service.LogInResultType.Rejection:
-                    return Q(new model.HttpResponse(403, { "code": "Forbidden", "message": result.reason }));
+                    case service.LogInResultType.Rejection:
+                        return Q(new model.HttpResponse(403, { "code": "Forbidden", "message": result.reason }));
 
-                case service.LogInResultType.Failure:
-                    return Q(new model.HttpResponse(401, { "code": "Unauthorized", "message": result.reason }));
+                    case service.LogInResultType.Failure:
+                        return Q(new model.HttpResponse(401, { "code": "Unauthorized", "message": result.reason }));
 
-                default:
-                    return Q(new model.HttpResponse(500, { "code": "InternalServerError" }));
+                    default:
+                        return Q(new model.HttpResponse(500, { "code": "InternalServerError" }));
+                }
             }
         }
     }
