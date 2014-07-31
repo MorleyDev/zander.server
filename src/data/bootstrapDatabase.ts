@@ -1,4 +1,4 @@
-/// <reference path="../../typings/sqlite3/sqlite3.d.ts" />
+/// <reference path='../../typings/sqlite3/sqlite3.d.ts'/>
 
 enum DatabaseType {
     SqlLite,
@@ -11,7 +11,7 @@ function bootstrap_database(type : DatabaseType, config, finalCallback) {
     var tableName_users = "Users";
     var tableName_projects = "Projects";
 
-    var nodeSql = require('nodesql');
+    var nodeSql : any = require('nodesql');
 
     var builderStack = [];
     builderStack[0] = function(db, callback) {
@@ -85,7 +85,7 @@ function bootstrap_database(type : DatabaseType, config, finalCallback) {
 
     switch(type) {
         case DatabaseType.SqlLite:
-            var sqlite3 = require('sqlite3').verbose();
+            var sqlite3 : any = require('sqlite3').verbose();
             var databaseString = config.sqlite || ':memory:';
             console.log("Sqlite connection: " + databaseString);
 
@@ -97,7 +97,7 @@ function bootstrap_database(type : DatabaseType, config, finalCallback) {
             break;
 
         case DatabaseType.MySQL:
-            var mysql = require('mysql');
+            var mysql : any = require('mysql');
             var connection = mysql.createConnection(config.mysql);
             var db = nodeSql.createMySqlStrategy(connection);
             bootstrap_with_connection(db, function(err) { finalCallback(err, db); });

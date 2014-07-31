@@ -4,16 +4,16 @@
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
 /************************************************
-*                                               *
-*               Node.js v0.8.8 API              *
-*                                               *
-************************************************/
+ *                                               *
+ *               Node.js v0.8.8 API              *
+ *                                               *
+ ************************************************/
 
 /************************************************
-*                                               *
-*                   GLOBAL                      *
-*                                               *
-************************************************/
+ *                                               *
+ *                   GLOBAL                      *
+ *                                               *
+ ************************************************/
 declare var process: NodeProcess;
 declare var global: any;
 
@@ -64,10 +64,10 @@ declare var Buffer: {
 }
 
 /************************************************
-*                                               *
-*                   INTERFACES                  *
-*                                               *
-************************************************/
+ *                                               *
+ *                   INTERFACES                  *
+ *                                               *
+ ************************************************/
 
 interface EventEmitter {
     addListener(event: string, listener: Function);
@@ -126,22 +126,22 @@ interface NodeProcess extends EventEmitter {
             libraries: string[];
         };
         variables: {
-        clang: number;
-        host_arch: string;
-        node_install_npm: boolean;
-        node_install_waf: boolean;
-        node_prefix: string;
-        node_shared_openssl: boolean;
-        node_shared_v8: boolean;
-        node_shared_zlib: boolean;
-        node_use_dtrace: boolean;
-        node_use_etw: boolean;
-        node_use_openssl: boolean;
-        target_arch: string;
-        v8_no_strict_aliasing: number;
-        v8_use_snapshot: boolean;
-        visibility: string;
-    };
+            clang: number;
+            host_arch: string;
+            node_install_npm: boolean;
+            node_install_waf: boolean;
+            node_prefix: string;
+            node_shared_openssl: boolean;
+            node_shared_v8: boolean;
+            node_shared_zlib: boolean;
+            node_use_dtrace: boolean;
+            node_use_etw: boolean;
+            node_use_openssl: boolean;
+            target_arch: string;
+            v8_no_strict_aliasing: number;
+            v8_use_snapshot: boolean;
+            visibility: string;
+        };
     };
     kill(pid: number, signal?: string): void;
     pid: number;
@@ -196,10 +196,10 @@ interface Buffer {
 }
 
 /************************************************
-*                                               *
-*                   MODULES                     *
-*                                               *
-************************************************/
+ *                                               *
+ *                   MODULES                     *
+ *                                               *
+ ************************************************/
 declare module "querystring" {
     export function stringify(obj: any, sep?: string, eq?: string): string;
     export function parse(str: string, sep?: string, eq?: string, options?: { maxKeys?: number; }): any;
@@ -319,7 +319,7 @@ declare module "cluster" {
     export function disconnect(callback?: Function): void;
     export var workers: any;
 
-    // Event emitter    
+    // Event emitter
     export function addListener(event: string, listener: Function): void;
     export function on(event: string, listener: Function): any;
     export function once(event: string, listener: Function): void;
@@ -923,8 +923,8 @@ declare module "crypto" {
         digest(encoding?: string): string;
     }
     interface Hmac {
-        update(data: any): void;
-        digest(encoding?: string): void;
+        update(data: any): Hmac;
+        digest(encoding?: string): string;
     }
     export function createCipher(algorithm: string, password: any): Cipher;
     export function createCipheriv(algorithm: string, key: any, iv: any): Cipher;

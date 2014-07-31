@@ -1,6 +1,4 @@
-/// <reference path="HashPassword.ts" />
-
-var Q = require('q');
+/// <reference path='HashPassword.ts'/>
 
 module data
 {
@@ -50,11 +48,9 @@ module data
             var hashType = this._hashType;
 
             if (!authorization || !authorization.scheme) {
-                console.log("authenticate failed: no authorization");
                 return Q(new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined));
             }
             else if (authorization.scheme != "Basic" || !authorization.basic) {
-                console.log("authenticate failed: not basic authorization");
                 return Q(new AuthenticationResult(false, "Unrecognised authorization scheme", undefined, undefined));
             }
             else {

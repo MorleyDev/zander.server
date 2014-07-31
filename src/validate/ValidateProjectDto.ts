@@ -1,5 +1,5 @@
 
-function _ValidateProjectName(name : string) : any {
+function ValidateProjectName(name : string) : any {
     if (!name)
         return {
             reason: "Project Name Not Provided",
@@ -22,7 +22,7 @@ function _ValidateProjectName(name : string) : any {
         };
 }
 
-function _ValidateProjectGit(git : string) : any {
+function ValidateProjectGit(git : string) : any {
     if (!git) {
         return {
             reason: "Password Not Provided",
@@ -38,14 +38,14 @@ function _ValidateProjectGit(git : string) : any {
 module validate {
 
     export function ValidateCreateProjectDto(dto) {
-        var result = _ValidateProjectName(dto.name);
+        var result = ValidateProjectName(dto.name);
         if (result.success) {
-            return _ValidateProjectGit(dto.git);
+            return ValidateProjectGit(dto.git);
         }
         return result;
     }
 
     export function ValidateUpdateProjectDto(dto) {
-        return _ValidateProjectGit(dto.git);
+        return ValidateProjectGit(dto.git);
     }
 }

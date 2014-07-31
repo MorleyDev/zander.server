@@ -1,10 +1,8 @@
-/// <reference path="../model/HttpResponse.ts" />
-/// <reference path="../model/HttpRequest.ts" />
-/// <reference path="../model/dto/CreateUserDto.ts" />
-/// <reference path="../validate/ValidateUserDto.ts" />
-/// <reference path="../service/AuthenticateUserAsTarget.ts" />
-/// <reference path="../data/user/CRUD.ts" />
-/// <reference path="../data/project/CRUD.ts" />
+/// <reference path='../service/AuthenticationService.ts'/>
+/// <reference path='../validate/ValidateUserDto.ts'/>
+/// <reference path='../data/UserRepository.ts'/>
+/// <reference path='../data/ProjectRepository.ts'/>
+/// <reference path='../model/Configuration.ts'/>
 
 var Q = require('q');
 
@@ -12,71 +10,26 @@ module controller {
 
     export class UserController {
 
-        private configuration;
-        private authenticationService : service.AuthenticationService;
-        private createUser : data.user.CreateUserInDatabase;
-        private getUser : data.user.GetUserFromDatabase;
-        private deleteUser : data.user.DeleteUserFromDatabase;
-        private updateUser : data.user.UpdateUserInDatabase;
-        private deleteProjects : data.project.DeleteUsersProjectsFromDatabase;
+        private configuration : model.Configuration;
+        private authenticationService:service.AuthenticationService;
+        private userRepository:data.UserRepository;
+        private projectRepository:data.ProjectRepository;
 
-        constructor(configuration,
-                    authenticateUser : service.AuthenticationService,
-                    createUser : data.user.CreateUserInDatabase,
-                    getUser : data.user.GetUserFromDatabase,
-                    deleteUser : data.user.DeleteUserFromDatabase,
-                    updateUser : data.user.UpdateUserInDatabase,
-                    deleteProjects : data.project.DeleteUsersProjectsFromDatabase) {
+        constructor(configuration : model.Configuration, authenticateUser:service.AuthenticationService, userRepository:data.UserRepository, deleteProjects:data.ProjectRepository) {
             this.configuration = configuration;
             this.authenticationService = authenticateUser;
-            this.createUser = createUser;
-            this.getUser = getUser;
-            this.deleteUser = deleteUser;
-            this.updateUser = updateUser;
-            this.deleteProjects = deleteProjects
+            this.userRepository = userRepository;
+            this.projectRepository = deleteProjects
         }
 
-        public post(request : model.HttpRequest) : Q.IPromise<model.HttpResponse> {
-
-            if (request.parameters.target)
-                return Q(new model.HttpResponse(405, {
-                    "code": "MethodNotAllowed",
-                    "message": "POST not supported on user"
-                }));
-
-            return this.authenticationService.atLeastSuper(request.authorization, (login: model.LoggedInUserDetails) : Q.IPromise<model.HttpResponse> => {
-                var validation = validate.ValidateCreateUserDto(request.body);
-                if (!validation.success)
-                    return Q(new model.HttpResponse(400, {
-                        "code": "BadRequest",
-                        "message": validation.reason
-                    }));
-
-                return this.getUser.run(request.body.username).then((user) => {
-                    if (user)
-                        return new model.HttpResponse(409, {
-                            "code": "Conflict",
-                            "message": "User already exists"
-                        });
-
-                    return this.createUser.run(request.body.username, request.body.email, request.body.password).then(() => {
-                        return new model.HttpResponse(201, {
-                            "email": request.body.email,
-                            "username": request.body.username,
-                            "_href": this.configuration.host + "/user/" + request.body.username
-                        });
-                    });
-                });
-            });
+        public post(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
+            return Q(new model.HttpResponse(405, {
+                "code": "MethodNotAllowed",
+                "message": "POST not supported on user"
+            }));
         }
 
-        public put(request : model.HttpRequest) : Q.IPromise<model.HttpResponse> {
-            if (!request.parameters.target)
-                return Q(new model.HttpResponse(405, {
-                    "code": "MethodNotAllowed",
-                    "message": "Missing Url Arguments"
-                }));
-
+        public put(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             return this.authenticationService.atLeastUser(request.authorization, (login:model.LoggedInUserDetails):Q.IPromise<model.HttpResponse> => {
                 if (!login.isSuper && request.parameters.target != login.username)
                     return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
@@ -85,7 +38,7 @@ module controller {
                 if (!validation.success)
                     return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validation.reason }));
 
-                return this.getUser.run(request.parameters.target)
+                return this.userRepository.getUser(request.parameters.target)
                     .then((user) => {
                         if (!user)
                             return new model.HttpResponse(404, {
@@ -93,21 +46,15 @@ module controller {
                                 "message": "User not found"
                             });
 
-                        return this.updateUser.run(user.id, request.body.email, request.body.password).then((id) => {
+                        return this.userRepository.updateUser(user.id, request.body.email, request.body.password).then((id) => {
                             return new model.HttpResponse(200, { "email": request.body.email });
                         });
                     });
             });
         }
 
-        public del(request : model.HttpRequest) : Q.IPromise<model.HttpResponse> {
-            if (!request.parameters.target)
-                return Q(new model.HttpResponse(405, {
-                    "code": "MethodNotAllowed",
-                    "message": "Missing Url Arguments"
-                }));
-
-            return this.authenticationService.atLeastUser(request.authorization, (login:model.LoggedInUserDetails) : Q.IPromise<model.HttpResponse> => {
+        public del(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
+            return this.authenticationService.atLeastUser(request.authorization, (login:model.LoggedInUserDetails):Q.IPromise<model.HttpResponse> => {
                 if (!login.isSuper && request.parameters.target != login.username)
                     return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
 
@@ -115,14 +62,13 @@ module controller {
                 if (!validateUsername.success)
                     return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validateUsername.reason }));
 
-                return this.getUser
-                    .run(request.parameters.target)
+                return this.userRepository.getUser(request.parameters.target)
                     .then((user) => {
                         if (!user)
                             return new model.HttpResponse(404, { });
 
-                        return this.deleteProjects.run(user.id).then(() => {
-                            return this.deleteUser.run(user.username).then(() => {
+                        return this.projectRepository.deleteUsersProjects(user.id).then(() => {
+                            return this.userRepository.deleteUser(user.username).then(() => {
                                 return new model.HttpResponse(204, { });
                             });
                         });
@@ -130,35 +76,26 @@ module controller {
             });
         }
 
-        public get(request : model.HttpRequest) : Q.IPromise<model.HttpResponse> {
-            if (!request.parameters.target)
-                return Q(new model.HttpResponse(405, { "code": "MethodNotAllowed",
-                    "message": "Missing Url Arguments"
-                }));
+        public get(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
+            return this.authenticationService.atLeastUser(request.authorization, (login:model.LoggedInUserDetails):Q.IPromise<model.HttpResponse> => {
+                if (!login.isSuper && request.parameters.target != login.username)
+                    return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
 
-            return this.authenticationService.atLeastUser(request.authorization, (login: model.LoggedInUserDetails):Q.IPromise<model.HttpResponse> => {
-                    if (!login.isSuper && request.parameters.target != login.username)
-                        return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
-
-                    return this.getUserAsResponse(request.parameters.target);
-                });
-        }
-
-        private getUserAsResponse(username) : Q.IPromise<model.HttpResponse> {
-            var validation = validate.ValidateUsername(username);
-            if (validation.success)
-                return this.getUser.run(username)
-                    .then((user) => {
-                        if (user)
-                            return new model.HttpResponse(200, { "email": user.email });
-                        else
-                            return new model.HttpResponse(404, {
-                                "code": "ResourceNotFound",
-                                "message": "User not found"
-                            });
-                    });
-            else
-                return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validation.reason }));
+                var validation = validate.ValidateUsername(request.parameters.target);
+                if (validation.success)
+                    return this.userRepository.getUser(request.parameters.target)
+                        .then((user) => {
+                            if (user)
+                                return new model.HttpResponse(200, { "email": user.email });
+                            else
+                                return new model.HttpResponse(404, {
+                                    "code": "ResourceNotFound",
+                                    "message": "User not found"
+                                });
+                        });
+                else
+                    return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validation.reason }));
+            });
         }
     }
 }

@@ -1,18 +1,19 @@
-/// <reference path="../typings/node/node.d.ts" />
-/// <reference path="controller/VerifyController.ts" />
-/// <reference path="controller/UserController.ts" />
-/// <reference path="controller/ProjectController.ts" />
-/// <reference path="model/HttpResponse.ts" />
-/// <reference path="model/HttpRequest.ts" />
-/// <reference path="service/AuthenticateUserAsTarget.ts" />
-/// <reference path="data/bootstrap_database.ts" />
-/// <reference path="data/AuthenticateUser.ts" />
-/// <reference path="data/user/CRUD.ts" />
-/// <reference path="data/project/CRUD.ts" />
+/// <reference path='model/Configuration.ts' />
 
-var Q = require("q");
+/// <reference path='../typings/node/node.d.ts'/>
+/// <reference path='controller/ProjectController.ts'/>
+/// <reference path='controller/ProjectsController.ts'/>
+/// <reference path='controller/UserController.ts'/>
+/// <reference path='controller/UsersController.ts'/>
+/// <reference path='controller/VerifyController.ts'/>
 
-function startServer(configuration, database) {
+/// <reference path='model/HttpRequest.ts'/>
+/// <reference path='model/HttpResponse.ts'/>
+
+/// <reference path="data/bootstrapDatabase.ts" />
+/// <reference path="data/ProjectRepository.ts" />
+
+function startServer(configuration : model.Configuration, database : any) {
 
     var restify = require("restify");
     var server = restify.createServer({name: "zander"})
@@ -59,58 +60,35 @@ function startServer(configuration, database) {
             .forEach(function (x) {
                 console.log("Register " + x + " to path " + path);
 
-                var controllerHandler = function (request) {
+                server[x](path, createControllerRequestHandler(function (request) {
                     return controller[x](request);
-                };
-                server[x](path, createControllerRequestHandler(controllerHandler))
+                }))
             });
     }
 
     var datas = {
-        "user": {
-            "authenticate": new data.AuthenticateUser(configuration, database),
-            "create": new data.user.CreateUserInDatabase(configuration.hashAlgorithm, database),
-            "get": new data.user.GetUserFromDatabase(database),
-            "delete": new data.user.DeleteUserFromDatabase(database),
-            "update": new data.user.UpdateUserInDatabase(configuration.hashAlgorithm, database)
-        },
-        "project": {
-            "create": new data.project.CreateProjectInDatabase(database),
-            "get": new data.project.GetProjectFromDatabase(database),
-            "delete": new data.project.DeleteProjectFromDatabase(database),
-            "update": new data.project.UpdateProjectInDatabase(database),
-            "deleteForUser": new data.project.DeleteUsersProjectsFromDatabase(database)
-        }
+        "authenticate": new data.AuthenticateUser(configuration, database),
+        "user": new data.UserRepository(configuration.hashAlgorithm, database),
+        "project": new data.ProjectRepository(database)
     };
 
     var services = {
-        "authenticate": {
-            "user": new service.AuthenticationService(datas.user.authenticate)
-        }
+        "authenticate": new service.AuthenticationService(datas.authenticate)
     };
 
     var controllers = {
         "verify": new controller.VerifyController(),
-        "user": new controller.UserController(configuration,
-            services.authenticate.user,
-            datas.user.create,
-            datas.user.get,
-            datas.user.delete,
-            datas.user.update,
-            datas.project.deleteForUser),
-        "project": new controller.ProjectController(configuration,
-            services.authenticate.user,
-            datas.project.create,
-            datas.project.get,
-            datas.project.delete,
-            datas.project.update)
+        "user": new controller.UserController(configuration, services.authenticate, datas.user, datas.project),
+        "users": new controller.UsersController(configuration, services.authenticate, datas.user, datas.project),
+        "project": new controller.ProjectController(configuration, services.authenticate, datas.project),
+        "projects": new controller.ProjectsController(configuration, services.authenticate, datas.project)
 
     };
 
     addController("/verify", controllers.verify);
-    addController("/user", controllers.user);
+    addController("/user", controllers.users);
     addController("/user/:target", controllers.user);
-    addController("/project", controllers.project);
+    addController("/project", controllers.projects);
     addController("/project/:target", controllers.project);
 
     server.listen(configuration.port);

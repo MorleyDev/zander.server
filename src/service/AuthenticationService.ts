@@ -1,8 +1,8 @@
-/// <reference path="../data/AuthenticateUser.ts" />
-/// <reference path="../model/LoggedInUser.ts" />
-/// <reference path="../model/HttpResponse.ts" />
-/// <reference path="AuthenticateUserAsTarget.ts" />
-/// <reference path="../../typings/Q/Q.d.ts" />
+/// <reference path='../model/LoggedInUser.ts'/>
+/// <reference path='../data/AuthenticateUser.ts'/>
+/// <reference path='../../typings/Q/Q.d.ts'/>
+
+var Q = require('q');
 
 module service {
     export enum LogInResultType {
@@ -30,7 +30,19 @@ module service {
             this.authenticateUser = authenticateUser;
         }
 
-        public requireAtLeastUser(authorization) : Q.IPromise<LogInResult> {
+        public atLeastUser(authorization, onSuccess : (result : model.LoggedInUserDetails) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
+            return this
+                .requireAtLeastUser(authorization)
+                .then((result:service.LogInResult) => { return AuthenticationService.LogInResultToHttpStatusCode(result, onSuccess); });
+        }
+
+        public atLeastSuper(authorization, onSuccess : (result : model.LoggedInUserDetails) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
+            return this
+                .requireSuper(authorization)
+                .then((result:service.LogInResult) => { return AuthenticationService.LogInResultToHttpStatusCode(result, onSuccess); });
+        }
+
+        private requireAtLeastUser(authorization) : Q.IPromise<LogInResult> {
             var authenticateUser = this.authenticateUser;
 
             return authenticateUser.authenticateGodUser(authorization).then((result) => {
@@ -46,7 +58,7 @@ module service {
             });
         }
 
-        public requireSuper(authorization) : Q.IPromise<LogInResult> {
+        private requireSuper(authorization) : Q.IPromise<LogInResult> {
             var authenticateUser = this.authenticateUser;
 
             return authenticateUser.authenticateGodUser(authorization).then((result) => {
@@ -76,18 +88,6 @@ module service {
                 default:
                     return Q(new model.HttpResponse(500, { "code": "InternalServerError" }));
             }
-        }
-
-        public atLeastUser(authorization, onSuccess : (result : model.LoggedInUserDetails) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
-            return this
-                .requireAtLeastUser(authorization)
-                .then((result:service.LogInResult) => { return AuthenticationService.LogInResultToHttpStatusCode(result, onSuccess); });
-        }
-
-        public atLeastSuper(authorization, onSuccess : (result : model.LoggedInUserDetails) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
-            return this
-                .requireSuper(authorization)
-                .then((result:service.LogInResult) => { return AuthenticationService.LogInResultToHttpStatusCode(result, onSuccess); });
         }
     }
 }

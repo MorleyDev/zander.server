@@ -24,8 +24,9 @@ module.exports.ProjectUpdatePutDto = function(_git) {
     };
 };
 
-module.exports.ProjectUpdatePutResponseDto = function(_git) {
+module.exports.ProjectUpdatePutResponseDto = function(_git, _href) {
     return {
-    "git" : _git
+        "git" : _git,
+        "_href": _href
     };
 };

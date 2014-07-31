@@ -22,9 +22,9 @@ Configuration file, config.json, is loaded from the server installed directory. 
 | sqlite | If specified, will use the specified sqlite file for as the database backing. Uses memory by default, so if you want to use a sqlite file to persist data to then it must be manually specified. | ":memory:"
 
 ## Launching Server
-The server can be ran via npm, nod. Simply launching server.js via node server.js in the root install directory will launch the server. Likewise, npm start from the root install directory will install the server.
+The server can be ran via npm or node. Simply launching server.js via node server.js in the root install directory will launch the server. Likewise, npm start from the root install directory will install the server.
 
-If you wish to use a tool like forever to run the server, then server.js in the root directory is the target server file to specify for forever to run.
+If you wish to use a tool like forever or pm2 to run the server, then server.js in the root directory is the target server file to specify to run.
 
 ## API
 
