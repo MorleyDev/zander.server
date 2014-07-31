@@ -12,6 +12,7 @@
 
 /// <reference path="data/bootstrapDatabase.ts" />
 /// <reference path="data/ProjectRepository.ts" />
+/// <reference path="data/UserRepository.ts" />
 
 function startServer(configuration : model.Configuration, database : any) {
 
@@ -25,6 +26,22 @@ function startServer(configuration : model.Configuration, database : any) {
 
     if (configuration.throttle)
         server.use(restify.throttle(configuration.throttle));
+
+    var datas : any = { };
+    datas.project = new data.ProjectRepository(database);
+    datas.user = new data.UserRepository(configuration.hashAlgorithm, database);
+    datas.authenticate = new data.BasicAuthenticateUser(configuration, datas.user);
+
+    var services : any = { };
+    services.authenticate = new service.AuthenticationService(datas.authenticate);
+
+    var controllers = {
+        "verify": new controller.VerifyController(),
+        "user": new controller.UserController(datas.user, datas.project),
+        "users": new controller.UsersController(configuration.host, datas.user, datas.project),
+        "project": new controller.ProjectController(datas.project),
+        "projects": new controller.ProjectsController(configuration.host, datas.project)
+    };
 
     function addController(path:string, controller) {
 
@@ -62,28 +79,16 @@ function startServer(configuration : model.Configuration, database : any) {
                 console.log("Register " + x + " to path " + path);
 
                 server[x](path, createControllerRequestHandler(function (request) {
+                    var minAuthLevel = controller[x + "AuthLevel"] || model.AuthenticationLevel.None;
+                    if (minAuthLevel > model.AuthenticationLevel.None) {
+                        return services.authenticate.atLeast(minAuthLevel, request, function (request) {
+                            return controller[x](request);
+                        });
+                    }
                     return controller[x](request);
                 }))
             });
     }
-
-    var datas : any = { };
-    datas.project = new data.ProjectRepository(database);
-    datas.user = new data.UserRepository(configuration.hashAlgorithm, database);
-    datas.authenticate = new data.BasicAuthenticateUser(configuration, datas.user);
-
-    var services : any = { };
-    services.authenticate = new service.AuthenticationService(datas.authenticate);
-
-    var controllers = {
-        "verify": new controller.VerifyController(),
-
-        "user": new controller.UserController(services.authenticate, datas.user, datas.project),
-        "users": new controller.UsersController(configuration.host, services.authenticate, datas.user, datas.project),
-
-        "project": new controller.ProjectController(services.authenticate, datas.project),
-        "projects": new controller.ProjectsController(configuration.host, services.authenticate, datas.project)
-    };
 
     addController("/verify", controllers.verify);
     addController("/user/", controllers.users);

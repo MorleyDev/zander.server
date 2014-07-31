@@ -2,10 +2,8 @@
 /// <reference path='UserRepository.ts'/>
 /// <reference path='../model/Configuration.ts'/>
 
-module data
-{
+module data {
     export class AuthenticationResult {
-
         constructor(success: boolean, reason: string, username: string, userid: string) {
             this.success = success;
             this.reason = reason;

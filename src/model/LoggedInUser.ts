@@ -1,13 +1,19 @@
 module model {
+    export enum AuthenticationLevel {
+        None = 0,
+        User = 1,
+        Super = 2
+    }
+
      export class LoggedInUserDetails {
-         constructor(username : string, isSuper : boolean, userId : string) {
+         constructor(username : string, authLevel : AuthenticationLevel, userId : string) {
              this.username = username;
-             this.isSuper = isSuper;
              this.userId = userId;
+             this.authLevel = authLevel;
          }
 
          public username : string;
          public userId : string;
-         public isSuper : boolean;
+         public authLevel : AuthenticationLevel;
     }
 }

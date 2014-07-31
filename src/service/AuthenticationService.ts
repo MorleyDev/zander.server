@@ -30,16 +30,36 @@ module service {
             this.authenticateUser = authenticateUser;
         }
 
-        public atLeastUser(authorization, onSuccess : (result : model.LoggedInUserDetails) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
+        public atLeast(minAuthLevel : model.AuthenticationLevel,
+                       request : model.HttpRequest,
+                       onSuccess : (result : model.HttpRequest) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
             return this
-                .requireAtLeastUser(authorization)
-                .then(AuthenticationService.handleLogInResult(onSuccess));
+                .requireAtLeast(minAuthLevel, request.authorization)
+                .then(AuthenticationService.handleLogInResult(request, onSuccess));
         }
 
-        public atLeastSuper(authorization, onSuccess : (result : model.LoggedInUserDetails) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
-            return this
-                .requireSuper(authorization)
-                .then(AuthenticationService.handleLogInResult(onSuccess));
+        private requireAtLeast(minAuthLevel : model.AuthenticationLevel, authorization) : Q.IPromise<LogInResult> {
+
+            if (minAuthLevel < model.AuthenticationLevel.User)
+                return Q(new LogInResult(LogInResultType.Success, undefined, undefined));
+
+            return this.authenticateUser
+                .authenticateGodUser(authorization)
+                .then((result) => {
+                if (result.success)
+                    return Q(new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, model.AuthenticationLevel.Super, result.userid)));
+
+                return this.authenticateUser.authenticateStandardUser(authorization)
+                    .then((result:data.AuthenticationResult) => {
+                        if (result.success) {
+                            if (minAuthLevel > model.AuthenticationLevel.User)
+                                return new LogInResult(LogInResultType.Rejection, "Do not possess required permission level", undefined);
+
+                            return new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, model.AuthenticationLevel.User, result.userid));
+                        }
+                        return new LogInResult(LogInResultType.Failure, result.reason, undefined);
+                    });
+            });
         }
 
         private requireAtLeastUser(authorization) : Q.IPromise<LogInResult> {
@@ -47,12 +67,12 @@ module service {
 
             return authenticateUser.authenticateGodUser(authorization).then((result) => {
                 if (result.success)
-                    return Q(new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, true, result.userid)));
+                    return Q(new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, model.AuthenticationLevel.Super, result.userid)));
 
                 return authenticateUser.authenticateStandardUser(authorization)
                     .then((result:data.AuthenticationResult) => {
                         if (result.success)
-                            return new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, false, result.userid));
+                            return new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, model.AuthenticationLevel.User, result.userid));
                         return new LogInResult(LogInResultType.Failure, result.reason, undefined);
                     });
             });
@@ -63,7 +83,7 @@ module service {
 
             return authenticateUser.authenticateGodUser(authorization).then((result) => {
                 if (result.success)
-                    return Q(new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, true, result.userid)));
+                    return Q(new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, model.AuthenticationLevel.Super, result.userid)));
 
                 return authenticateUser.authenticateStandardUser(authorization)
                     .then((result:data.AuthenticationResult) => {
@@ -74,12 +94,13 @@ module service {
             });
         }
 
-        private static handleLogInResult(onSuccess : (result : model.LoggedInUserDetails) => Q.IPromise<model.HttpResponse>)
+        private static handleLogInResult(request : model.HttpRequest, onSuccess : (request : model.HttpRequest) => Q.IPromise<model.HttpResponse>)
                 : (result: service.LogInResult) => Q.IPromise<model.HttpResponse> {
-            return function (result:service.LogInResult) {
+            return function (result: service.LogInResult) {
                 switch (result.type) {
                     case service.LogInResultType.Success:
-                        return onSuccess(result.user);
+                        request.user = result.user;
+                        return onSuccess(request);
 
                     case service.LogInResultType.Rejection:
                         return Q(new model.HttpResponse(403, { "code": "Forbidden", "message": result.reason }));

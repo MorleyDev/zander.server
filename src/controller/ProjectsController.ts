@@ -1,4 +1,3 @@
-/// <reference path='../service/AuthenticationService.ts' />
 /// <reference path='../validate/ValidateProjectDto.ts' />
 /// <reference path='../data/ProjectRepository.ts' />
 /// <reference path='../model/Configuration.ts' />
@@ -8,41 +7,35 @@ module controller {
     export class ProjectsController {
 
         private host : string;
-        private authenticateUser: service.AuthenticationService;
         private projectRepository: data.ProjectRepository;
 
         constructor(host : string,
-                    authenticateUser: service.AuthenticationService,
                     projectRepository: data.ProjectRepository) {
             this.host = host;
-            this.authenticateUser = authenticateUser;
             this.projectRepository = projectRepository;
         }
 
+        public postAuthLevel = model.AuthenticationLevel.User;
         public post(request:model.HttpRequest) : Q.IPromise<model.HttpResponse> {
-            return this.authenticateUser.atLeastUser(request.authorization, (login : model.LoggedInUserDetails) => {
-                var result = validate.ValidateCreateProjectDto(request.body);
+            var result = validate.ValidateCreateProjectDto(request.body);
+            if (!result.success)
+                return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": result.reason }));
 
-                if (!result.success)
-                    return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": result.reason }));
-                else {
-                    return this.projectRepository.getProject(request.body.name)
-                        .then((project) => {
-                            if (project)
-                                return new model.HttpResponse(409, {
-                                    "code": "Conflict",
-                                    "message": "Project already exists"
-                                });
-                            return this.projectRepository.createProject(login.userId, request.body.name, request.body.git)
-                                .then(() => {
-                                    return new model.HttpResponse(201, {
-                                        _href: this.host + "/project/" + request.body.name,
-                                        git: request.body.git
-                                    });
-                                });
+            return this.projectRepository.getProject(request.body.name)
+                .then((project) => {
+                    if (project)
+                        return new model.HttpResponse(409, {
+                            "code": "Conflict",
+                            "message": "Project already exists"
                         });
-                }
-            });
+                    return this.projectRepository.createProject(request.user.userId, request.body.name, request.body.git)
+                        .then(() => {
+                            return new model.HttpResponse(201, {
+                                _href: this.host + "/project/" + request.body.name,
+                                git: request.body.git
+                            });
+                        });
+                });
         }
 
         public put(request:model.HttpRequest) {

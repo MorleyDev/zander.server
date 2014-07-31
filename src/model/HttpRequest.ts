@@ -1,9 +1,13 @@
+/// <reference path='LoggedInUser.ts'/>
+
 module model {
     export class HttpRequest {
-        public authorization;
-        public headers;
-        public parameters;
-        public body;
-        public log;
+        public authorization : any;
+        public headers : any;
+        public parameters : any;
+        public body : any;
+        public log : any;
+
+        public user : LoggedInUserDetails;
     }
 }
