@@ -78,15 +78,12 @@ function startServer(configuration : model.Configuration, database : any) {
             .forEach(function (x) {
                 console.log("Register " + x + " to path " + path);
 
-                server[x](path, createControllerRequestHandler(function (request) {
+                server[x](path, createControllerRequestHandler(function (request : model.HttpRequest) : Q.IPromise<model.HttpResponse> {
                     var minAuthLevel = controller[x + "AuthLevel"] || model.AuthenticationLevel.None;
-                    if (minAuthLevel > model.AuthenticationLevel.None) {
-                        return services.authenticate.atLeast(minAuthLevel, request, function (request) {
-                            return controller[x](request);
-                        });
-                    }
-                    return controller[x](request);
-                }))
+                    return services.authenticate.atLeast(minAuthLevel, request, function (request) {
+                        return controller[x](request);
+                    });
+                }));
             });
     }
 
