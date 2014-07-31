@@ -84,6 +84,12 @@ module controller {
 
                 return this.getUser.run(request.parameters.target)
                     .then((user) => {
+                        if (!user)
+                            return new model.HttpResponse(404, {
+                                "code": "ResourceNotFound",
+                                "message": "User not found"
+                            });
+
                         return this.updateUser.run(user.id, request.body.email, request.body.password).then((id) => {
                             return new model.HttpResponse(200, { "email": request.body.email });
                         });

@@ -45,7 +45,7 @@ module data
             return new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined);
         }
 
-        authenticateStandardUser(authorization) : any {
+        authenticateStandardUser(authorization) : Q.IPromise<AuthenticationResult> {
 
             var hashType = this._hashType;
 
@@ -67,8 +67,6 @@ module data
                             if (user.password === hashedPassword)
                                 return new AuthenticationResult(true, undefined, user.username, user.id);
                         }
-                        return new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined);
-                    }, (err) => {
                         return new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined);
                     });
             }

@@ -51,7 +51,7 @@ describe("Given a Rest Client and god credentials", function () {
         client.basicAuth(configuration.goduser.name, configuration.goduser.password);
         done();
     });
-    describe("When PUT the user endpoint", function () {
+    describe("When PUT the root user endpoint", function () {
         var response;
 
         before(function (done) {
@@ -106,6 +106,22 @@ describe("Given a Rest Client and god credentials", function () {
         });
         it("Then a 400 Bad Request response is returned", function () {
             assert.equal(response.statusCode, 400);
+        });
+    });
+    describe("When PUT a non-existent user endpoint", function () {
+        var actualResultPutUserDto;
+        var response;
+        before(function (done) {
+            client.put("/user/" + "gobbledegook",
+                require("../models/UserDtos").CreateUserPutDto("asdfaskuf@asfhas.com", "pogasha"),
+                function (err, req, res, obj) {
+                    response = res;
+                    actualResultPutUserDto = obj;
+                    done();
+                });
+        });
+        it("Then a 404 Not Found response is returned", function () {
+            assert.equal(response.statusCode, 404);
         });
     });
 });
