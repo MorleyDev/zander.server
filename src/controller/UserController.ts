@@ -10,13 +10,11 @@ module controller {
 
     export class UserController {
 
-        private configuration : model.Configuration;
         private authenticationService:service.AuthenticationService;
         private userRepository:data.UserRepository;
         private projectRepository:data.ProjectRepository;
 
-        constructor(configuration : model.Configuration, authenticateUser:service.AuthenticationService, userRepository:data.UserRepository, deleteProjects:data.ProjectRepository) {
-            this.configuration = configuration;
+        constructor(authenticateUser:service.AuthenticationService, userRepository:data.UserRepository, deleteProjects:data.ProjectRepository) {
             this.authenticationService = authenticateUser;
             this.userRepository = userRepository;
             this.projectRepository = deleteProjects

@@ -199,7 +199,7 @@ Expected Request Body:
 Success Response Body: 
 
     {
-        "git" : "[git url]"
+            "git" : "[git url]"
     }
     
 Possible Status Codes

@@ -7,14 +7,14 @@
 module controller {
     export class ProjectsController {
 
-        private configuration : model.Configuration;
+        private host : string;
         private authenticateUser: service.AuthenticationService;
         private projectRepository: data.ProjectRepository;
 
-        constructor(configuration : model.Configuration,
+        constructor(host : string,
                     authenticateUser: service.AuthenticationService,
                     projectRepository: data.ProjectRepository) {
-            this.configuration = configuration;
+            this.host = host;
             this.authenticateUser = authenticateUser;
             this.projectRepository = projectRepository;
         }
@@ -36,7 +36,7 @@ module controller {
                             return this.projectRepository.createProject(login.userId, request.body.name, request.body.git)
                                 .then(() => {
                                     return new model.HttpResponse(201, {
-                                        _href: this.configuration.host + "/project/" + request.body.name,
+                                        _href: this.host + "/project/" + request.body.name,
                                         git: request.body.git
                                     });
                                 });

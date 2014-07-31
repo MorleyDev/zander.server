@@ -9,14 +9,11 @@ var Q = require('q');
 module controller {
     export class ProjectController {
 
-        private configuration : model.Configuration;
         private authenticateUser: service.AuthenticationService;
         private projectRepository: data.ProjectRepository;
 
-        constructor(configuration : model.Configuration,
-                    authenticateUser: service.AuthenticationService,
+        constructor(authenticateUser: service.AuthenticationService,
                     projectRepository: data.ProjectRepository) {
-            this.configuration = configuration;
             this.authenticateUser = authenticateUser;
             this.projectRepository = projectRepository;
         }
@@ -40,8 +37,7 @@ module controller {
                             return this.projectRepository.updateProject(project.name, request.body.git)
                                 .then(() => {
                                     return new model.HttpResponse(200, {
-                                        "git": request.body.git,
-                                        _href: this.configuration.host + "/project/" + project.name
+                                        "git": request.body.git
                                     });
                                 });
                         }

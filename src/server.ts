@@ -78,10 +78,10 @@ function startServer(configuration : model.Configuration, database : any) {
 
     var controllers = {
         "verify": new controller.VerifyController(),
-        "user": new controller.UserController(configuration, services.authenticate, datas.user, datas.project),
-        "users": new controller.UsersController(configuration, services.authenticate, datas.user, datas.project),
-        "project": new controller.ProjectController(configuration, services.authenticate, datas.project),
-        "projects": new controller.ProjectsController(configuration, services.authenticate, datas.project)
+        "user": new controller.UserController(services.authenticate, datas.user, datas.project),
+        "users": new controller.UsersController(configuration.host, services.authenticate, datas.user, datas.project),
+        "project": new controller.ProjectController(services.authenticate, datas.project),
+        "projects": new controller.ProjectsController(configuration.host, services.authenticate, datas.project)
 
     };
 

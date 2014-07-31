@@ -10,13 +10,13 @@ module controller {
 
     export class UsersController {
 
-        private configuration : model.Configuration;
+        private host : string;
         private authenticationService:service.AuthenticationService;
         private userRepository:data.UserRepository;
         private projectRepository:data.ProjectRepository;
 
-        constructor(configuration : model.Configuration, authenticateUser:service.AuthenticationService, userRepository:data.UserRepository, deleteProjects:data.ProjectRepository) {
-            this.configuration = configuration;
+        constructor(host : string, authenticateUser:service.AuthenticationService, userRepository:data.UserRepository, deleteProjects:data.ProjectRepository) {
+            this.host = host;
             this.authenticationService = authenticateUser;
             this.userRepository = userRepository;
             this.projectRepository = deleteProjects
@@ -42,7 +42,7 @@ module controller {
                         return new model.HttpResponse(201, {
                             "email": request.body.email,
                             "username": request.body.username,
-                            "_href": this.configuration.host + "/user/" + request.body.username
+                            "_href": this.host + "/user/" + request.body.username
                         });
                     });
                 });
