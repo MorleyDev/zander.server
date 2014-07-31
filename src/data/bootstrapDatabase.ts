@@ -52,7 +52,7 @@ function bootstrap_database(type : DatabaseType, config, finalCallback) {
 
         if (currentVersion > upperVersion) {
             callback("Unknown version installed")
-        } else if (currentVersion == upperVersion) {
+        } else if (currentVersion === upperVersion) {
             console.log("Current Version Installed");
             callback(null)
         } else {

@@ -31,7 +31,7 @@ module controller {
                 return this.projectRepository.getProject(request.parameters.target)
                     .then((project) => {
                         if (project) {
-                            if (!login.isSuper && project.userId != login.userId)
+                            if (!login.isSuper && project.userId !== login.userId)
                                 return new model.HttpResponse(403, { "code": "Forbidden" });
 
                             return this.projectRepository.updateProject(project.name, request.body.git)
@@ -55,7 +55,7 @@ module controller {
                     .then((project) => {
                         if (!project)
                             return new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Project not found" });
-                        if (!login.isSuper && project.userId != login.userId)
+                        if (!login.isSuper && project.userId !== login.userId)
                             return new model.HttpResponse(403, { "code": "Forbidden" });
 
                         return this.projectRepository.deleteProject(project.name)

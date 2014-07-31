@@ -1,5 +1,5 @@
 /// <reference path='../model/LoggedInUser.ts'/>
-/// <reference path='../data/AuthenticateUser.ts'/>
+/// <reference path='../data/BasicAuthenticateUser.ts'/>
 /// <reference path='../../typings/Q/Q.d.ts'/>
 
 var Q = require('q');
@@ -24,9 +24,9 @@ module service {
     }
 
     export class AuthenticationService {
-        private authenticateUser : data.AuthenticateUser;
+        private authenticateUser : data.BasicAuthenticateUser;
 
-        constructor(authenticateUser : data.AuthenticateUser) {
+        constructor(authenticateUser : data.BasicAuthenticateUser) {
             this.authenticateUser = authenticateUser;
         }
 

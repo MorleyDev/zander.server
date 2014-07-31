@@ -41,7 +41,7 @@ function startServer(configuration : model.Configuration, database : any) {
 
                 method(httpRequest)
                     .then((httpResponse:model.HttpResponse) => {
-                        httpResponse.content != null
+                        httpResponse.content !== null
                             ? response.send(httpResponse.statusCode, httpResponse.content)
                             : response.send(httpResponse.statusCode);
                     }, (e) => {
@@ -56,7 +56,7 @@ function startServer(configuration : model.Configuration, database : any) {
         // function and handler so that it will be invoked on such a request on path
         ["get", "head", "post", "put", "del"]
             .filter(function (x) {
-                return controller[x] != null;
+                return controller[x] !== undefined;
             })
             .forEach(function (x) {
                 console.log("Register " + x + " to path " + path);
@@ -67,23 +67,22 @@ function startServer(configuration : model.Configuration, database : any) {
             });
     }
 
-    var datas = {
-        "authenticate": new data.AuthenticateUser(configuration, database),
-        "user": new data.UserRepository(configuration.hashAlgorithm, database),
-        "project": new data.ProjectRepository(database)
-    };
+    var datas : any = { };
+    datas.project = new data.ProjectRepository(database);
+    datas.user = new data.UserRepository(configuration.hashAlgorithm, database);
+    datas.authenticate = new data.BasicAuthenticateUser(configuration, datas.user);
 
-    var services = {
-        "authenticate": new service.AuthenticationService(datas.authenticate)
-    };
+    var services : any = { };
+    services.authenticate = new service.AuthenticationService(datas.authenticate);
 
     var controllers = {
         "verify": new controller.VerifyController(),
+
         "user": new controller.UserController(services.authenticate, datas.user, datas.project),
         "users": new controller.UsersController(configuration.host, services.authenticate, datas.user, datas.project),
+
         "project": new controller.ProjectController(services.authenticate, datas.project),
         "projects": new controller.ProjectsController(configuration.host, services.authenticate, datas.project)
-
     };
 
     addController("/verify", controllers.verify);

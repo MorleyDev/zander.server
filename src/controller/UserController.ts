@@ -29,7 +29,7 @@ module controller {
 
         public put(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             return this.authenticationService.atLeastUser(request.authorization, (login:model.LoggedInUserDetails):Q.IPromise<model.HttpResponse> => {
-                if (!login.isSuper && request.parameters.target != login.username)
+                if (!login.isSuper && request.parameters.target !== login.username)
                     return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
 
                 var validation = validate.ValidateUpdateUserDto(request.body);
@@ -53,7 +53,7 @@ module controller {
 
         public del(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             return this.authenticationService.atLeastUser(request.authorization, (login:model.LoggedInUserDetails):Q.IPromise<model.HttpResponse> => {
-                if (!login.isSuper && request.parameters.target != login.username)
+                if (!login.isSuper && request.parameters.target !== login.username)
                     return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
 
                 var validateUsername = validate.ValidateUsername(request.parameters.target);
@@ -76,7 +76,7 @@ module controller {
 
         public get(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             return this.authenticationService.atLeastUser(request.authorization, (login:model.LoggedInUserDetails):Q.IPromise<model.HttpResponse> => {
-                if (!login.isSuper && request.parameters.target != login.username)
+                if (!login.isSuper && request.parameters.target !== login.username)
                     return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
 
                 var validation = validate.ValidateUsername(request.parameters.target);
