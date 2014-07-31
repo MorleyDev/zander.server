@@ -31,18 +31,18 @@ module data
             this._database = database;
         }
 
-        authenticateGodUser(authorization) : AuthenticationResult {
+        authenticateGodUser(authorization) : Q.IPromise<AuthenticationResult> {
             if (!authorization || !authorization.scheme)
-                return new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined);
+                return Q(new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined));
             if (authorization.scheme != "Basic" || !authorization.basic)
-                return new AuthenticationResult(false, "Unrecognised authorization scheme", undefined, undefined);
+                return Q(new AuthenticationResult(false, "Unrecognised authorization scheme", undefined, undefined));
 
             var username = authorization.basic.username;
             var password = authorization.basic.password;
             if (this._goduser && username && password && username == this._goduser.name && password == this._goduser.password)
-                return new AuthenticationResult(true, undefined, username, "00000000-0000-0000-0000-000000000000");
+                return Q(new AuthenticationResult(true, undefined, username, "00000000-0000-0000-0000-000000000000"));
 
-            return new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined);
+            return Q(new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined));
         }
 
         authenticateStandardUser(authorization) : Q.IPromise<AuthenticationResult> {

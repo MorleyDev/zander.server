@@ -13,7 +13,7 @@ module controller {
     export class UserController {
 
         private configuration;
-        private authenticateUserAndRespond : service.AuthenticateUserAndRespond;
+        private authenticationService : service.AuthenticationService;
         private createUser : data.user.CreateUserInDatabase;
         private getUser : data.user.GetUserFromDatabase;
         private deleteUser : data.user.DeleteUserFromDatabase;
@@ -21,14 +21,14 @@ module controller {
         private deleteProjects : data.project.DeleteUsersProjectsFromDatabase;
 
         constructor(configuration,
-                    authenticateUser : service.AuthenticateUserAndRespond,
+                    authenticateUser : service.AuthenticationService,
                     createUser : data.user.CreateUserInDatabase,
                     getUser : data.user.GetUserFromDatabase,
                     deleteUser : data.user.DeleteUserFromDatabase,
                     updateUser : data.user.UpdateUserInDatabase,
                     deleteProjects : data.project.DeleteUsersProjectsFromDatabase) {
             this.configuration = configuration;
-            this.authenticateUserAndRespond = authenticateUser;
+            this.authenticationService = authenticateUser;
             this.createUser = createUser;
             this.getUser = getUser;
             this.deleteUser = deleteUser;
@@ -44,7 +44,7 @@ module controller {
                     "message": "POST not supported on user"
                 }));
 
-            return this.authenticateUserAndRespond.atLeastSuper(request.authorization, (login:service.LogInResult):Q.IPromise<model.HttpResponse> => {
+            return this.authenticationService.atLeastSuper(request.authorization, (login: model.LoggedInUserDetails) : Q.IPromise<model.HttpResponse> => {
                 var validation = validate.ValidateCreateUserDto(request.body);
                 if (!validation.success)
                     return Q(new model.HttpResponse(400, {
@@ -77,7 +77,10 @@ module controller {
                     "message": "Missing Url Arguments"
                 }));
 
-            return this.authenticateUserAndRespond.atLeastIsUser(request.authorization, request.parameters.target, (login:service.LogInResult):Q.IPromise<model.HttpResponse> => {
+            return this.authenticationService.atLeastUser(request.authorization, (login:model.LoggedInUserDetails):Q.IPromise<model.HttpResponse> => {
+                if (!login.isSuper && request.parameters.target != login.username)
+                    return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
+
                 var validation = validate.ValidateUpdateUserDto(request.body);
                 if (!validation.success)
                     return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validation.reason }));
@@ -104,7 +107,10 @@ module controller {
                     "message": "Missing Url Arguments"
                 }));
 
-            return this.authenticateUserAndRespond.atLeastIsUser(request.authorization, request.parameters.target, (result:service.LogInResult):Q.IPromise<model.HttpResponse> => {
+            return this.authenticationService.atLeastUser(request.authorization, (login:model.LoggedInUserDetails) : Q.IPromise<model.HttpResponse> => {
+                if (!login.isSuper && request.parameters.target != login.username)
+                    return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
+
                 var validateUsername = validate.ValidateUsername(request.parameters.target);
                 if (!validateUsername.success)
                     return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validateUsername.reason }));
@@ -130,8 +136,10 @@ module controller {
                     "message": "Missing Url Arguments"
                 }));
 
-            return this.authenticateUserAndRespond.atLeastIsUser(request.authorization, request.parameters.target,
-                (loginUser:service.LogInResult):Q.IPromise<model.HttpResponse> => {
+            return this.authenticationService.atLeastUser(request.authorization, (login: model.LoggedInUserDetails):Q.IPromise<model.HttpResponse> => {
+                    if (!login.isSuper && request.parameters.target != login.username)
+                        return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
+
                     return this.getUserAsResponse(request.parameters.target);
                 });
         }

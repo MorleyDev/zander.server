@@ -85,7 +85,7 @@ function startServer(configuration, database) {
 
     var services = {
         "authenticate": {
-            "user": new service.AuthenticateUserAndRespond(new service.AuthenticateUserAsTarget(datas.user.authenticate))
+            "user": new service.AuthenticationService(datas.user.authenticate)
         }
     };
 
