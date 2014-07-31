@@ -6,7 +6,7 @@
 /// <reference path="../data/project/CRUD.ts" />
 /// <reference path="../validate/ValidateProjectDto.ts" />
 
-var q = require("q");
+var Q = require("q");
 
 module controller {
     export class ProjectController {
@@ -27,34 +27,20 @@ module controller {
             this.updateProject = updateProject;
         }
 
-        private static createInternalServerError(log) {
-            return function (err) {
-                log.error(err);
-                return new model.HttpResponse(500, { "code": "InternalServerError" });
-            };
+        public post(request:model.HttpRequest) : Q.IPromise<model.HttpResponse> {
+            if (request.parameters.target)
+                return Q(new model.HttpResponse(405, { "code": "MethodNotAllowed", "message": "POST not supported on user" }));
+
+            return this.authenticateUser.atLeastUser(request.authorization, (result) => {
+                return ProjectController.createProjectForUser(this.configuration, result.user, request, this.getProject, this.createProject);
+            });
         }
 
-        public post(request:model.HttpRequest, callback:(m:model.HttpResponse) => void) {
-
-            var configuration = this.configuration;
-            var getProject = this.getProject;
-            var createProject = this.createProject;
-
-            q.fcall(() => {
-                if (request.parameters.target)
-                    return new model.HttpResponse(405, { "code": "MethodNotAllowed", "message": "POST not supported on user" });
-
-                return this.authenticateUser.atLeastUser(request.authorization, (result) => {
-                    return ProjectController.createProjectForUser(configuration, result.user, request, getProject, createProject);
-                });
-            }).then(callback);
-        }
-
-        private static createProjectForUser(configuration, user, request, getProject, createProject) {
+        private static createProjectForUser(configuration, user, request, getProject, createProject) : Q.IPromise<model.HttpResponse> {
             var result = validate.ValidateCreateProjectDto(request.body);
 
             if (!result.success)
-                return (new model.HttpResponse(400, { "code": "BadRequest", "message": result.reason }));
+                return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": result.reason }));
             else {
                 return getProject
                     .run(request.body.name)
@@ -71,31 +57,28 @@ module controller {
                                     _href: configuration.host + "/project/" + request.body.name,
                                     git: request.body.git
                                 });
-                            }, this.createInternalServerError(request.log));
-                    }, this.createInternalServerError(request.log));
+                            });
+                    });
             }
         }
 
-        public put(request:model.HttpRequest, callback:(m:model.HttpResponse) => void) {
+        public put(request:model.HttpRequest) {
 
-            q.fcall(() => {
-                if (!request.parameters.target)
-                    return new model.HttpResponse(405, {
-                        "code": "MethodNotAllowed",
-                        "message": "Missing Url Arguments"
-                    });
+            if (!request.parameters.target)
+                return Q(new model.HttpResponse(405, {
+                    "code": "MethodNotAllowed",
+                    "message": "Missing Url Arguments"
+                }));
 
-                return this.authenticateUser.atLeastUser(request.authorization, (loginUser:service.LogInResult) => {
-                    var targetProject = request.parameters.target;
-                    return ProjectController.updateProjectForUser(request, targetProject, loginUser.user, this.getProject, this.updateProject);
-                });
-            }).then(callback);
+            return this.authenticateUser.atLeastUser(request.authorization, (loginUser:service.LogInResult) => {
+                return ProjectController.updateProjectForUser(request, request.parameters.target, loginUser.user, this.getProject, this.updateProject);
+            });
         }
 
-        private static updateProjectForUser(request, targetProject, user, getProject, updateProject) {
+        private static updateProjectForUser(request, targetProject, user, getProject, updateProject) : Q.IPromise<model.HttpResponse> {
             var validateDto = validate.ValidateUpdateProjectDto(request.body);
             if (!validateDto.success)
-                return new model.HttpResponse(400, { "code": "BadRequest", "message": validateDto.reason });
+                return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validateDto.reason }));
 
             return getProject
                 .run(targetProject)
@@ -108,31 +91,28 @@ module controller {
                             .run(project.name, request.body.git)
                             .then(function () {
                                 return new model.HttpResponse(200, { "git": request.body.git });
-                            }, this.createInternalServerError(request.log));
+                            });
                     }
                     return new model.HttpResponse(404, {
                         "code": "ResourceNotFound",
                         "message": "Project not found"
                     });
-                }, this.createInternalServerError(request.log));
+                });
         }
 
-        public del(request:model.HttpRequest, callback:(m:model.HttpResponse) => void) {
-            q.fcall(() => {
-                if (request.parameters.target) {
+        public del(request:model.HttpRequest) : Q.IPromise<model.HttpResponse> {
+            if (request.parameters.target)
+                return this.authenticateUser.atLeastUser(request.authorization, (result) => {
+                    return ProjectController.deleteProjectForUser(request, result, this.getProject, this.deleteProject);
+                });
 
-                    return this.authenticateUser.atLeastUser(request.authorization, (result) => {
-                        return ProjectController.deleteProjectForUser(request, result, this.getProject, this.deleteProject);
-                    });
-                } else
-                    return new model.HttpResponse(405, {
-                        "code": "MethodNotAllowed",
-                        "message": "Missing Url Arguments"
-                    });
-            }).then(callback);
+            return Q(new model.HttpResponse(405, {
+                "code": "MethodNotAllowed",
+                "message": "Missing Url Arguments"
+            }));
         }
 
-        private static deleteProjectForUser(request, login, getProject, deleteProject) {
+        private static deleteProjectForUser(request, login, getProject, deleteProject) : Q.IPromise<model.HttpResponse> {
             return getProject
                 .run(request.parameters.target)
                 .then((project) => {
@@ -144,29 +124,27 @@ module controller {
                     return deleteProject.run(project.name)
                         .then(function () {
                             return new model.HttpResponse(204, { });
-                        }, this.createInternalServerError(request.log));
-                }, this.createInternalServerError(request.log));
+                        });
+                });
         }
 
-        public get(request:model.HttpRequest, callback:(m:model.HttpResponse) => void) {
-            q.fcall(() => {
-                if (!request.parameters.target)
-                    return new model.HttpResponse(405, { "code": "MethodNotAllowed",
-                        "message": "Missing Url Arguments"
-                    });
+        public get(request:model.HttpRequest) {
+            if (!request.parameters.target)
+                return Q(new model.HttpResponse(405, { "code": "MethodNotAllowed",
+                    "message": "Missing Url Arguments"
+                }));
 
-                return ProjectController.getRequestedProject(request, this.getProject);
-            }).then(callback);
+            return ProjectController.getRequestedProject(request, this.getProject);
         }
 
-        private static getRequestedProject(request, getProject) {
+        private static getRequestedProject(request, getProject) : Q.IPromise<model.HttpResponse> {
             return getProject
                 .run(request.parameters.target)
                 .then((project) => {
                     if (project)
                         return new model.HttpResponse(200, { "git": project.git });
                     return new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Project not found" });
-                }, this.createInternalServerError(request.log));
+                });
         }
     }
 }

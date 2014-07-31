@@ -10,7 +10,7 @@
 /// <reference path="data/user/CRUD.ts" />
 /// <reference path="data/project/CRUD.ts" />
 
-var q = require("q");
+var Q = require("q");
 
 function startServer(configuration, database) {
 
@@ -28,7 +28,7 @@ function startServer(configuration, database) {
 
         console.log("Register controller to path " + path);
 
-        function createControllerRequestHandler(method:(r:model.HttpRequest, c:(h:model.HttpResponse) => void) => void) {
+        function createControllerRequestHandler(method:(r:model.HttpRequest) => Q.IPromise<model.HttpResponse>) {
             return function (request, response, next) {
                 var httpRequest:model.HttpRequest = new model.HttpRequest();
                 httpRequest.authorization = request.authorization;
@@ -37,7 +37,7 @@ function startServer(configuration, database) {
                 httpRequest.body = request.body;
                 httpRequest.log = request.log;
 
-                q.nfcall(method, httpRequest)
+                method(httpRequest)
                     .then((httpResponse:model.HttpResponse) => {
                         httpResponse.content != null
                             ? response.send(httpResponse.statusCode, httpResponse.content)
@@ -46,7 +46,6 @@ function startServer(configuration, database) {
                         request.log.error(e);
                         response.send(500, { "code": "InternalServerError" })
                     });
-
                 return next();
             };
         }
@@ -60,14 +59,8 @@ function startServer(configuration, database) {
             .forEach(function (x) {
                 console.log("Register " + x + " to path " + path);
 
-                var controllerHandler = function (request, callback) {
-                    try {
-                        controller[x](request, function (m) {
-                            callback(undefined, m);
-                        });
-                    } catch (err) {
-                        callback(err, undefined);
-                    }
+                var controllerHandler = function (request) {
+                    return controller[x](request);
                 };
                 server[x](path, createControllerRequestHandler(controllerHandler))
             });
@@ -92,8 +85,7 @@ function startServer(configuration, database) {
 
     var services = {
         "authenticate": {
-            "user": new service.AuthenticateUserAsTarget(datas.user.authenticate),
-            "userHttpResult": new service.AuthenticateUserAndRespond(new service.AuthenticateUserAsTarget(datas.user.authenticate))
+            "user": new service.AuthenticateUserAndRespond(new service.AuthenticateUserAsTarget(datas.user.authenticate))
         }
     };
 
@@ -101,14 +93,13 @@ function startServer(configuration, database) {
         "verify": new controller.VerifyController(),
         "user": new controller.UserController(configuration,
             services.authenticate.user,
-            services.authenticate.userHttpResult,
             datas.user.create,
             datas.user.get,
             datas.user.delete,
             datas.user.update,
             datas.project.deleteForUser),
         "project": new controller.ProjectController(configuration,
-            services.authenticate.userHttpResult,
+            services.authenticate.user,
             datas.project.create,
             datas.project.get,
             datas.project.delete,

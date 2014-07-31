@@ -16,10 +16,10 @@ describe("Given a VerifyController", function () {
 
         var result : model.HttpResponse;
         before(function(done) {
-            verifyController.get(new model.HttpRequest(), function(r : model.HttpResponse) {
-                result = r;
+            verifyController.get(new model.HttpRequest()).then((response) => {
+                result = response;
                 done();
-            })
+            });
         });
         it("Then a 200 is returned via the callback", function () {
             assert.equal(200, result.statusCode)

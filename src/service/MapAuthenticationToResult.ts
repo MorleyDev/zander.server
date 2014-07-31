@@ -2,9 +2,7 @@
 /// <reference path="../model/LoggedInUser.ts" />
 /// <reference path="../model/HttpResponse.ts" />
 /// <reference path="AuthenticateUserAsTarget.ts" />
-/// <reference path="../../typings/q/Q.d.ts" />
-
-var q = require('q');
+/// <reference path="../../typings/Q/Q.d.ts" />
 
 module service {
     export class AuthenticateUserAndRespond {
@@ -14,7 +12,7 @@ module service {
             this.authenticationService = authenticationService;
         }
 
-        private _authenticate(requireSuper : boolean, authorization, target, onSuccess : (result : LogInResult) => model.HttpResponse) : Q.IPromise<model.HttpResponse> {
+        private _authenticate(requireSuper : boolean, authorization, target, onSuccess : (result : LogInResult) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
             return this.authenticationService.run(requireSuper, authorization, target)
                 .then((result:service.LogInResult) => {
                     switch (result.type) {
@@ -34,7 +32,7 @@ module service {
                 });
         }
 
-        private _authenticateOnHidden(requireSuper : boolean, authorization, target, onSuccess : (result : LogInResult) => model.HttpResponse) : Q.IPromise<model.HttpResponse> {
+        private _authenticateOnHidden(requireSuper : boolean, authorization, target, onSuccess : (result : LogInResult) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
             return this.authenticationService.run(requireSuper, authorization, target)
                 .then((result:service.LogInResult) => {
                     switch (result.type) {
@@ -53,16 +51,16 @@ module service {
                     }
                 });
         }
-        public atLeastUser(authorization, onSuccess : (result : LogInResult) => model.HttpResponse) : Q.IPromise<model.HttpResponse> {
+        public atLeastUser(authorization, onSuccess : (result : LogInResult) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
             return this._authenticate(false, authorization, null, onSuccess);
         }
 
-        public atLeastIsUser(authorization, targetUsername, onSuccess : (result : LogInResult) => model.HttpResponse) : Q.IPromise<model.HttpResponse> {
-            return this._authenticateOnHidden(false, authorization, targetUsername, onSuccess);
+        public atLeastSuper(authorization, onSuccess : (result : LogInResult) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
+            return this._authenticate(true, authorization, null, onSuccess);
         }
 
-        public atLeastSuper(authorization, onSuccess : (result : LogInResult) => model.HttpResponse) : Q.IPromise<model.HttpResponse> {
-            return this._authenticate(true, authorization, null, onSuccess);
+        public atLeastIsUser(authorization, targetUsername, onSuccess : (result : LogInResult) => Q.IPromise<model.HttpResponse>) : Q.IPromise<model.HttpResponse> {
+            return this._authenticateOnHidden(false, authorization, targetUsername, onSuccess);
         }
     }
 }

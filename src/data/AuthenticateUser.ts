@@ -1,6 +1,6 @@
 /// <reference path="HashPassword.ts" />
 
-var q = require('q');
+var Q = require('q');
 
 module data
 {
@@ -51,11 +51,11 @@ module data
 
             if (!authorization || !authorization.scheme) {
                 console.log("authenticate failed: no authorization");
-                return q.fcall(() => new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined));
+                return Q(new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined));
             }
             else if (authorization.scheme != "Basic" || !authorization.basic) {
                 console.log("authenticate failed: not basic authorization");
-                return q.fcall(() => new AuthenticationResult(false, "Unrecognised authorization scheme", undefined, undefined));
+                return Q(new AuthenticationResult(false, "Unrecognised authorization scheme", undefined, undefined));
             }
             else {
                 var username = authorization.basic.username;

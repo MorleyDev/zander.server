@@ -1,6 +1,6 @@
-/// <reference path="../../../typings/uuid/UUID.d.ts" />
+/// <reference path="../../../typings/node-uuid/node-uuid.d.ts" />
 
-var uuid = require("uuid");
+var uuid : UUID = require("uuid");
 
 module data.project {
     export class CreateProjectInDatabase {
@@ -10,7 +10,7 @@ module data.project {
             this._database = database;
         }
 
-        public run(userId:string, project:string, git:string) : any {
+        public run(userId:string, project:string, git:string) : Q.IPromise<any> {
             var projectDto = {
                 id: uuid.v1(),
                 userId: userId,
@@ -29,7 +29,7 @@ module data.project {
             this._database = database;
         }
 
-        public run(name : string) : any {
+        public run(name : string) : Q.IPromise<any> {
             return this._database.selectOne("Projects", { name: name });
         }
     }
@@ -41,7 +41,7 @@ module data.project {
             this._database = database;
         }
 
-        public run(name) : any {
+        public run(name) : Q.IPromise<any> {
             return this._database.delete("Projects", { name: name });
         }
     }
@@ -53,7 +53,7 @@ module data.project {
             this._database = database;
         }
 
-        public run(userid : string) : any {
+        public run(userid : string) : Q.IPromise<any> {
             return this._database.delete("Projects", { userid: userid });
         }
     }
@@ -65,7 +65,7 @@ module data.project {
             this._database = database;
         }
 
-        public run(name : string, git : string) {
+        public run(name : string, git : string) : Q.IPromise<any> {
             return this._database.update("Projects", { git: git }, { name: name });
         }
     }

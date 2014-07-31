@@ -1,7 +1,7 @@
 /// <reference path="../data/AuthenticateUser.ts" />
 /// <reference path="../model/LoggedInUser.ts" />
 
-var q = require('q');
+var Q = require('q');
 
 module service
 {
@@ -36,7 +36,7 @@ module service
 
             var result = authenticateUser.authenticateGodUser(authorization);
             if (result.success) {
-                return q.fcall(() => new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, true, result.userid)));
+                return Q(new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, true, result.userid)));
             } else {
                 return authenticateUser.authenticateStandardUser(authorization)
                     .then((result : data.AuthenticationResult) => {
@@ -50,27 +50,6 @@ module service
                         return new LogInResult(LogInResultType.Failure, result.reason, undefined);
                     });
             }
-        }
-
-        authenticate(requireSuper : boolean, authorization, targetUsername, success, fail, reject) {
-
-            this.run(requireSuper, authorization, targetUsername)
-                .then((result : LogInResult) => {
-                switch(result.type) {
-                    case LogInResultType.Success:
-                        success(result.user);
-                        break;
-                    case LogInResultType.Rejection:
-                        reject(result.reason);
-                        break;
-                    case LogInResultType.Failure:
-                        fail(result.reason);
-                        break;
-                    default:
-                        fail("Unknown");
-                        break;
-                }
-            });
         }
     }
 }

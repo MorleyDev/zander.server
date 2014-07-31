@@ -7,7 +7,7 @@ module validate {
         return { success: true, reason: undefined };
     }
 
-    export function _ValidateUsername(username: string) {
+    export function ValidateUsername(username: string) {
         if (!username)
             return { success: false, reason: "Username Not Provided" };
         if (username.length < 3 || username.length > 20)
@@ -33,14 +33,6 @@ module validate {
             failure(result.reason);
     }
 
-    export function ValidateUsername(username : string, success, failure) {
-        var result = _ValidateUsername(username);
-        if (result.success)
-            success();
-        else
-            failure(result.reason);
-    }
-
     export function ValidatePassword(password : string, success, failure) {
         var result = _ValidatePassword(password);
         if (result.success)
@@ -49,21 +41,29 @@ module validate {
             failure(result.reason);
     }
 
-    export function ValidateCreateUserDto(dto : model.dto.CreateUserDto, success, failure) {
-        ValidateEmail(dto.email, function() {
-            ValidateUsername(dto.username, function () {
-                ValidatePassword(dto.password, function () {
-                    success(dto);
-                }, failure);
-            }, failure);
-        }, failure);
+    export function ValidateCreateUserDto(dto : model.dto.CreateUserDto) {
+        var validEmail = _ValidateEmail(dto.email);
+        if (!validEmail.success)
+            return validEmail;
+
+        var validUsername = ValidateUsername(dto.username);
+        if (!validUsername.success)
+            return validUsername;
+
+        var validPassword = _ValidatePassword(dto.password);
+        if (!validPassword.success)
+            return validPassword;
+        return { success: true, reason: undefined };
     }
 
-    export function ValidateUpdateUserDto(dto : model.dto.CreateUserDto, success, failure) {
-        ValidateEmail(dto.email, function () {
-            ValidatePassword(dto.password, function () {
-                success(dto);
-            }, failure);
-        }, failure);
+    export function ValidateUpdateUserDto(dto : model.dto.CreateUserDto) {
+        var validEmail = _ValidateEmail(dto.email);
+        if (!validEmail.success)
+            return validEmail;
+
+        var validPassword = _ValidatePassword(dto.password);
+        if (!validPassword.success)
+            return validPassword;
+        return { success: true, reason: undefined };
     }
 }
