@@ -2,9 +2,9 @@
 
 /// <reference path='../typings/node/node.d.ts'/>
 /// <reference path='controller/ProjectController.ts'/>
-/// <reference path='controller/ProjectsController.ts'/>
+/// <reference path='controller/ProjectCollectionController.ts'/>
 /// <reference path='controller/UserController.ts'/>
-/// <reference path='controller/UsersController.ts'/>
+/// <reference path='controller/UserCollectionController.ts'/>
 /// <reference path='controller/VerifyController.ts'/>
 
 /// <reference path='model/HttpRequest.ts'/>
@@ -38,14 +38,14 @@ function startServer(configuration : model.Configuration, database : any) {
     var controllers = {
         "verify": new controller.VerifyController(),
         "user": new controller.UserController(datas.user, datas.project),
-        "users": new controller.UsersController(configuration.host, datas.user, datas.project),
+        "users": new controller.UserCollectionController(configuration.host, datas.user, datas.project),
         "project": new controller.ProjectController(datas.project),
-        "projects": new controller.ProjectsController(configuration.host, datas.project)
+        "projects": new controller.ProjectCollectionController(configuration.host, datas.project)
     };
 
     function addController(path:string, controller) {
 
-        console.log("Register controller to path " + path);
+        console.log("Register " + controller.constructor.name + " to path " + path);
 
         function createControllerRequestHandler(method:(r:model.HttpRequest) => Q.IPromise<model.HttpResponse>) {
             return function (request, response, next) {
@@ -69,17 +69,17 @@ function startServer(configuration : model.Configuration, database : any) {
             };
         }
 
+        var httpMethods = ["get", "head", "post", "put", "patch", "del"];
+
         // For each of these HTTP methods, if the controller has the function with the same name then bind the
         // function and handler so that it will be invoked on such a request on path
-        ["get", "head", "post", "put", "del"]
-            .filter(function (x) {
-                return controller[x] !== undefined;
-            })
+        httpMethods
+            .filter(function (x) { return controller[x] !== undefined; })
             .forEach(function (x) {
-                console.log("Register " + x + " to path " + path);
+                var minAuthLevel = controller[x + "AuthLevel"] || model.AuthenticationLevel.None;
+                console.log("Register " + x + " to path " + path + " with min authentication level " + minAuthLevel);
 
-                server[x](path, createControllerRequestHandler(function (request : model.HttpRequest) : Q.IPromise<model.HttpResponse> {
-                    var minAuthLevel = controller[x + "AuthLevel"] || model.AuthenticationLevel.None;
+                server[x](path, createControllerRequestHandler((request : model.HttpRequest) : Q.IPromise<model.HttpResponse> => {
                     return services.authenticate.atLeast(minAuthLevel, request, function (request) {
                         return controller[x](request);
                     });

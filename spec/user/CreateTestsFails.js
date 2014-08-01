@@ -48,8 +48,7 @@ describe("Given a Rest Client and no credentials", function () {
             });
         });
         it("Then the expected error code was returned", function() {
-            assert.equal(errorObj["code"], "MethodNotAllowed");
-            assert.equal(errorObj["message"], "POST not supported on user");
+            assert.equal(errorObj["code"], "MethodNotAllowedError");
         });
         it("Then a 405 Method Not Allowed response is returned", function () {
             assert.equal(response.statusCode, 405);

@@ -1,7 +1,7 @@
 var assert = require("chai").assert;
 var restify = require("restify");
 
-["get", "head", "post", "put", "del"].forEach(function (method) {
+["get", "head", "post", "patch", "put", "del"].forEach(function (method) {
     describe("Given a Rest Client", function () {
 
         var configuration = require(__dirname + "/../config.json");

@@ -4,7 +4,7 @@
 /// <reference path="../../typings/Q/Q.d.ts" />
 
 module controller {
-    export class ProjectsController {
+    export class ProjectCollectionController {
 
         private host : string;
         private projectRepository: data.ProjectRepository;
@@ -36,26 +36,6 @@ module controller {
                             });
                         });
                 });
-        }
-
-        public put(request:model.HttpRequest) {
-            return Q(new model.HttpResponse(405, {
-                "code": "MethodNotAllowed",
-                "message": "Missing Url Arguments"
-            }));
-        }
-
-        public del(request:model.HttpRequest) : Q.IPromise<model.HttpResponse> {
-            return Q(new model.HttpResponse(405, {
-                "code": "MethodNotAllowed",
-                "message": "Missing Url Arguments"
-            }));
-        }
-
-        public get(request:model.HttpRequest) {
-            return Q(new model.HttpResponse(405, { "code": "MethodNotAllowed",
-                "message": "Missing Url Arguments"
-            }));
         }
     }
 }

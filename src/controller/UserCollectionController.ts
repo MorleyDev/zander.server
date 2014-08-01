@@ -7,7 +7,7 @@
 var Q = require('q');
 
 module controller {
-    export class UsersController {
+    export class UserCollectionController {
         private host : string;
         private userRepository:data.UserRepository;
         private projectRepository:data.ProjectRepository;
@@ -42,26 +42,6 @@ module controller {
                     });
                 });
             });
-        }
-
-        public put(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            return Q(new model.HttpResponse(405, {
-                "code": "MethodNotAllowed",
-                "message": "Missing Url Arguments"
-            }));
-        }
-
-        public del(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            return Q(new model.HttpResponse(405, {
-                "code": "MethodNotAllowed",
-                "message": "Missing Url Arguments"
-            }));
-        }
-
-        public get(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            return Q(new model.HttpResponse(405, { "code": "MethodNotAllowed",
-                "message": "Missing Url Arguments"
-            }));
         }
     }
 }

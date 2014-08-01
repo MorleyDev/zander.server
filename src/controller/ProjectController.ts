@@ -16,10 +16,6 @@ module controller {
             this.projectRepository = projectRepository;
         }
 
-        public post(request:model.HttpRequest) : Q.IPromise<model.HttpResponse> {
-            return Q(new model.HttpResponse(405, { "code": "MethodNotAllowed", "message": "POST not supported on user" }));
-        }
-
         public putAuthLevel = model.AuthenticationLevel.User;
         public put(request:model.HttpRequest) {
             var validateDto = validate.ValidateUpdateProjectDto(request.body);
