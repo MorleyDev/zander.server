@@ -43,12 +43,12 @@ function startServer(configuration : model.Configuration, database : any) {
         "projects": new controller.ProjectCollectionController(configuration.host, datas.project)
     };
 
-    function addController(path:string, controller) {
+    function addController(path:string, controller:any) {
 
         console.log("Register " + controller.constructor.name + " to path " + path);
 
         function createControllerRequestHandler(method:(r:model.HttpRequest) => Q.IPromise<model.HttpResponse>) {
-            return function (request, response, next) {
+            return function (request:any, response:any, next:any) {
                 var httpRequest:model.HttpRequest = new model.HttpRequest();
                 httpRequest.authorization = request.authorization;
                 httpRequest.headers = request.headers;
@@ -74,13 +74,13 @@ function startServer(configuration : model.Configuration, database : any) {
         // For each of these HTTP methods, if the controller has the function with the same name then bind the
         // function and handler so that it will be invoked on such a request on path
         httpMethods
-            .filter(function (x) { return controller[x] !== undefined; })
-            .forEach(function (x) {
+            .filter(function (x:string) { return controller[x] !== undefined; })
+            .forEach(function (x:string) {
                 var minAuthLevel = controller[x + "AuthLevel"] || model.AuthenticationLevel.None;
                 console.log("Register " + x + " to path " + path + " with min authentication level " + minAuthLevel);
 
                 server[x](path, createControllerRequestHandler((request : model.HttpRequest) : Q.IPromise<model.HttpResponse> => {
-                    return services.authenticate.atLeast(minAuthLevel, request, function (request) {
+                    return services.authenticate.atLeast(minAuthLevel, request, function (request : model.HttpRequest) {
                         return controller[x](request);
                     });
                 }));

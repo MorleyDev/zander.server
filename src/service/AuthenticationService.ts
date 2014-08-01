@@ -38,14 +38,14 @@ module service {
                 .then(AuthenticationService.handleLogInResult(request, onSuccess));
         }
 
-        private requireAtLeast(minAuthLevel : model.AuthenticationLevel, authorization) : Q.IPromise<LogInResult> {
+        private requireAtLeast(minAuthLevel : model.AuthenticationLevel, authorization : any) : Q.IPromise<LogInResult> {
 
             if (minAuthLevel < model.AuthenticationLevel.User)
                 return Q(new LogInResult(LogInResultType.Success, undefined, undefined));
 
             return this.authenticateUser
                 .authenticateGodUser(authorization)
-                .then((result) => {
+                .then((result : data.AuthenticationResult) => {
                 if (result.success)
                     return Q(new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, model.AuthenticationLevel.Super, result.userid)));
 
@@ -57,38 +57,6 @@ module service {
 
                             return new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, model.AuthenticationLevel.User, result.userid));
                         }
-                        return new LogInResult(LogInResultType.Failure, result.reason, undefined);
-                    });
-            });
-        }
-
-        private requireAtLeastUser(authorization) : Q.IPromise<LogInResult> {
-            var authenticateUser = this.authenticateUser;
-
-            return authenticateUser.authenticateGodUser(authorization).then((result) => {
-                if (result.success)
-                    return Q(new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, model.AuthenticationLevel.Super, result.userid)));
-
-                return authenticateUser.authenticateStandardUser(authorization)
-                    .then((result:data.AuthenticationResult) => {
-                        if (result.success)
-                            return new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, model.AuthenticationLevel.User, result.userid));
-                        return new LogInResult(LogInResultType.Failure, result.reason, undefined);
-                    });
-            });
-        }
-
-        private requireSuper(authorization) : Q.IPromise<LogInResult> {
-            var authenticateUser = this.authenticateUser;
-
-            return authenticateUser.authenticateGodUser(authorization).then((result) => {
-                if (result.success)
-                    return Q(new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, model.AuthenticationLevel.Super, result.userid)));
-
-                return authenticateUser.authenticateStandardUser(authorization)
-                    .then((result:data.AuthenticationResult) => {
-                        if (result.success)
-                            return new LogInResult(LogInResultType.Rejection, "Do not possess required permission level", undefined);
                         return new LogInResult(LogInResultType.Failure, result.reason, undefined);
                     });
             });

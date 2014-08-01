@@ -7,13 +7,13 @@ module model {
 
      export class LoggedInUserDetails {
          constructor(username : string, authLevel : AuthenticationLevel, userId : string) {
-             this.username = username;
-             this.userId = userId;
+             this.name = username;
+             this.id = userId;
              this.authLevel = authLevel;
          }
 
-         public username : string;
-         public userId : string;
+         public name : string;
+         public id : string;
          public authLevel : AuthenticationLevel;
     }
 }

@@ -1,3 +1,5 @@
+/// <reference path='../model/net/CreateProjectDto.ts'/>
+/// <reference path='../model/net/UpdateProjectDto.ts'/>
 
 function ValidateProjectName(name : string) : any {
     if (!name)
@@ -5,30 +7,29 @@ function ValidateProjectName(name : string) : any {
             reason: "Project Name Not Provided",
             success: false
         };
-    else if (name.length < 3 || name.length > 20)
+    if (name.length < 3 || name.length > 20)
         return {
             reason: "Project Name Not Between 3-20 Characters",
             success: false
         };
-    else if (!name.match("^[a-zA-Z0-9_\\-]*$"))
+    if (!name.match("^[a-zA-Z0-9_\\-]*$"))
         return {
             reason: "Project Name Must Only Contain Alphanumeric Characters or Underscore",
             success: false
         };
-    else
-        return {
-            reason: undefined,
-            success: true
-        };
+    return {
+        reason: undefined,
+        success: true
+    };
 }
 
 function ValidateProjectGit(git : string) : any {
-    if (!git) {
+    if (!git)
         return {
             reason: "Password Not Provided",
             success: undefined
         };
-    }
+
     return {
         reason: undefined,
         success: true
@@ -36,16 +37,15 @@ function ValidateProjectGit(git : string) : any {
 }
 
 module validate {
-
-    export function ValidateCreateProjectDto(dto) {
+    export function ValidateCreateProjectDto(dto : model.net.CreateProjectDto) {
         var result = ValidateProjectName(dto.name);
-        if (result.success) {
+        if (result.success)
             return ValidateProjectGit(dto.git);
-        }
+
         return result;
     }
 
-    export function ValidateUpdateProjectDto(dto) {
+    export function ValidateUpdateProjectDto(dto : model.net.UpdateProjectDto) {
         return ValidateProjectGit(dto.git);
     }
 }

@@ -19,8 +19,9 @@ module controller {
         }
 
         public putAuthLevel = model.AuthenticationLevel.User;
+
         public put(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            if (request.user.authLevel < model.AuthenticationLevel.Super && request.parameters.target !== request.user.username)
+            if (request.user.authLevel < model.AuthenticationLevel.Super && request.parameters.target !== request.user.name)
                 return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
 
             var validation = validate.ValidateUpdateUserDto(request.body);
@@ -28,22 +29,24 @@ module controller {
                 return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validation.reason }));
 
             return this.userRepository.getUser(request.parameters.target)
-                .then((user) => {
+                .then((user:model.db.User) => {
                     if (!user)
                         return new model.HttpResponse(404, {
                             "code": "ResourceNotFound",
                             "message": "User not found"
                         });
 
-                    return this.userRepository.updateUser(user.id, request.body.email, request.body.password).then((id) => {
-                        return new model.HttpResponse(200, { "email": request.body.email });
-                    });
+                    return this.userRepository.updateUser(user.id, request.body.email, request.body.password)
+                        .then(() => {
+                            return new model.HttpResponse(200, { "email": request.body.email });
+                        });
                 });
         }
 
         public delAuthLevel = model.AuthenticationLevel.User;
+
         public del(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            if (request.user.authLevel < model.AuthenticationLevel.Super && request.parameters.target !== request.user.username)
+            if (request.user.authLevel < model.AuthenticationLevel.Super && request.parameters.target !== request.user.name)
                 return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
 
             var validateUsername = validate.ValidateUsername(request.parameters.target);
@@ -51,37 +54,40 @@ module controller {
                 return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validateUsername.reason }));
 
             return this.userRepository.getUser(request.parameters.target)
-                .then((user) => {
+                .then((user:model.db.User) => {
                     if (!user)
                         return new model.HttpResponse(404, { });
 
-                    return this.projectRepository.deleteUsersProjects(user.id).then(() => {
-                        return this.userRepository.deleteUser(user.username).then(() => {
-                            return new model.HttpResponse(204, { });
+                    return this.projectRepository.deleteUsersProjects(user.id)
+                        .then(() => {
+                            return this.userRepository.deleteUser(user.username)
+                                .then(() => {
+                                    return new model.HttpResponse(204, { });
+                                });
                         });
-                    });
                 });
         }
 
         public getAuthLevel = model.AuthenticationLevel.User;
+
         public get(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            if (request.user.authLevel < model.AuthenticationLevel.Super && request.parameters.target !== request.user.username)
+            if (request.user.authLevel < model.AuthenticationLevel.Super && request.parameters.target !== request.user.name)
                 return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
 
             var validation = validate.ValidateUsername(request.parameters.target);
-            if (validation.success)
-                return this.userRepository.getUser(request.parameters.target)
-                    .then((user) => {
-                        if (user)
-                            return new model.HttpResponse(200, { "email": user.email });
-                        else
-                            return new model.HttpResponse(404, {
-                                "code": "ResourceNotFound",
-                                "message": "User not found"
-                            });
-                    });
-            else
+            if (!validation.success)
                 return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validation.reason }));
+
+            return this.userRepository.getUser(request.parameters.target)
+                .then((user:model.db.User) => {
+                    if (user)
+                        return new model.HttpResponse(200, { "email": user.email });
+
+                    return new model.HttpResponse(404, {
+                        "code": "ResourceNotFound",
+                        "message": "User not found"
+                    });
+                });
         }
     }
 }

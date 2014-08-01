@@ -1,10 +1,9 @@
 var crypto = require("crypto");
 
-module data
-{
-    export function HashPassword(hashType, id, password) : string {
+module data {
+    export function HashPassword(hashType : string, userId : string, password : string) : string {
         return crypto
-            .createHmac(hashType, id)
+            .createHmac(hashType, userId)
             .update(password)
             .digest("hex");
     }

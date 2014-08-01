@@ -28,7 +28,7 @@ module data {
             this._userRepository = userRepository;
         }
 
-        public authenticateGodUser(authorization) : Q.IPromise<AuthenticationResult> {
+        public authenticateGodUser(authorization : any) : Q.IPromise<AuthenticationResult> {
             if (!this._goduser)
                 return Q(new AuthenticationResult(false, "Super-user not enabled on this server", undefined, undefined));
 
@@ -45,7 +45,7 @@ module data {
             return Q(new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined));
         }
 
-        public authenticateStandardUser(authorization) : Q.IPromise<AuthenticationResult> {
+        public authenticateStandardUser(authorization : any) : Q.IPromise<AuthenticationResult> {
 
             if (!authorization || !authorization.scheme)
                 return Q(new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined));
@@ -56,7 +56,7 @@ module data {
             var username = authorization.basic.username;
             var password = authorization.basic.password;
             return this._userRepository.getUser(username)
-                .then((user) => {
+                .then((user : model.db.User) => {
                     if (user && user.password === HashPassword(this._hashType, user.id, password))
                             return new AuthenticationResult(true, undefined, user.username, user.id);
                     return new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined);

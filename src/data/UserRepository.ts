@@ -1,18 +1,19 @@
-/// <reference path='../../typings/node-uuid/node-uuid.d.ts'/>
+/// <reference path='../../typings/node-uuid/node-uuid.d.ts' />
+/// <reference path='../model/db/User.ts' />
 
 var uuid : UUID = require("uuid");
 
 module data {
     export class UserRepository {
-        private _hashType;
-        private _database;
+        private _hashType : string;
+        private _database : any;
 
-        constructor(hashType, database) {
+        constructor(hashType : string, database : any) {
             this._hashType = hashType;
             this._database = database;
         }
 
-        public createUser(username:string, email:string, password:string) : Q.IPromise<any> {
+        public createUser(username:string, email:string, password:string) : Q.IPromise<model.db.User> {
             var id = uuid.v1();
             var userDto = {
                 id: id,
@@ -21,21 +22,21 @@ module data {
                 password: HashPassword(this._hashType, id, password),
                 timestamp: Date.now()
             };
-            return this._database.insert("Users", userDto);
+            return this._database.insert("Users", userDto).then((rowId : any) => { return userDto; });
         }
 
-        public getUser(username) : Q.IPromise<any> {
+        public getUser(username : string) : Q.IPromise<model.db.User> {
             return this._database.selectOne("Users", { username: username });
         }
 
-        public updateUser(id, email, password) : Q.IPromise<any> {
+        public updateUser(id : string, email : string, password : string) : Q.IPromise<void> {
             return this._database.update("Users", { email: email }, { id: id })
                 .then(() => {
                     return this._database.update("Users", { password: HashPassword(this._hashType, id, password) }, { id: id });
                 });
         }
 
-        public deleteUser(username) : Q.IPromise<any> {
+        public deleteUser(username : string) : Q.IPromise<any> {
             return this._database.delete("Users", { username: username });
         }
     }
