@@ -1,4 +1,3 @@
-
 module validate {
     export class ValidationResult {
 

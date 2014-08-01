@@ -16,9 +16,7 @@ module controller {
         private updateProjectService:service.UpdateProjectService;
         private deleteProjectService:service.DeleteProjectService;
 
-        constructor(getProject : service.GetProjectService,
-                    updateProject : service.UpdateProjectService,
-                    deleteProject : service.DeleteProjectService) {
+        constructor(getProject:service.GetProjectService, updateProject:service.UpdateProjectService, deleteProject:service.DeleteProjectService) {
             this.getProjectService = getProject;
             this.updateProjectService = updateProject;
             this.deleteProjectService = deleteProject;
@@ -39,7 +37,7 @@ module controller {
                             return Q(new model.HttpResponse(403, { "code": "Forbidden" }));
 
                         return this.updateProjectService.byName(project.name, request.body)
-                            .then((project: model.db.Project) => {
+                            .then((project:model.db.Project) => {
                                 return Q(new model.HttpResponse(200, {
                                     "git": project.git
                                 }));

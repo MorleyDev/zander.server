@@ -6,7 +6,7 @@
 /// <reference path='model/HttpRequest.ts'/>
 /// <reference path='model/HttpResponse.ts'/>
 
-function startServer(configuration : model.Configuration, database : any) {
+function startServer(configuration:model.Configuration, database:any) {
 
     var restify = require("restify");
     var server = restify.createServer({name: "zander"})
@@ -62,7 +62,7 @@ function startServer(configuration : model.Configuration, database : any) {
                 console.log("Register " + x + " to path " + path + " with min authentication level " + minAuthLevel);
 
                 server[x](path, createControllerRequestHandler((request:model.HttpRequest):Q.IPromise<model.HttpResponse> => {
-                    var actualRequest = (request:model.HttpRequest): Q.IPromise<model.HttpResponse> => {
+                    var actualRequest = (request:model.HttpRequest):Q.IPromise<model.HttpResponse> => {
                         return controller[x](request);
                     };
                     return services.authenticate.atLeast(minAuthLevel, request, actualRequest);

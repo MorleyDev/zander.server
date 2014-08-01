@@ -7,31 +7,31 @@ module data {
     var Q = require('q');
 
     export class AuthenticationResult {
-        constructor(success: boolean, reason: string, username: string, userid: string) {
+        constructor(success:boolean, reason:string, username:string, userid:string) {
             this.success = success;
             this.reason = reason;
             this.username = username;
             this.userid = userid;
         }
 
-        public success: boolean;
-        public reason: string;
-        public username: string;
-        public userid: string;
+        public success:boolean;
+        public reason:string;
+        public username:string;
+        public userid:string;
     }
 
     export class BasicAuthenticateUser {
-        private _goduser : model.ConfigurationGodUser;
-        private _hashType : string;
-        private _userRepository : UserRepository;
+        private _goduser:model.ConfigurationGodUser;
+        private _hashType:string;
+        private _userRepository:UserRepository;
 
-        constructor(configuration : model.Configuration, userRepository : UserRepository) {
+        constructor(configuration:model.Configuration, userRepository:UserRepository) {
             this._goduser = configuration.goduser;
             this._hashType = configuration.hashAlgorithm;
             this._userRepository = userRepository;
         }
 
-        public authenticateGodUser(authorization : any) : Q.IPromise<AuthenticationResult> {
+        public authenticateGodUser(authorization:any):Q.IPromise<AuthenticationResult> {
             if (!this._goduser)
                 return Q(new AuthenticationResult(false, "Super-user not enabled on this server", undefined, undefined));
 
@@ -48,7 +48,7 @@ module data {
             return Q(new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined));
         }
 
-        public authenticateStandardUser(authorization : any) : Q.IPromise<AuthenticationResult> {
+        public authenticateStandardUser(authorization:any):Q.IPromise<AuthenticationResult> {
 
             if (!authorization || !authorization.scheme)
                 return Q(new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined));
@@ -59,9 +59,9 @@ module data {
             var username = authorization.basic.username;
             var password = authorization.basic.password;
             return this._userRepository.getUser(username)
-                .then((user : model.db.User) => {
+                .then((user:model.db.User) => {
                     if (user && user.password === HashPassword(this._hashType, user.id, password))
-                            return new AuthenticationResult(true, undefined, user.username, user.id);
+                        return new AuthenticationResult(true, undefined, user.username, user.id);
                     return new AuthenticationResult(false, "No or Incorrect Authentication details provided", undefined, undefined);
                 });
         }

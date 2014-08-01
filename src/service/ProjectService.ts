@@ -10,7 +10,7 @@ module service {
             this.projectRepository = projectRepository;
         }
 
-        public forUser(user:model.LoggedInUserDetails, createProject:model.net.CreateProjectDto) : Q.IPromise<model.db.Project> {
+        public forUser(user:model.LoggedInUserDetails, createProject:model.net.CreateProjectDto):Q.IPromise<model.db.Project> {
             return this.projectRepository.getProject(createProject.name)
                 .then((project:model.db.Project) => {
                     if (project)
@@ -31,7 +31,7 @@ module service {
             this.projectRepository = projectRepository;
         }
 
-        public byName(name: string) : Q.IPromise<model.db.Project> {
+        public byName(name:string):Q.IPromise<model.db.Project> {
             return this.projectRepository.getProject(name);
         }
     }
@@ -52,17 +52,17 @@ module service {
     }
 
     export class DeleteProjectService {
-        private projectRepository: data.ProjectRepository;
+        private projectRepository:data.ProjectRepository;
 
-        constructor(projectRepository: data.ProjectRepository) {
+        constructor(projectRepository:data.ProjectRepository) {
             this.projectRepository = projectRepository;
         }
 
-        public byName(name: string) : Q.IPromise<void> {
+        public byName(name:string):Q.IPromise<void> {
             return this.projectRepository.deleteProject(name);
         }
 
-        public forUser(userId: string) : Q.IPromise<void> {
+        public forUser(userId:string):Q.IPromise<void> {
             return this.projectRepository.deleteUsersProjects(userId);
         }
     }

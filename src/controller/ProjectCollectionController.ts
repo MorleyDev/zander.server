@@ -8,7 +8,7 @@ module controller {
     export class ProjectCollectionController {
 
         private host:string;
-        private createProjectService: service.CreateProjectService;
+        private createProjectService:service.CreateProjectService;
 
         constructor(host:string, createProjectService:service.CreateProjectService) {
             this.host = host;

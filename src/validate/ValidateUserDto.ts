@@ -3,7 +3,7 @@
 /// <reference path='ValidationResult.ts'/>
 
 module validate {
-    function ValidatePassword(password : string) : ValidationResult {
+    function ValidatePassword(password:string):ValidationResult {
         if (!password)
             return new ValidationResult(false, "Password Not Provided");
 
@@ -13,14 +13,14 @@ module validate {
         return new ValidationResult(true);
     }
 
-    function ValidateEmail(email : string) : ValidationResult {
+    function ValidateEmail(email:string):ValidationResult {
         if (!email)
             return new ValidationResult(false, "E-Mail Not Provided");
 
         return new ValidationResult(true);
     }
 
-    export function ValidateUsername(username: string) {
+    export function ValidateUsername(username:string) {
         if (!username)
             return new ValidationResult(false, "Username Not Provided");
 
@@ -33,7 +33,7 @@ module validate {
         return new ValidationResult(true);
     }
 
-    export function ValidateCreateUserDto(dto : model.net.CreateUserDto) {
+    export function ValidateCreateUserDto(dto:model.net.CreateUserDto) {
         var validEmail = ValidateEmail(dto.email);
         if (!validEmail.success)
             return validEmail;
@@ -49,7 +49,7 @@ module validate {
         return new ValidationResult(true);
     }
 
-    export function ValidateUpdateUserDto(dto : model.net.UpdateUserDto) {
+    export function ValidateUpdateUserDto(dto:model.net.UpdateUserDto) {
         var validEmail = ValidateEmail(dto.email);
         if (!validEmail.success)
             return validEmail;
