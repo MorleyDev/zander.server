@@ -1,8 +1,11 @@
 /// <reference path='HashPassword.ts'/>
 /// <reference path='UserRepository.ts'/>
 /// <reference path='../model/Configuration.ts'/>
+/// <reference path='../../typings/Q/Q.d.ts'/>
 
 module data {
+    var Q = require('q');
+
     export class AuthenticationResult {
         constructor(success: boolean, reason: string, username: string, userid: string) {
             this.success = success;

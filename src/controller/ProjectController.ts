@@ -7,9 +7,9 @@
 
 /// <reference path='../service/ProjectService.ts' />
 
-var Q = require('q');
-
 module controller {
+    var Q = require('q');
+
     export class ProjectController {
 
         private getProjectService:service.GetProjectService;
@@ -26,29 +26,29 @@ module controller {
 
         public putAuthLevel = model.AuthenticationLevel.User;
 
-        public put(request:model.HttpRequest) {
+        public put(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             var validateDto = validate.ValidateUpdateProjectDto(request.body);
             if (!validateDto.success)
                 return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validateDto.reason }));
 
             /// TODO:- Move to Authorisation Service
             return this.getProjectService.byName(request.parameters.target)
-                .then((project:model.db.Project) => {
+                .then((project:model.db.Project):Q.IPromise<model.HttpResponse> => {
                     if (project) {
                         if (request.user.authLevel < model.AuthenticationLevel.Super && project.userId !== request.user.id)
-                            return new model.HttpResponse(403, { "code": "Forbidden" });
+                            return Q(new model.HttpResponse(403, { "code": "Forbidden" }));
 
                         return this.updateProjectService.byName(project.name, request.body)
                             .then((project: model.db.Project) => {
-                                return new model.HttpResponse(200, {
+                                return Q(new model.HttpResponse(200, {
                                     "git": project.git
-                                });
+                                }));
                             });
                     }
-                    return new model.HttpResponse(404, {
+                    return Q(new model.HttpResponse(404, {
                         "code": "ResourceNotFound",
                         "message": "Project not found"
-                    });
+                    }));
                 });
         }
 
@@ -57,11 +57,11 @@ module controller {
         public del(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             /// TODO:- Move to Authorisation Service
             return this.getProjectService.byName(request.parameters.target)
-                .then((project:model.db.Project) => {
+                .then((project:model.db.Project):Q.IPromise<model.HttpResponse> => {
                     if (!project)
-                        return new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Project not found" });
+                        return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Project not found" }));
                     if (request.user.authLevel < model.AuthenticationLevel.Super && project.userId !== request.user.id)
-                        return new model.HttpResponse(403, { "code": "Forbidden" });
+                        return Q(new model.HttpResponse(403, { "code": "Forbidden" }));
 
                     return this.deleteProjectService.byName(request.parameters.target)
                         .then(function () {

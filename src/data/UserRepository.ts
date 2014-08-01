@@ -1,9 +1,10 @@
 /// <reference path='../../typings/node-uuid/node-uuid.d.ts' />
 /// <reference path='../model/db/User.ts' />
 
-var uuid : UUID = require("uuid");
 
 module data {
+    var uuid : UUID = require("uuid");
+
     export class UserRepository {
         private _hashType : string;
         private _database : any;
@@ -36,7 +37,7 @@ module data {
                 });
         }
 
-        public deleteUser(username : string) : Q.IPromise<any> {
+        public deleteUser(username : string) : Q.IPromise<void> {
             return this._database.delete("Users", { username: username });
         }
     }

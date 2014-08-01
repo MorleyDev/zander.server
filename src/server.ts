@@ -1,18 +1,10 @@
-/// <reference path='model/Configuration.ts' />
-
 /// <reference path='../typings/node/node.d.ts'/>
+/// <reference path='controller/ControllerFactory.ts'/>
 /// <reference path='controller/ProjectController.ts'/>
-/// <reference path='controller/ProjectCollectionController.ts'/>
-/// <reference path='controller/UserController.ts'/>
-/// <reference path='controller/UserCollectionController.ts'/>
-/// <reference path='controller/VerifyController.ts'/>
-
+/// <reference path="data/bootstrapDatabase.ts" />
+/// <reference path='model/Configuration.ts' />
 /// <reference path='model/HttpRequest.ts'/>
 /// <reference path='model/HttpResponse.ts'/>
-
-/// <reference path="data/bootstrapDatabase.ts" />
-/// <reference path="data/ProjectRepository.ts" />
-/// <reference path="data/UserRepository.ts" />
 
 function startServer(configuration : model.Configuration, database : any) {
 
@@ -27,26 +19,9 @@ function startServer(configuration : model.Configuration, database : any) {
     if (configuration.throttle)
         server.use(restify.throttle(configuration.throttle));
 
-    var datas : any = { };
-    datas.project = new data.ProjectRepository(database);
-    datas.user = new data.UserRepository(configuration.hashAlgorithm, database);
-    datas.authenticate = new data.BasicAuthenticateUser(configuration, datas.user);
-
-    var services : any = { };
-    services.project = { };
-    services.project.create = new service.CreateProjectService(datas.project);
-    services.project.read = new service.GetProjectService(datas.project);
-    services.project.update = new service.UpdateProjectService(datas.project);
-    services.project.delete = new service.DeleteProjectService(datas.project);
-    services.authenticate = new service.AuthenticationService(datas.authenticate);
-
-    var controllers = {
-        "verify": new controller.VerifyController(),
-        "user": new controller.UserController(datas.user, datas.project),
-        "users": new controller.UserCollectionController(configuration.host, datas.user, datas.project),
-        "project": new controller.ProjectController(services.project.read, services.project.update, services.project.delete),
-        "projects": new controller.ProjectCollectionController(configuration.host, services.project.create)
-    };
+    var datas = new data.DataFactory(configuration, database);
+    var services = new service.ServiceFactory(datas);
+    var controllers = new controller.ControllerFactory(configuration, services);
 
     function addController(path:string, controller:any) {
 
@@ -79,15 +54,18 @@ function startServer(configuration : model.Configuration, database : any) {
         // For each of these HTTP methods, if the controller has the function with the same name then bind the
         // function and handler so that it will be invoked on such a request on path
         httpMethods
-            .filter(function (x:string) { return controller[x] !== undefined; })
+            .filter(function (x:string) {
+                return controller[x] !== undefined;
+            })
             .forEach(function (x:string) {
                 var minAuthLevel = controller[x + "AuthLevel"] || model.AuthenticationLevel.None;
                 console.log("Register " + x + " to path " + path + " with min authentication level " + minAuthLevel);
 
-                server[x](path, createControllerRequestHandler((request : model.HttpRequest) : Q.IPromise<model.HttpResponse> => {
-                    return services.authenticate.atLeast(minAuthLevel, request, function (request : model.HttpRequest) {
+                server[x](path, createControllerRequestHandler((request:model.HttpRequest):Q.IPromise<model.HttpResponse> => {
+                    var actualRequest = (request:model.HttpRequest): Q.IPromise<model.HttpResponse> => {
                         return controller[x](request);
-                    });
+                    };
+                    return services.authenticate.atLeast(minAuthLevel, request, actualRequest);
                 }));
             });
     }

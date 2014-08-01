@@ -3,6 +3,7 @@
 /// <reference path="../../typings/Q/Q.d.ts" />
 
 module controller {
+    var Q = require('q');
 
     export class ProjectCollectionController {
 

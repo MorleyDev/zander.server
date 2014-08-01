@@ -1,21 +1,19 @@
+/// <reference path='../service/ProjectService.ts'/>
+/// <reference path='../service/UserService.ts'/>
 /// <reference path='../service/AuthenticationService.ts'/>
 /// <reference path='../validate/ValidateUserDto.ts'/>
-/// <reference path='../data/UserRepository.ts'/>
-/// <reference path='../data/ProjectRepository.ts'/>
 /// <reference path='../model/Configuration.ts'/>
 
-var Q = require('q');
-
 module controller {
+    var Q = require('q');
+
     export class UserCollectionController {
         private host:string;
-        private userRepository:data.UserRepository;
-        private projectRepository:data.ProjectRepository;
+        private createUserService:service.CreateUserService;
 
-        constructor(host:string, userRepository:data.UserRepository, deleteProjects:data.ProjectRepository) {
+        constructor(host:string, createUserService:service.CreateUserService) {
             this.host = host;
-            this.userRepository = userRepository;
-            this.projectRepository = deleteProjects;
+            this.createUserService = createUserService;
         }
 
         public postAuthLevel = model.AuthenticationLevel.Super;
@@ -28,22 +26,19 @@ module controller {
                     "message": validation.reason
                 }));
 
-            return this.userRepository.getUser(request.body.username)
-                .then((user:model.db.User) => {
-                    if (user)
-                        return new model.HttpResponse(409, {
-                            "code": "Conflict",
-                            "message": "User already exists"
-                        });
+            return this.createUserService.fromDto(request.body).then((user) => {
+                if (!user)
+                    return Q(new model.HttpResponse(409, {
+                        "code": "Conflict",
+                        "message": "User already exists"
+                    }));
 
-                    return this.userRepository.createUser(request.body.username, request.body.email, request.body.password).then(() => {
-                        return new model.HttpResponse(201, {
-                            "email": request.body.email,
-                            "username": request.body.username,
-                            "_href": this.host + "/user/" + request.body.username
-                        });
-                    });
+                return new model.HttpResponse(201, {
+                    "email": user.email,
+                    "username": user.username,
+                    "_href": this.host + "/user/" + user.username
                 });
+            });
         }
     }
 }

@@ -2,9 +2,10 @@
 /// <reference path='../../typings/Q/Q.d.ts'/>
 /// <reference path='../model/db/Project.ts' />
 
-var uuid : UUID = require("uuid");
 
 module data {
+    var uuid : UUID = require("uuid");
+
     export class ProjectRepository {
         private _database : any;
 

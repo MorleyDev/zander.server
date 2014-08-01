@@ -61,5 +61,9 @@ module service {
         public byName(name: string) : Q.IPromise<void> {
             return this.projectRepository.deleteProject(name);
         }
+
+        public forUser(userId: string) : Q.IPromise<void> {
+            return this.projectRepository.deleteUsersProjects(userId);
+        }
     }
 }
