@@ -1,36 +1,36 @@
 /// <reference path='../model/net/CreateUserDto.ts'/>
 /// <reference path='../model/net/UpdateUserDto.ts'/>
-
-function ValidatePassword(password : string) {
-    if (!password)
-        return { success: false, reason: "Password Not Provided" };
-
-    if (password.length < 3)
-        return { success: false, reason: "Passwords must be 3 or more characters" };
-
-    return { success: true, reason: undefined };
-}
-
-function ValidateEmail(email : string) {
-    if (!email)
-        return { success: false, reason: "E-Mail Not Provided" };
-
-    return { success: true, reason: undefined };
-}
+/// <reference path='ValidationResult.ts'/>
 
 module validate {
+    function ValidatePassword(password : string) : ValidationResult {
+        if (!password)
+            return new ValidationResult(false, "Password Not Provided");
+
+        if (password.length < 3)
+            return new ValidationResult(false, "Passwords must be 3 or more characters");
+
+        return new ValidationResult(true);
+    }
+
+    function ValidateEmail(email : string) : ValidationResult {
+        if (!email)
+            return new ValidationResult(false, "E-Mail Not Provided");
+
+        return new ValidationResult(true);
+    }
 
     export function ValidateUsername(username: string) {
         if (!username)
-            return { success: false, reason: "Username Not Provided" };
+            return new ValidationResult(false, "Username Not Provided");
 
         if (username.length < 3 || username.length > 20)
-            return { success: false, reason: "Username Not Between 3-20 Characters" };
+            return new ValidationResult(false, "Username Not Between 3-20 Characters");
 
         if (!username.match("^[a-zA-Z0-9_\\-]*$"))
-            return { success: false, reason: "Username Must Only Contain Alphanumeric Characters or Underscore" };
+            return new ValidationResult(false, "Username Must Only Contain Alphanumeric Characters or Underscore");
 
-        return { success: true, reason: undefined };
+        return new ValidationResult(true);
     }
 
     export function ValidateCreateUserDto(dto : model.net.CreateUserDto) {
@@ -46,7 +46,7 @@ module validate {
         if (!validPassword.success)
             return validPassword;
 
-        return { success: true, reason: undefined };
+        return new ValidationResult(true);
     }
 
     export function ValidateUpdateUserDto(dto : model.net.UpdateUserDto) {
@@ -58,6 +58,6 @@ module validate {
         if (!validPassword.success)
             return validPassword;
 
-        return { success: true, reason: undefined };
+        return new ValidationResult(true);
     }
 }

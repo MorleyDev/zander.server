@@ -5,15 +5,23 @@
 /// <reference path='../model/LoggedInUser.ts' />
 /// <reference path="../../typings/Q/Q.d.ts" />
 
+/// <reference path='../service/ProjectService.ts' />
+
 var Q = require('q');
 
 module controller {
     export class ProjectController {
 
-        private projectRepository:data.ProjectRepository;
+        private getProjectService:service.GetProjectService;
+        private updateProjectService:service.UpdateProjectService;
+        private deleteProjectService:service.DeleteProjectService;
 
-        constructor(projectRepository:data.ProjectRepository) {
-            this.projectRepository = projectRepository;
+        constructor(getProject : service.GetProjectService,
+                    updateProject : service.UpdateProjectService,
+                    deleteProject : service.DeleteProjectService) {
+            this.getProjectService = getProject;
+            this.updateProjectService = updateProject;
+            this.deleteProjectService = deleteProject;
         }
 
         public putAuthLevel = model.AuthenticationLevel.User;
@@ -23,16 +31,17 @@ module controller {
             if (!validateDto.success)
                 return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validateDto.reason }));
 
-            return this.projectRepository.getProject(request.parameters.target)
+            /// TODO:- Move to Authorisation Service
+            return this.getProjectService.byName(request.parameters.target)
                 .then((project:model.db.Project) => {
                     if (project) {
                         if (request.user.authLevel < model.AuthenticationLevel.Super && project.userId !== request.user.id)
                             return new model.HttpResponse(403, { "code": "Forbidden" });
 
-                        return this.projectRepository.updateProject(project.name, request.body.git)
-                            .then(() => {
+                        return this.updateProjectService.byName(project.name, request.body)
+                            .then((project: model.db.Project) => {
                                 return new model.HttpResponse(200, {
-                                    "git": request.body.git
+                                    "git": project.git
                                 });
                             });
                     }
@@ -46,14 +55,15 @@ module controller {
         public delAuthLevel = model.AuthenticationLevel.User;
 
         public del(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            return this.projectRepository.getProject(request.parameters.target)
+            /// TODO:- Move to Authorisation Service
+            return this.getProjectService.byName(request.parameters.target)
                 .then((project:model.db.Project) => {
                     if (!project)
                         return new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Project not found" });
                     if (request.user.authLevel < model.AuthenticationLevel.Super && project.userId !== request.user.id)
                         return new model.HttpResponse(403, { "code": "Forbidden" });
 
-                    return this.projectRepository.deleteProject(project.name)
+                    return this.deleteProjectService.byName(request.parameters.target)
                         .then(function () {
                             return new model.HttpResponse(204, { });
                         });
@@ -61,10 +71,11 @@ module controller {
         }
 
         public get(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            return this.projectRepository.getProject(request.parameters.target)
+            return this.getProjectService.byName(request.parameters.target)
                 .then((project:model.db.Project) => {
                     if (project)
                         return new model.HttpResponse(200, { "git": project.git });
+
                     return new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Project not found" });
                 });
         }

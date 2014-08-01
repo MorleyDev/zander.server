@@ -33,14 +33,19 @@ function startServer(configuration : model.Configuration, database : any) {
     datas.authenticate = new data.BasicAuthenticateUser(configuration, datas.user);
 
     var services : any = { };
+    services.project = { };
+    services.project.create = new service.CreateProjectService(datas.project);
+    services.project.read = new service.GetProjectService(datas.project);
+    services.project.update = new service.UpdateProjectService(datas.project);
+    services.project.delete = new service.DeleteProjectService(datas.project);
     services.authenticate = new service.AuthenticationService(datas.authenticate);
 
     var controllers = {
         "verify": new controller.VerifyController(),
         "user": new controller.UserController(datas.user, datas.project),
         "users": new controller.UserCollectionController(configuration.host, datas.user, datas.project),
-        "project": new controller.ProjectController(datas.project),
-        "projects": new controller.ProjectCollectionController(configuration.host, datas.project)
+        "project": new controller.ProjectController(services.project.read, services.project.update, services.project.delete),
+        "projects": new controller.ProjectCollectionController(configuration.host, services.project.create)
     };
 
     function addController(path:string, controller:any) {

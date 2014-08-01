@@ -1,17 +1,17 @@
 /// <reference path='../validate/ValidateProjectDto.ts' />
-/// <reference path='../data/ProjectRepository.ts' />
-/// <reference path='../model/Configuration.ts' />
+/// <reference path='../service/ProjectService.ts' />
 /// <reference path="../../typings/Q/Q.d.ts" />
 
 module controller {
+
     export class ProjectCollectionController {
 
         private host:string;
-        private projectRepository:data.ProjectRepository;
+        private createProjectService: service.CreateProjectService;
 
-        constructor(host:string, projectRepository:data.ProjectRepository) {
+        constructor(host:string, createProjectService:service.CreateProjectService) {
             this.host = host;
-            this.projectRepository = projectRepository;
+            this.createProjectService = createProjectService;
         }
 
         public postAuthLevel = model.AuthenticationLevel.User;
@@ -21,20 +21,18 @@ module controller {
             if (!result.success)
                 return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": result.reason }));
 
-            return this.projectRepository.getProject(request.body.name)
+            return this.createProjectService.forUser(request.user, request.body)
                 .then((project:model.db.Project) => {
-                    if (project)
+                    if (!project)
                         return new model.HttpResponse(409, {
                             "code": "Conflict",
                             "message": "Project already exists"
                         });
-                    return this.projectRepository.createProject(request.user.id, request.body.name, request.body.git)
-                        .then(() => {
-                            return new model.HttpResponse(201, {
-                                _href: this.host + "/project/" + request.body.name,
-                                git: request.body.git
-                            });
-                        });
+
+                    return new model.HttpResponse(201, {
+                        _href: this.host + "/project/" + project.name,
+                        git: project.git
+                    });
                 });
         }
     }
