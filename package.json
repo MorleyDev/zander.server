@@ -4,23 +4,25 @@
   "author": "Jason Morley (http://www.morleydev.co.uk)",
   "license": "MIT",
   "repository": "https://github.com/MorleyDev/zander.server",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "dependencies": {
-    "restify": "2.6.0",
+    "restify": "2.8.1",
     "nodesql": "0.2.4",
-    "sqlite3": "2.2.3",
-    "mysql": "2.4.1",
+    "sqlite3": "2.2.4",
     "uuid": "1.4.1",
     "q": "1.0.1"
   },
+  "optionalDependencies": { 
+    "mysql": "2.4.1"
+  },
   "devDependencies": {
-    "chai": "1.8.1",
+    "chai": "1.9.1",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-uglify": "^0.5.1",
     "grunt-mocha-test": "^0.11.0",
     "grunt-typescript": "^0.3.8",
-    "mocha": "1.14.0",
+    "mocha": "1.21.3",
     "typescript": "1.0.1"
   },
   "scripts": {
