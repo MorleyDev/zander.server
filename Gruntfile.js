@@ -22,7 +22,7 @@ module.exports = function(grunt) {
                 }
             },
             unit: {
-                src: ['unit/**/*.ts'],
+                src: ['src/**/*.ts', 'unit/**/*.ts'],
                 dest: 'lib/unit.js',
                 options: {
                     basePath: 'unit',

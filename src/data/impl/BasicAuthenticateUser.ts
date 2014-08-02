@@ -1,27 +1,8 @@
-/// <reference path='HashPassword.ts'/>
-/// <reference path='UserRepository.ts'/>
-/// <reference path='../model/Configuration.ts'/>
-/// <reference path='../../typings/Q/Q.d.ts'/>
-
-module data {
+module data.impl {
     var Q = require('q');
 
-    export class AuthenticationResult {
-        constructor(success:boolean, reason:string, username:string, userid:string) {
-            this.success = success;
-            this.reason = reason;
-            this.username = username;
-            this.userid = userid;
-        }
-
-        public success:boolean;
-        public reason:string;
-        public username:string;
-        public userid:string;
-    }
-
-    export class BasicAuthenticateUser {
-        private _goduser:model.ConfigurationGodUser;
+    export class BasicAuthenticateUser implements AuthenticateUser {
+        private _goduser:model.UserPasswordPair;
         private _hashType:string;
         private _userRepository:UserRepository;
 

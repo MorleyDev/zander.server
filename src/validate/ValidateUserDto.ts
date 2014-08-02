@@ -1,7 +1,3 @@
-/// <reference path='../model/net/CreateUserDto.ts'/>
-/// <reference path='../model/net/UpdateUserDto.ts'/>
-/// <reference path='ValidationResult.ts'/>
-
 module validate {
     function ValidatePassword(password:string):ValidationResult {
         if (!password)

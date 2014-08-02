@@ -1,16 +1,8 @@
-/// <reference path="../../typings/node/node.d.ts" />
-/// <reference path="../../typings/mocha/mocha.d.ts" />
-/// <reference path="../../typings/chai/chai.d.ts" />
-
-/// <reference path="../../src/controller/VerifyController.ts" />
-/// <reference path="../../src/model/HttpResponse.ts" />
-/// <reference path="../../src/model/HttpRequest.ts" />
-
 var assert = require("chai").assert;
 
 describe("Given a VerifyController", function () {
 
-    var verifyController = new controller.VerifyController();
+    var verifyController = new controller.impl.VerifyControllerImpl();
 
     describe("When making a get request", function() {
 

@@ -1,7 +1,3 @@
-/// <reference path='../model/net/CreateProjectDto.ts'/>
-/// <reference path='../model/net/UpdateProjectDto.ts'/>
-/// <reference path='ValidationResult.ts'/>
-
 module validate {
     function ValidateProjectName(name:string):ValidationResult {
         if (!name)

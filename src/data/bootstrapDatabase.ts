@@ -1,6 +1,3 @@
-/// <reference path='../../typings/sqlite3/sqlite3.d.ts'/>
-/// <reference path='../model/Configuration.ts'/>
-
 enum DatabaseType {
     SqlLite,
     MySQL

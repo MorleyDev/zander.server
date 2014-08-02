@@ -1,4 +1,4 @@
-/// <reference path='LoggedInUser.ts'/>
+/// <reference path='LoggedInUserDetails.ts'/>
 
 module model {
     export class HttpRequest {

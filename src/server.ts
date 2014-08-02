@@ -1,11 +1,3 @@
-/// <reference path='../typings/node/node.d.ts'/>
-/// <reference path='controller/ControllerFactory.ts'/>
-/// <reference path='controller/ProjectController.ts'/>
-/// <reference path="data/bootstrapDatabase.ts" />
-/// <reference path='model/Configuration.ts' />
-/// <reference path='model/HttpRequest.ts'/>
-/// <reference path='model/HttpResponse.ts'/>
-
 function startServer(configuration:model.Configuration, database:any) {
 
     var restify = require("restify");
