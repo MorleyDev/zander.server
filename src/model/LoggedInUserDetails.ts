@@ -1,5 +1,5 @@
 module model {
-    export class LoggedInUserDetails {
+    export class UserLogin {
         constructor(username:string, authLevel:AuthenticationLevel, userId:string) {
             this.name = username;
             this.id = userId;

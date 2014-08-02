@@ -3,12 +3,16 @@ module controller.impl {
     var Q = require('q');
 
     export class UserControllerImpl implements UserController {
-
+        private authorisationService:service.AuthorisationService;
         private getUserService:service.GetUserService;
         private updateUserService:service.UpdateUserService;
         private deleteUserService:service.DeleteUserService;
 
-        constructor(getUser:service.GetUserService, updateUser:service.UpdateUserService, deleteUser:service.DeleteUserService) {
+        constructor(authorise:service.AuthorisationService,
+                    getUser:service.GetUserService,
+                    updateUser:service.UpdateUserService,
+                    deleteUser:service.DeleteUserService) {
+            this.authorisationService = authorise;
             this.getUserService = getUser;
             this.updateUserService = updateUser;
             this.deleteUserService = deleteUser;
@@ -17,22 +21,23 @@ module controller.impl {
         public putAuthLevel = model.AuthenticationLevel.User;
 
         public put(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            if (request.user.authLevel < model.AuthenticationLevel.Super && request.parameters.target !== request.user.name)
-                return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
-
             var validation = validate.ValidateUpdateUserDto(request.body);
             if (!validation.success)
                 return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validation.reason }));
 
-            return this.updateUserService.withUsername(request.parameters.target, request.body)
-                .then((user:model.db.User):Q.IPromise<model.HttpResponse> => {
-                    if (!user)
-                        return Q(new model.HttpResponse(404, {
-                            "code": "ResourceNotFound",
-                            "message": "User not found"
-                        }));
+            return this.authorisationService.forUser(request.user, request.parameters.target)
+                .then((authorised:service.AuthorisationResult) => {
+                    switch (authorised) {
+                        case service.AuthorisationResult.NotFound:
+                        case service.AuthorisationResult.Failure:
+                            return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
 
-                    return Q(new model.HttpResponse(200, { "email": user.email }));
+                        case service.AuthorisationResult.Success:
+                            return this.updateUserService.withUsername(request.parameters.target, request.body)
+                                .then((user:model.db.User):Q.IPromise<model.HttpResponse> => {
+                                    return Q(new model.HttpResponse(200, { "email": user.email }));
+                                });
+                    }
                 });
         }
 
@@ -43,19 +48,17 @@ module controller.impl {
             if (!validateUsername.success)
                 return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validateUsername.reason }));
 
-            // TODO:- move over to authorisation service
-            return this.getUserService.byUsername(request.parameters.target)
-                .then((user:model.db.User):Q.IPromise<model.HttpResponse> => {
-                    if (!user)
-                        return Q(new model.HttpResponse(404, { }));
+            return this.authorisationService.forUser(request.user, request.parameters.target)
+                .then((authorised:service.AuthorisationResult) => {
+                    switch (authorised) {
+                        case service.AuthorisationResult.NotFound:
+                        case service.AuthorisationResult.Failure:
+                            return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
 
-                    if (request.user.authLevel < model.AuthenticationLevel.Super && request.user.id !== user.id)
-                        return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
-
-                    return this.deleteUserService.byUser(user)
-                        .then(() => {
-                            return new model.HttpResponse(204, { });
-                        });
+                        case service.AuthorisationResult.Success:
+                            return this.deleteUserService.byUsername(request.parameters.target)
+                                .then(() => { return new model.HttpResponse(204, { }); });
+                    }
                 });
         }
 
@@ -67,19 +70,19 @@ module controller.impl {
             if (!validation.success)
                 return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validation.reason }));
 
-            return this.getUserService.byUsername(request.parameters.target)
-                .then((user:model.db.User):Q.IPromise<model.HttpResponse> => {
-                    if (!user)
-                        return Q(new model.HttpResponse(404, {
-                            "code": "ResourceNotFound",
-                            "message": "User not found"
-                        }));
+            return this.authorisationService.forUser(request.user, request.parameters.target)
+                .then((authorised:service.AuthorisationResult) => {
+                    switch (authorised) {
+                        case service.AuthorisationResult.NotFound:
+                        case service.AuthorisationResult.Failure:
+                            return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
 
-                    // TODO:- move over to authorisation service
-                    if (request.user.authLevel < model.AuthenticationLevel.Super && request.user.id !== user.id)
-                        return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
-
-                    return Q(new model.HttpResponse(200, { "email": user.email }));
+                        case service.AuthorisationResult.Success:
+                            return this.getUserService.byUsername(request.parameters.target)
+                                .then((user:model.db.User):Q.IPromise<model.HttpResponse> => {
+                                    return Q(new model.HttpResponse(200, { "email": user.email }));
+                                });
+                    }
                 });
         }
     }

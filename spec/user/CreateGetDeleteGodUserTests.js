@@ -85,9 +85,6 @@ describe("Given a Rest Client and god credentials", function () {
                 done();
             });
         });
-        it("Then the expected error code was returned", function() {
-            assert.deepEqual(errorObj, errors.CreateErrorDto("ResourceNotFound", "User not found"));
-        });
         it("Then a 404 Not Found is returned", function () {
             assert.equal(response.statusCode, 404);
         });

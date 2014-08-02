@@ -58,11 +58,13 @@ module service.impl {
             this.projectRepository = projectRepository;
         }
 
-        public byUser(user:model.db.User):Q.IPromise<void> {
-            return this.projectRepository.deleteUsersProjects(user.id)
-                .then(() => {
-                    return this.userRepository.deleteUser(user.username);
-                });
+        public byUsername(username:string):Q.IPromise<void> {
+            return this.userRepository.getUser(username).then((user: model.db.User) => {
+                return this.projectRepository.deleteUsersProjects(user.id)
+                    .then(() => {
+                        return this.userRepository.deleteUser(user.username);
+                    });
+            });
         }
     }
 }

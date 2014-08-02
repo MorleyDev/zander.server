@@ -12,6 +12,6 @@ module service {
     }
 
     export interface DeleteUserService {
-        byUser(user:model.db.User):Q.IPromise<void>;
+        byUsername(username:string):Q.IPromise<void>;
     }
 }

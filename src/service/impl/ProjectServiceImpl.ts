@@ -6,7 +6,7 @@ module service.impl {
             this.projectRepository = projectRepository;
         }
 
-        public forUser(user:model.LoggedInUserDetails, createProject:model.net.CreateProjectDto):Q.IPromise<model.db.Project> {
+        public forUser(user:model.UserLogin, createProject:model.net.CreateProjectDto):Q.IPromise<model.db.Project> {
             return this.projectRepository.getProject(createProject.name)
                 .then((project:model.db.Project) => {
                     if (project)

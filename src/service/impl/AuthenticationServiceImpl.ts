@@ -23,7 +23,7 @@ module service.impl {
                 .authenticateGodUser(authorization)
                 .then((result:data.AuthenticationResult) => {
                     if (result.success)
-                        return Q(new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, model.AuthenticationLevel.Super, result.userid)));
+                        return Q(new LogInResult(LogInResultType.Success, undefined, new model.UserLogin(result.username, model.AuthenticationLevel.Super, result.userid)));
 
                     return this.authenticateUser.authenticateStandardUser(authorization)
                         .then((result:data.AuthenticationResult):Q.IPromise<LogInResult> => {
@@ -31,7 +31,7 @@ module service.impl {
                                 if (minAuthLevel > model.AuthenticationLevel.User)
                                     return Q(new LogInResult(LogInResultType.Rejection, "Do not possess required permission level", undefined));
 
-                                return Q(new LogInResult(LogInResultType.Success, undefined, new model.LoggedInUserDetails(result.username, model.AuthenticationLevel.User, result.userid)));
+                                return Q(new LogInResult(LogInResultType.Success, undefined, new model.UserLogin(result.username, model.AuthenticationLevel.User, result.userid)));
                             }
                             return Q(new LogInResult(LogInResultType.Failure, result.reason, undefined));
                         });

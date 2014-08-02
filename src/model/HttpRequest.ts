@@ -8,6 +8,6 @@ module model {
         public body:any;
         public log:any;
 
-        public user:LoggedInUserDetails;
+        public user:UserLogin;
     }
 }

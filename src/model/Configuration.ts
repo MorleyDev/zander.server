@@ -4,7 +4,7 @@ module model {
         public host:string;
         public goduser:UserPasswordPair;
         public hashAlgorithm:string;
-        public throttle:any;
+        public throttle: any;
         public mysql:any;
         public sqlite:string;
     }

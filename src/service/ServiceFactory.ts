@@ -32,10 +32,12 @@ module service {
             this.project = new ProjectServiceFactory(datas);
             this.user = new UserServiceFactory(datas);
             this.authenticate = new service.impl.AuthenticationServiceImpl(datas.authenticate);
+            this.authorise = new service.impl.AuthorisationServiceImpl(datas.user, datas.project);
         }
 
         public project:ProjectServiceFactory;
         public user:UserServiceFactory;
         public authenticate:service.AuthenticationService;
+        public authorise:service.AuthorisationService;
     }
 }

@@ -1,6 +1,6 @@
 module service {
     export interface CreateProjectService {
-        forUser(user:model.LoggedInUserDetails, createProject:model.net.CreateProjectDto):Q.IPromise<model.db.Project>
+        forUser(user:model.UserLogin, createProject:model.net.CreateProjectDto):Q.IPromise<model.db.Project>
     }
 
     export interface GetProjectService {
