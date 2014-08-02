@@ -11,14 +11,18 @@ describe("Given a Rest Client", function () {
         var response;
 
         before(function (done) {
-            client.get("/verify", function (err, req) {
+            client.get(configuration.prefix + "/verify", function (err, req) {
                 req.on('result', function (err, res) {
                     if (err) {
-                        throw new Error(err);
+                        response = err;
+                        done();
+                        return;
                     }
+
                     response = res;
                     done();
                 });
+                req.end();
             });
         });
         it("Then a 200 response is returned", function () {

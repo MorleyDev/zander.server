@@ -3,17 +3,34 @@
   "main": "server.js",
   "author": "Jason Morley (http://www.morleydev.co.uk)",
   "license": "MIT",
-  "repository" : "https://github.com/MorleyDev/zander.server",
-  "version":"1.0.0",
-  "dependencies": { "restify" : "2.6.0", "nodesql" : "0.2.4", "sqlite3" : "2.2.3", "mysql" : "2.4.1", "uuid" : "1.4.1", "q" : "1.0.1" },
-  "devDependencies": { "mocha" : "1.14.0", "chai" : "1.8.1", "typescript":"1.0.1" },
+  "repository": "https://github.com/MorleyDev/zander.server",
+  "version": "1.0.0",
+  "dependencies": {
+    "restify": "2.6.0",
+    "nodesql": "0.2.4",
+    "sqlite3": "2.2.3",
+    "mysql": "2.4.1",
+    "uuid": "1.4.1",
+    "q": "1.0.1"
+  },
+  "devDependencies": {
+    "chai": "1.8.1",
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-uglify": "^0.5.1",
+    "grunt-mocha-test": "^0.11.0",
+    "grunt-typescript": "^0.3.8",
+    "mocha": "1.14.0",
+    "typescript": "1.0.1"
+  },
   "scripts": {
-    "prepublish": "tsc src/server.ts --out lib/server.js --noImplicitAny --removeComments",
+    "prepublish": "grunt prepublish",
     "start": "node server.js",
-    "test" : "npm run-script unit && npm run-script spec",
-    "spec" : "mocha spec --recursive --reporter spec",
-    "unit" : "tsc unit/tests.ts --out lib/unit.js && mocha lib/unit.js",
-    "smoke" : "mocha smoke --recursive",
-    "full-build" : "npm install && npm test"
+    "test": "npm run-script unit && npm run-script spec",
+    "spec": "grunt spec",
+    "unit": "grunt unit",
+    "smoke": "grunt smoke",
+    "full-build": "npm install && npm test",
+    "grunt": "grunt"
   }
 }
