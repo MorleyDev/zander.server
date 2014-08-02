@@ -56,10 +56,12 @@ module.exports = function(grunt) {
             smoke: {
                 src: ['smoke/**/*.js']
             }
-        }
+        },
+		clean: ["lib"]
     });
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-typescript');
 
