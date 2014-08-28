@@ -18,6 +18,8 @@ module controller.impl {
         }
 
         public putAuthLevel = model.AuthenticationLevel.User;
+        public delAuthLevel = model.AuthenticationLevel.User;
+        public getAuthLevel:model.AuthenticationLevel = model.AuthenticationLevel.None;
 
         public put(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             var validateDto = validate.ValidateUpdateProjectDto(request.body);
@@ -41,8 +43,6 @@ module controller.impl {
             });
         }
 
-        public delAuthLevel = model.AuthenticationLevel.User;
-
         public del(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             return this.authorisationService.forProject(request.user, request.parameters.target).then((authorised: service.AuthorisationResult) => {
                 switch (authorised) {
@@ -60,6 +60,7 @@ module controller.impl {
                 }
             });
         }
+
 
         public get(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             return this.getProjectService.byName(request.parameters.target)

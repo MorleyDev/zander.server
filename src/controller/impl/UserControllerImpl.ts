@@ -19,6 +19,8 @@ module controller.impl {
         }
 
         public putAuthLevel = model.AuthenticationLevel.User;
+        public delAuthLevel = model.AuthenticationLevel.User;
+        public getAuthLevel = model.AuthenticationLevel.User;
 
         public put(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             var validation = validate.ValidateUpdateUserDto(request.body);
@@ -41,8 +43,6 @@ module controller.impl {
                 });
         }
 
-        public delAuthLevel = model.AuthenticationLevel.User;
-
         public del(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             var validateUsername = validate.ValidateUsername(request.parameters.target);
             if (!validateUsername.success)
@@ -61,8 +61,6 @@ module controller.impl {
                     }
                 });
         }
-
-        public getAuthLevel = model.AuthenticationLevel.User;
 
         public get(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
 
