@@ -12,7 +12,8 @@ module controller.impl {
         }
 
         public postAuthLevel = model.AuthenticationLevel.User;
-        public postValidator = new validate.impl.CreateProjectDtoValidator();
+        public postValidator = "CreateProjectDto";
+        public postAuthoriser : string = null;
 
         public post(request:model.HttpRequest): Q.IPromise<model.HttpResponse> {
             return this.createProjectService.forUser(request.user, request.body)

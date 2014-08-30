@@ -11,7 +11,8 @@ module controller.impl {
         }
 
         public postAuthLevel = model.AuthenticationLevel.Super;
-        public postValidator:validate.Validator = new validate.impl.CreateUserDtoValidator();
+        public postValidator = "CreateUserDto";
+        public postAuthoriser: string = null;
 
         public post(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             return this.createUserService.fromDto(request.body).then((user) => {

@@ -31,13 +31,13 @@ module service {
         constructor(datas:data.DataFactory) {
             this.project = new ProjectServiceFactory(datas);
             this.user = new UserServiceFactory(datas);
+            this.authorisers = new AuthorisationFactory(datas);
             this.authenticate = new service.impl.AuthenticationServiceImpl(datas.authenticate);
-            this.authorise = new service.impl.AuthorisationServiceImpl(datas.user, datas.project);
         }
 
         public project:ProjectServiceFactory;
         public user:UserServiceFactory;
-        public authenticate:service.AuthenticationService;
-        public authorise:service.AuthorisationService;
+        public authorisers: service.AuthorisationFactory;
+        public authenticate:AuthenticationService;
     }
 }

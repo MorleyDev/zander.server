@@ -16,6 +16,7 @@ function startServer(configuration:model.Configuration, database:any) {
     var datas = new data.DataFactory(configuration, database);
     var services = new service.ServiceFactory(datas);
     var controllers = new controller.ControllerFactory(configuration, services);
+    var validators = new validate.ValidatorFactory();
 
     function addController(path:string, controller:any) {
 
@@ -53,13 +54,14 @@ function startServer(configuration:model.Configuration, database:any) {
             })
             .forEach(function (x:string) {
                 var minAuthLevel = controller[x + "AuthLevel"] || model.AuthenticationLevel.None;
-                var validator : validate.Validator = controller[x + "Validator"];
+                var validator : string = controller[x + "Validator"];
+                var authoriser : string = controller[x + "Authoriser"];
                 console.log("Register " + x + " to path " + path + " with min authentication level " + minAuthLevel);
 
                 server[x](path, createControllerRequestHandler((request:model.HttpRequest):Q.IPromise<model.HttpResponse> => {
                     var actualRequest = (request:model.HttpRequest):Q.IPromise<model.HttpResponse> => {
                         if (validator) {
-                            var result = validator.apply(request);
+                            var result = validators.get(validator).apply(request);
                             if (!result.success) {
                                 return Q(new model.HttpResponse(400, {
                                     "code": "BadRequest",
@@ -67,7 +69,24 @@ function startServer(configuration:model.Configuration, database:any) {
                                 }));
                             }
                         }
-                        return controller[x](request);
+
+                        if (!authoriser)
+                            return controller[x](request);
+
+                        return services.authorisers.get(authoriser)
+                            .authenticate(request.user, request.parameters.target)
+                            .then((authorised:service.AuthorisationResult) => {
+                                switch (authorised) {
+                                    case service.AuthorisationResult.NotFound:
+                                        return Q(new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Resource Not Found" }));
+
+                                    case service.AuthorisationResult.Failure:
+                                        return Q(new model.HttpResponse(403, { "code": "Forbidden" }));
+
+                                    case service.AuthorisationResult.Success:
+                                        return controller[x](request);
+                                }
+                            });
                     };
                     return services.authenticate.atLeast(minAuthLevel, request, actualRequest);
                 }));

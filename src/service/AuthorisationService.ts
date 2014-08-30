@@ -6,7 +6,6 @@ module service {
     }
 
     export interface AuthorisationService {
-        forUser(details: model.UserLogin, username: string) : Q.IPromise<AuthorisationResult>;
-        forProject(details: model.UserLogin, projectname: string) : Q.IPromise<AuthorisationResult>;
+        authenticate(details: model.UserLogin, target: string) : Q.IPromise<AuthorisationResult>;
     }
 }
