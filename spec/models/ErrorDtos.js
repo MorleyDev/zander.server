@@ -1,4 +1,4 @@
-module.exports.CreateErrorDto = function(code, message) {
+module.exports.CreateErrorDto = function (code, message) {
 
     return {
         "code" : code,

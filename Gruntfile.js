@@ -1,4 +1,4 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -57,7 +57,7 @@ module.exports = function(grunt) {
                 src: ['smoke/**/*.js']
             }
         },
-		clean: ["lib"]
+        clean: ["lib"]
     });
 
     grunt.loadNpmTasks('grunt-contrib-uglify');

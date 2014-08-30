@@ -212,7 +212,7 @@ describe("Given a rest client and user", function () {
                     });
                 })
             });
-        })
+        });
         it("Then the expected response of 404 Not Found is returned", function () {
             assert.equal(response.statusCode, 404)
         })

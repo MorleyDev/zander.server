@@ -1,4 +1,4 @@
-module.exports.CreateUserPostDto = function(username, email, password) {
+module.exports.CreateUserPostDto = function (username, email, password) {
 
     return {
         "username" : username,
@@ -7,14 +7,14 @@ module.exports.CreateUserPostDto = function(username, email, password) {
     };
 };
 
-module.exports.CreateUserPutDto = function(email, password) {
+module.exports.CreateUserPutDto = function (email, password) {
     return {
         "email" : email,
         "password" : password
     };
 };
 
-module.exports.CreateUserPostResponseDto = function(username, email, href)
+module.exports.CreateUserPostResponseDto = function (username, email, href)
 {
     return {
         "username" : username,
@@ -23,7 +23,7 @@ module.exports.CreateUserPostResponseDto = function(username, email, href)
     };
 };
 
-module.exports.CreateUserGetResponseDto = function(email) {
+module.exports.CreateUserGetResponseDto = function (email) {
     return {
         "email" : email
     };

@@ -8,10 +8,11 @@ module service.impl {
             this.authenticateUser = authenticateUser;
         }
 
-        public atLeast(minAuthLevel:model.AuthenticationLevel, request:model.HttpRequest, onSuccess:(result:model.HttpRequest) => Q.IPromise<model.HttpResponse>):Q.IPromise<model.HttpResponse> {
-            return this
-                .requireAtLeast(minAuthLevel, request.authorization)
-                .then(AuthenticationServiceImpl.handleLogInResult(request, onSuccess));
+        public atLeast(minAuthLevel:model.AuthenticationLevel,
+                       request:model.HttpRequest,
+                       onSuccess:(result:model.HttpRequest) => Q.IPromise<model.HttpResponse>): Q.IPromise<model.HttpResponse> {
+            return this.requireAtLeast(minAuthLevel, request.authorization)
+                       .then(AuthenticationServiceImpl.handleLogInResult(request, onSuccess));
         }
 
         private requireAtLeast(minAuthLevel:model.AuthenticationLevel, authorization:any):Q.IPromise<LogInResult> {
@@ -19,8 +20,7 @@ module service.impl {
             if (minAuthLevel < model.AuthenticationLevel.User)
                 return Q(new LogInResult(LogInResultType.Success, undefined, undefined));
 
-            return this.authenticateUser
-                .authenticateGodUser(authorization)
+            return this.authenticateUser.authenticateGodUser(authorization)
                 .then((result:data.AuthenticationResult) => {
                     if (result.success)
                         return Q(new LogInResult(LogInResultType.Success, undefined, new model.UserLogin(result.username, model.AuthenticationLevel.Super, result.userid)));

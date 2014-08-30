@@ -6,7 +6,6 @@ describe("Given a Rest Client and god credentials", function () {
     "use strict";
 
     var configuration = require(__dirname + "/../config.json");
-
     var client;
     before(function (done) {
         client = restify.createJsonClient({  url: "http://localhost:" + configuration.port });

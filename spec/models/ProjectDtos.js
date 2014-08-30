@@ -1,31 +1,31 @@
-module.exports.ProjectCreatePostDto = function(_name, _git) {
+module.exports.ProjectCreatePostDto = function (name, git) {
     return {
-        "git" : _git,
-        "name" : _name
+        "git" : git,
+        "name" : name
     };
 };
 
-module.exports.ProjectCreateResponseDto = function(_href, _git) {
+module.exports.ProjectCreateResponseDto = function (href, git) {
     return {
-        "_href": _href,
-        "git": _git
+        "_href": href,
+        "git": git
     };
 };
 
-module.exports.ProjectGetResponseDto = function(_git) {
+module.exports.ProjectGetResponseDto = function (git) {
     return {
-        "git" : _git
+        "git" : git
     };
 };
 
-module.exports.ProjectUpdatePutDto = function(_git) {
+module.exports.ProjectUpdatePutDto = function (git) {
     return {
-        "git" : _git
+        "git" : git
     };
 };
 
-module.exports.ProjectUpdatePutResponseDto = function(_git) {
+module.exports.ProjectUpdatePutResponseDto = function (git) {
     return {
-        "git" : _git
+        "git" : git
     };
 };
