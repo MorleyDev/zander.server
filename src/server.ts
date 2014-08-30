@@ -1,5 +1,7 @@
 function startServer(configuration:model.Configuration, database:any) {
 
+    var Q = require('q');
+
     var restify = require("restify");
     var server = restify.createServer({name: "zander"})
         .pre(restify.pre.sanitizePath())
@@ -51,10 +53,20 @@ function startServer(configuration:model.Configuration, database:any) {
             })
             .forEach(function (x:string) {
                 var minAuthLevel = controller[x + "AuthLevel"] || model.AuthenticationLevel.None;
+                var validator : validate.Validator = controller[x + "Validator"];
                 console.log("Register " + x + " to path " + path + " with min authentication level " + minAuthLevel);
 
                 server[x](path, createControllerRequestHandler((request:model.HttpRequest):Q.IPromise<model.HttpResponse> => {
                     var actualRequest = (request:model.HttpRequest):Q.IPromise<model.HttpResponse> => {
+                        if (validator) {
+                            var result = validator.apply(request);
+                            if (!result.success) {
+                                return Q(new model.HttpResponse(400, {
+                                    "code": "BadRequest",
+                                    "message": result.reason
+                                }));
+                            }
+                        }
                         return controller[x](request);
                     };
                     return services.authenticate.atLeast(minAuthLevel, request, actualRequest);

@@ -38,6 +38,19 @@ describe("Given a Rest Client and no credentials", function () {
             assert.equal(response.statusCode, 404);
         });
     });
+    describe("When GET an invalid project endpoint", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project/1", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
 });
 
 describe("Given a Rest Client and credentials", function () {

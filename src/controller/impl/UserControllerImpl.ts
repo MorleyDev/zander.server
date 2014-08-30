@@ -22,11 +22,11 @@ module controller.impl {
         public delAuthLevel = model.AuthenticationLevel.User;
         public getAuthLevel = model.AuthenticationLevel.User;
 
-        public put(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            var validation = validate.ValidateUpdateUserDto(request.body);
-            if (!validation.success)
-                return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validation.reason }));
+        public getValidator:validate.Validator = new validate.impl.UsernameTargetValidator();
+        public putValidator:validate.Validator = new validate.impl.UpdateUserDtoValidator();
+        public delValidator:validate.Validator = new validate.impl.UsernameTargetValidator();
 
+        public put(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             return this.authorisationService.forUser(request.user, request.parameters.target)
                 .then((authorised:service.AuthorisationResult) => {
                     switch (authorised) {
@@ -44,10 +44,6 @@ module controller.impl {
         }
 
         public del(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            var validateUsername = validate.ValidateUsername(request.parameters.target);
-            if (!validateUsername.success)
-                return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validateUsername.reason }));
-
             return this.authorisationService.forUser(request.user, request.parameters.target)
                 .then((authorised:service.AuthorisationResult) => {
                     switch (authorised) {
@@ -63,11 +59,6 @@ module controller.impl {
         }
 
         public get(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-
-            var validation = validate.ValidateUsername(request.parameters.target);
-            if (!validation.success)
-                return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validation.reason }));
-
             return this.authorisationService.forUser(request.user, request.parameters.target)
                 .then((authorised:service.AuthorisationResult) => {
                     switch (authorised) {

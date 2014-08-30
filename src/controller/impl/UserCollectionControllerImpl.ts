@@ -11,15 +11,9 @@ module controller.impl {
         }
 
         public postAuthLevel = model.AuthenticationLevel.Super;
+        public postValidator:validate.Validator = new validate.impl.CreateUserDtoValidator();
 
         public post(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            var validation = validate.ValidateCreateUserDto(request.body);
-            if (!validation.success)
-                return Q(new model.HttpResponse(400, {
-                    "code": "BadRequest",
-                    "message": validation.reason
-                }));
-
             return this.createUserService.fromDto(request.body).then((user) => {
                 if (!user)
                     return Q(new model.HttpResponse(409, {

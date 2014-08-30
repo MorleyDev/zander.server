@@ -1,5 +1,5 @@
 module validate {
-    function ValidateProjectName(name:string):ValidationResult {
+    export function ValidateProjectName(name:string):ValidationResult {
         if (!name)
             return new ValidationResult(false, "Project Name Not Provided");
 

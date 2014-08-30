@@ -12,12 +12,9 @@ module controller.impl {
         }
 
         public postAuthLevel = model.AuthenticationLevel.User;
+        public postValidator = new validate.impl.CreateProjectDtoValidator();
 
         public post(request:model.HttpRequest): Q.IPromise<model.HttpResponse> {
-            var result = validate.ValidateCreateProjectDto(request.body);
-            if (!result.success)
-                return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": result.reason }));
-
             return this.createProjectService.forUser(request.user, request.body)
                 .then((project:model.db.Project) => {
                     if (!project)

@@ -19,13 +19,13 @@ module controller.impl {
 
         public putAuthLevel = model.AuthenticationLevel.User;
         public delAuthLevel = model.AuthenticationLevel.User;
-        public getAuthLevel:model.AuthenticationLevel = model.AuthenticationLevel.None;
+        public getAuthLevel = model.AuthenticationLevel.None;
+
+        public getValidator = new validate.impl.ProjectTargetValidator();
+        public delValidator = new validate.impl.ProjectTargetValidator();
+        public putValidator = new validate.impl.UpdateProjectDtoValidator();
 
         public put(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            var validateDto = validate.ValidateUpdateProjectDto(request.body);
-            if (!validateDto.success)
-                return Q(new model.HttpResponse(400, { "code": "BadRequest", "message": validateDto.reason }));
-
             return this.authorisationService.forProject(request.user, request.parameters.target).then((authorised: service.AuthorisationResult) => {
                 switch (authorised) {
                     case service.AuthorisationResult.NotFound:
