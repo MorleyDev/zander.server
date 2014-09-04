@@ -3,7 +3,7 @@
 ## Downloading & Installing Server
 The server can be downloaded either via a git clone at "http://github.com/MorleyDev/zander.server" or by downloading from https://github.com/MorleyDev/zander.server/archive/master.zip and unzipping to the desired location.
 
-After downloading the server, the dependencies must be installed via the Node Package Manager. To do this, install the npm if you haven’t already from http://npmjs.org, and then run "npm install" from the cloned/unzipped directory.
+After downloading the server, the Node Package Manager is required to finish installation. Install the npm if you haven’t already from http://npmjs.org, and then run "npm install && npm rebuild" from the cloned/unzipped directory.
 
 ## Configuration
 Configuration file, config.json, is loaded from the server installed directory. This file is in JSON format, and is used to specify several aspects of the server’s behaviour.
