@@ -18,6 +18,13 @@ module.exports.ProjectGetResponseDto = function (git) {
     };
 };
 
+module.exports.ProjectGetCollectionResponseDto = function (projects) {
+    return {
+        "count": projects.length,
+        "projects": projects
+    };
+};
+
 module.exports.ProjectUpdatePutDto = function (git) {
     return {
         "git" : git

@@ -15,6 +15,10 @@ module controller.impl {
         public postValidator = "CreateProjectDto";
         public postAuthoriser : string = null;
 
+        public getAuthLevel = model.AuthenticationLevel.None;
+        public getValidator : string = null;
+        public getAuthoriser : string = null;
+        
         public post(request:model.HttpRequest): Q.IPromise<model.HttpResponse> {
             return this.createProjectService.forUser(request.user, request.body)
                 .then((project:model.db.Project) => {
@@ -25,10 +29,14 @@ module controller.impl {
                         });
 
                     return new model.HttpResponse(201, {
-                        _href: this.host + "/project/" + project.name,
-                        git: project.git
+                        "_href": this.host + "/project/" + project.name,
+                        "git": project.git
                     });
                 });
+        }
+        
+        public get(request: model.HttpRequest) : Q.IPromise<model.HttpResponse> {
+            return Q(new model.HttpResponse(200, { "count": 0, "projects": [ ] }));
         }
     }
 }

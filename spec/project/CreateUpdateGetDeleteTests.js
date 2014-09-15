@@ -51,6 +51,25 @@ describe("Given a rest client and user", function () {
             assert.equal(response.statusCode, 404);
         });
     });
+    
+    describe("When getting the project collection and no projects", function () {
+        
+        var response;
+        var objectResponse;
+        before(function(done) {
+            client.get("/project", function (err, req, res, obj) {
+                response = res;
+                objectResponse = obj;
+                done();
+            });
+        });
+        it("Then the expected message body is returned", function () {
+            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto([ ]));
+        });
+        it("Then the expected response of 200 OK is returned", function () {
+            assert.equal(response.statusCode, 200);
+        });
+    });
 
     describe("When creating a project", function () {
 

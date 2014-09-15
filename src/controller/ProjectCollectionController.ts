@@ -1,4 +1,4 @@
 module controller {
-    export interface ProjectCollectionController extends PostController {
+    export interface ProjectCollectionController extends PostController, GetController {
     }
 }
