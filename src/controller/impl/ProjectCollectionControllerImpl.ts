@@ -5,10 +5,14 @@ module controller.impl {
 
         private host:string;
         private createProjectService:service.CreateProjectService;
+        private getProjectCollectionService:service.GetProjectCollectionService;
 
-        constructor(host:string, createProjectService:service.CreateProjectService) {
+        constructor(host:string,
+                    createProjectService:service.CreateProjectService,
+                    getProjectCollectionService: service.GetProjectCollectionService) {
             this.host = host;
             this.createProjectService = createProjectService;
+            this.getProjectCollectionService = getProjectCollectionService;
         }
 
         public postAuthLevel = model.AuthenticationLevel.User;
@@ -36,7 +40,15 @@ module controller.impl {
         }
         
         public get(request: model.HttpRequest) : Q.IPromise<model.HttpResponse> {
-            return Q(new model.HttpResponse(200, { "count": 0, "projects": [ ] }));
+            return this.getProjectCollectionService.paged(0,100).then(function (result) {
+                if(!result)
+                    return new model.HttpResponse(404, { });
+                    
+                return new model.HttpResponse(200, {
+                    "count": result.length,
+                    "projects": result
+                });
+            });
         }
     }
 }

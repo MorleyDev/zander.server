@@ -178,6 +178,25 @@ describe("Given a rest client and user", function () {
         });
     });
 
+    describe("When getting the existing projects without any credentials", function () {
+
+        var response;
+        var objectResponse;
+        before(function(done) {
+            noCredentialClient.get("/project", function (err, req, res, obj) {
+                response = res;
+                objectResponse = obj;
+                done();
+            });
+        });
+        it("Then the expected response body was returned", function () {
+            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto([projectName]));
+        });
+        it("Then the expected response of 200 OK is returned", function () {
+            assert.equal(response.statusCode, 200);
+        });
+    });
+
     describe("When deleting the project as another user", function () {
 
         var response;

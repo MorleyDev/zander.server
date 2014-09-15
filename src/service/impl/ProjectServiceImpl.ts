@@ -32,6 +32,18 @@ module service.impl {
         }
     }
 
+    export class GetProjectCollectionServiceImpl implements GetProjectCollectionService {
+        private projectRepository: data.ProjectRepository;
+        
+        constructor(projectRepository: data.ProjectRepository) {
+            this.projectRepository = projectRepository;
+        }
+        
+        public paged(start: number, count: number): Q.IPromise<model.db.Project[]> {
+            return this.projectRepository.getProjectCollection(start, count);
+        }
+    }
+    
     export class UpdateProjectServiceImpl implements UpdateProjectService {
         private projectRepository:data.ProjectRepository;
 

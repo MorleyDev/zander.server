@@ -24,6 +24,12 @@ module data.impl {
         public getProject(name:string):Q.IPromise<model.db.Project> {
             return this._database.selectOne("Projects", { name: name });
         }
+        
+        public getProjectCollection(start: number, count: number) {
+            return this._database.select("Projects").then((rows:any[]) => {
+                return rows.map((row) => { return row["name"]; });
+            });
+        }
 
         public updateProject(name:string, git:string):Q.IPromise<void> {
             return this._database.update("Projects", { git: git }, { name: name });

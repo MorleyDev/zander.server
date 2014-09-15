@@ -5,7 +5,7 @@ module controller {
             this.user = new controller.impl.UserControllerImpl(services.user.read, services.user.update, services.user.deletion);
             this.users = new controller.impl.UserCollectionControllerImpl(configuration.host, services.user.create);
             this.project = new controller.impl.ProjectControllerImpl(services.project.read, services.project.update, services.project.deletion);
-            this.projects = new controller.impl.ProjectCollectionControllerImpl(configuration.host, services.project.create);
+            this.projects = new controller.impl.ProjectCollectionControllerImpl(configuration.host, services.project.create, services.project.readCollection);
         }
 
         public verify:controller.VerifyController;
