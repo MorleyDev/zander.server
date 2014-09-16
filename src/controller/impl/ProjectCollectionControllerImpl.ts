@@ -40,13 +40,13 @@ module controller.impl {
         }
         
         public get(request: model.HttpRequest) : Q.IPromise<model.HttpResponse> {
-            return this.getProjectCollectionService.paged(0,100).then(function (result) {
-                if(!result)
-                    return new model.HttpResponse(404, { });
-                    
-                return new model.HttpResponse(200, {
-                    "count": result.length,
-                    "projects": result
+            return this.getProjectCollectionService.paged(0,100).then((result) => {
+                return this.getProjectCollectionService.count().then((count) => {
+                    return new model.HttpResponse(200, {
+                        "_count": result.length,
+                        "_total": count,
+                        "projects": result
+                    });
                 });
             });
         }

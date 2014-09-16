@@ -8,6 +8,7 @@ module service {
     }
     
     export interface GetProjectCollectionService {
+        count() : Q.IPromise<number>;
         paged(start: number, count: number): Q.IPromise<model.db.Project[]>;
     }
 

@@ -18,9 +18,10 @@ module.exports.ProjectGetResponseDto = function (git) {
     };
 };
 
-module.exports.ProjectGetCollectionResponseDto = function (projects) {
+module.exports.ProjectGetCollectionResponseDto = function (total, projects) {
     return {
-        "count": projects.length,
+        "_count": projects.length,
+        "_total": total,
         "projects": projects
     };
 };

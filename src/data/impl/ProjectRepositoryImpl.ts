@@ -21,6 +21,12 @@ module data.impl {
             });
         }
 
+        public getProjectCount() : Q.IPromise<number> {
+            return this._database.query("SELECT COUNT(*) FROM Projects").then((result: any) => {
+                return result[0]["COUNT(*)"];
+            });
+        }
+
         public getProject(name:string):Q.IPromise<model.db.Project> {
             return this._database.selectOne("Projects", { name: name });
         }

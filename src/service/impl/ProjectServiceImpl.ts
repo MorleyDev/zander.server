@@ -39,6 +39,10 @@ module service.impl {
             this.projectRepository = projectRepository;
         }
         
+        public count() : Q.IPromise<number> {
+            return this.projectRepository.getProjectCount();
+        }
+        
         public paged(start: number, count: number): Q.IPromise<model.db.Project[]> {
             return this.projectRepository.getProjectCollection(start, count);
         }

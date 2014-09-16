@@ -64,7 +64,7 @@ describe("Given a rest client and user", function () {
             });
         });
         it("Then the expected message body is returned", function () {
-            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto([ ]));
+            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(0, [ ]));
         });
         it("Then the expected response of 200 OK is returned", function () {
             assert.equal(response.statusCode, 200);
@@ -190,7 +190,7 @@ describe("Given a rest client and user", function () {
             });
         });
         it("Then the expected response body was returned", function () {
-            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto([projectName]));
+            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(1, [projectName]));
         });
         it("Then the expected response of 200 OK is returned", function () {
             assert.equal(response.statusCode, 200);
