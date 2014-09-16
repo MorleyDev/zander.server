@@ -105,6 +105,32 @@ describe("Given a Rest Client and no credentials", function () {
             assert.equal(response.statusCode, 400);
         });
     });
+    describe("When GET the project endpoint with a floating point count", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?count=1.2", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
+    describe("When GET the project endpoint with a floating point start index", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?start=1.2", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
 });
 
 describe("Given a Rest Client and credentials", function () {
