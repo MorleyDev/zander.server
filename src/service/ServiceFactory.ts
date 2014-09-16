@@ -5,12 +5,16 @@ module service {
             this.read = new service.impl.GetProjectServiceImpl(datas.project);
             this.update = new service.impl.UpdateProjectServiceImpl(datas.project);
             this.deletion = new service.impl.DeleteProjectServiceImpl(datas.project);
+            
+            this.readCollection = new service.impl.GetProjectCollectionServiceImpl(datas.project);
         }
 
         public create:service.CreateProjectService;
         public read:service.GetProjectService;
         public update:service.UpdateProjectService;
         public deletion:service.DeleteProjectService;
+        
+        public readCollection: service.GetProjectCollectionService;
     }
 
     export class UserServiceFactory {

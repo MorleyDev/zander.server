@@ -7,7 +7,8 @@ module validate {
 
             "CreateProjectDto": new impl.CreateProjectDtoValidator(),
             "UpdateProjectDto": new impl.UpdateProjectDtoValidator(),
-            "projectName": new impl.ProjectTargetValidator()
+            "ProjectName": new impl.ProjectTargetValidator(),
+            "ProjectCollection": new impl.GetProjectCollectionValidator()
         };
 
         public get(type: string) : Validator {

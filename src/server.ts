@@ -8,7 +8,8 @@ function startServer(configuration:model.Configuration, database:any) {
         .use(restify.fullResponse())
         .use(restify.bodyParser())
         .use(restify.authorizationParser())
-        .use(restify.requestLogger());
+        .use(restify.requestLogger())
+        .use(restify.queryParser());
 
     if (configuration.throttle)
         server.use(restify.throttle(configuration.throttle));
@@ -30,6 +31,7 @@ function startServer(configuration:model.Configuration, database:any) {
                 httpRequest.parameters = request.params;
                 httpRequest.body = request.body;
                 httpRequest.log = request.log;
+                httpRequest.query = request.query;
 
                 method(httpRequest)
                     .then((httpResponse:model.HttpResponse) => {

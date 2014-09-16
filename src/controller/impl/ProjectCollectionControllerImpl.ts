@@ -5,16 +5,24 @@ module controller.impl {
 
         private host:string;
         private createProjectService:service.CreateProjectService;
+        private getProjectCollectionService:service.GetProjectCollectionService;
 
-        constructor(host:string, createProjectService:service.CreateProjectService) {
+        constructor(host:string,
+                    createProjectService:service.CreateProjectService,
+                    getProjectCollectionService: service.GetProjectCollectionService) {
             this.host = host;
             this.createProjectService = createProjectService;
+            this.getProjectCollectionService = getProjectCollectionService;
         }
 
         public postAuthLevel = model.AuthenticationLevel.User;
         public postValidator = "CreateProjectDto";
         public postAuthoriser : string = null;
 
+        public getAuthLevel = model.AuthenticationLevel.None;
+        public getValidator : string = "ProjectCollection";
+        public getAuthoriser : string = null;
+        
         public post(request:model.HttpRequest): Q.IPromise<model.HttpResponse> {
             return this.createProjectService.forUser(request.user, request.body)
                 .then((project:model.db.Project) => {
@@ -25,10 +33,25 @@ module controller.impl {
                         });
 
                     return new model.HttpResponse(201, {
-                        _href: this.host + "/project/" + project.name,
-                        git: project.git
+                        "_href": this.host + "/project/" + project.name,
+                        "git": project.git
                     });
                 });
+        }
+        
+        public get(request: model.HttpRequest) : Q.IPromise<model.HttpResponse> {
+            var startIndex = request.query["start"] || 0;
+            var reqCount = request.query["count"] || 100;
+            
+            return this.getProjectCollectionService.paged(startIndex,reqCount).then((result) => {
+                return this.getProjectCollectionService.count().then((count) => {
+                    return new model.HttpResponse(200, {
+                        "_count": result.length,
+                        "_total": count,
+                        "projects": result
+                    });
+                });
+            });
         }
     }
 }

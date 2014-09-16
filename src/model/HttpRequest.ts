@@ -7,6 +7,7 @@ module model {
         public parameters:any;
         public body:any;
         public log:any;
+        public query:any;
 
         public user:UserLogin;
     }
