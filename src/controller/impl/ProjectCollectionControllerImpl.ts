@@ -20,7 +20,7 @@ module controller.impl {
         public postAuthoriser : string = null;
 
         public getAuthLevel = model.AuthenticationLevel.None;
-        public getValidator : string = null;
+        public getValidator : string = "ProjectCollection";
         public getAuthoriser : string = null;
         
         public post(request:model.HttpRequest): Q.IPromise<model.HttpResponse> {
@@ -40,7 +40,10 @@ module controller.impl {
         }
         
         public get(request: model.HttpRequest) : Q.IPromise<model.HttpResponse> {
-            return this.getProjectCollectionService.paged(0,100).then((result) => {
+            var startIndex = request.query["start"] || 0;
+            var reqCount = request.query["count"] || 100;
+            
+            return this.getProjectCollectionService.paged(startIndex,reqCount).then((result) => {
                 return this.getProjectCollectionService.count().then((count) => {
                     return new model.HttpResponse(200, {
                         "_count": result.length,

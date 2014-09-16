@@ -38,6 +38,73 @@ describe("Given a Rest Client and no credentials", function () {
             assert.equal(response.statusCode, 400);
         });
     });
+    
+    describe("When GET the project endpoint with a negative start index", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?start=-11", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
+    describe("When GET the project endpoint with a non-numeric start index", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?start=abc", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
+    
+    describe("When GET the project endpoint with a negative count", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?count=-11", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
+    describe("When GET the project endpoint with a zero count", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?count=0", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
+    describe("When GET the project endpoint with a non-numeric count", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?count=abc", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
 });
 
 describe("Given a Rest Client and credentials", function () {

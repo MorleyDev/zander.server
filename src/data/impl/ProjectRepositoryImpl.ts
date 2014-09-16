@@ -32,7 +32,7 @@ module data.impl {
         }
         
         public getProjectCollection(start: number, count: number) {
-            return this._database.select("Projects").then((rows:any[]) => {
+            return this._database.query("SELECT name FROM Projects ORDER BY name LIMIT ?,?", [start,count]).then((rows:any[]) => {
                 return rows.map((row) => { return row["name"]; });
             });
         }

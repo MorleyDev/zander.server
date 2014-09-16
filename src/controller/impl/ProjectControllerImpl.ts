@@ -18,8 +18,8 @@ module controller.impl {
         public delAuthLevel = model.AuthenticationLevel.User;
         public getAuthLevel = model.AuthenticationLevel.None;
 
-        public getValidator = "projectName";
-        public delValidator = "projectName";
+        public getValidator = "ProjectName";
+        public delValidator = "ProjectName";
         public putValidator = "UpdateProjectDto";
 
         public putAuthoriser : string = "project";
