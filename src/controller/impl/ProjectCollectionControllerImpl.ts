@@ -48,7 +48,12 @@ module controller.impl {
                     return new model.HttpResponse(200, {
                         "_count": result.length,
                         "_total": count,
-                        "projects": result
+                        "projects": result.map((name) => {
+                            return {
+                                "name": name,
+                                "_href": this.host + "/project/" + name
+                            };
+                        })
                     });
                 });
             });

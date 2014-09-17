@@ -26,6 +26,12 @@ describe("Given a Rest Client and credentials with created projects", function (
         function createProject(index) {
             if (index == createdProjects.length) {
                 createdProjects.reverse();
+                createdProjects = createdProjects.sort().map(function (name) {
+                    return {
+                        "name": name,
+                        "_href": configuration.host + "/project/" + name
+                    };
+                });
                 done();
                 return;
             }
@@ -64,7 +70,7 @@ describe("Given a Rest Client and credentials with created projects", function (
             });
         });
         it("Then the expected dto is returned", function () {
-            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(105, createdProjects.sort().slice(0,100)));
+            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(105, createdProjects.slice(0,100)));
         });
         it("Then a 200 OK response is returned", function () {
             assert.equal(response.statusCode, 200);
@@ -83,7 +89,7 @@ describe("Given a Rest Client and credentials with created projects", function (
             });
         });
         it("Then the expected dto is returned", function () {
-            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(105, createdProjects.sort().slice(0,20)));
+            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(105, createdProjects.slice(0,20)));
         });
         it("Then a 200 OK response is returned", function () {
             assert.equal(response.statusCode, 200);
@@ -102,7 +108,7 @@ describe("Given a Rest Client and credentials with created projects", function (
             });
         });
         it("Then the expected dto is returned", function () {
-            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(105, createdProjects.sort().slice(20,120)));
+            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(105, createdProjects.slice(20,120)));
         });
         it("Then a 200 OK response is returned", function () {
             assert.equal(response.statusCode, 200);
@@ -121,7 +127,7 @@ describe("Given a Rest Client and credentials with created projects", function (
             });
         });
         it("Then the expected dto is returned", function () {
-            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(105, createdProjects.sort().slice(20,60)));
+            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(105, createdProjects.slice(20,60)));
         });
         it("Then a 200 OK response is returned", function () {
             assert.equal(response.statusCode, 200);

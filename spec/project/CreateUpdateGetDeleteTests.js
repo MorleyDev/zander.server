@@ -190,7 +190,10 @@ describe("Given a rest client and user", function () {
             });
         });
         it("Then the expected response body was returned", function () {
-            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(1, [projectName]));
+            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(1, [{ 
+                "name": projectName, 
+                "_href": configuration.host + "/project/" + projectName
+            }]));
         });
         it("Then the expected response of 200 OK is returned", function () {
             assert.equal(response.statusCode, 200);
