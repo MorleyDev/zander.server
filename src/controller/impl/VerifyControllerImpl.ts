@@ -3,12 +3,22 @@ module controller.impl {
 
     export class VerifyControllerImpl implements VerifyController {
 
-        public getAuthLevel:model.AuthenticationLevel = model.AuthenticationLevel.None;
-        public getValidator:string = null;
-        public getAuthoriser:string = null;
+        private applicationService: service.ApplicationService;
 
-        public get(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
-            return Q(new model.HttpResponse(200, null));
+        public getAuthLevel: model.AuthenticationLevel = model.AuthenticationLevel.None;
+        public getValidator: string = null;
+        public getAuthoriser: string = null;
+
+        constructor(applicationService: service.ApplicationService) {
+            this.applicationService = applicationService;
+        }
+
+        public get(request:model.HttpRequest): Q.IPromise<model.HttpResponse> {
+            return this.applicationService.getVersion().then((version: string) => {
+                return Q(new model.HttpResponse(200, {
+                    "version": version 
+                }));
+            });
         }
     }
 }
