@@ -163,6 +163,30 @@ Possible Status Codes
 | 401 UNAUTHORIZED | Failed to specify the authorization header |
 Notes: Any user can create a project.
 
+####Get Projects
+* Url: /project
+* Query string values: start (default: 0), count (default: 100)
+* Expected Headers:
+ * Content-Type: application/json
+* Http Method: GET
+
+Success Response Body:
+
+    {
+    	"_count" : "[<= count]",
+    	"_total" : "[total number of projects in server]",
+    	"projects": [
+    	    {
+    	        "name": "[name]",
+    	        "_href" : "$(serverhost)/project/[name]"
+    	    }, ...
+    	]
+    }
+
+| Code | Description |
+|------|-----|------|
+| 200 OK | Successfully retrieved the projects |
+
 #### Get Project
 * Url: /project/[name]
 * Http Method: GET
