@@ -37,11 +37,13 @@ module service {
             this.user = new UserServiceFactory(datas);
             this.authorisers = new AuthorisationFactory(datas);
             this.authenticate = new service.impl.AuthenticationServiceImpl(datas.authenticate);
+            this.application = new service.impl.ApplicationServiceImpl(datas.application);
         }
 
         public project:ProjectServiceFactory;
         public user:UserServiceFactory;
         public authorisers: service.AuthorisationFactory;
         public authenticate:AuthenticationService;
+        public application: ApplicationService;
     }
 }

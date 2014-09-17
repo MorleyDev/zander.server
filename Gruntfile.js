@@ -51,7 +51,7 @@ module.exports = function (grunt) {
                 src: ['spec/**/*.js']
             },
             unit: {
-                src: ['lib/unit.js']
+                src: [ ]
             },
             smoke: {
                 src: ['smoke/**/*.js']
