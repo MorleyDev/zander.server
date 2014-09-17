@@ -2,7 +2,12 @@ var assert = require("chai").assert;
 
 describe("Given a VerifyController", function () {
 
-    var verifyController : controller.VerifyController = new controller.impl.VerifyControllerImpl();
+    var version = "1023.0213.213";
+    var verifyController : controller.VerifyController = new controller.impl.VerifyControllerImpl({
+        "project": "someprojectname",
+        "version": version,
+        "otherdata": "otherdataibe"
+    });
 
     describe("When making a get request", function () {
 
@@ -17,8 +22,10 @@ describe("Given a VerifyController", function () {
         it("Then a 200 is returned via the callback", function () {
             assert.equal(200, result.statusCode)
         });
-        it("Then no body is returned via the callback", function () {
-            assert.isNull(result.content);
+        it("Then the expected body is returned via the callback", function () {
+            assert.deepEqual(result.content, {
+                "version": version
+            });
         });
     });
 });
