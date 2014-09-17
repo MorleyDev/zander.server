@@ -127,4 +127,31 @@ describe("Given a Rest Client and credentials with created projects", function (
             assert.equal(response.statusCode, 200);
         });
     });
+    
+    describe("When GET the project endpoint with a start index of 4294967295", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?start=4294967295", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 200);
+        });
+    });
+    describe("When GET the project endpoint with a count of 1000", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?count=1000", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 200);
+        });
+    });
 });

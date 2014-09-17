@@ -131,6 +131,32 @@ describe("Given a Rest Client and no credentials", function () {
             assert.equal(response.statusCode, 400);
         });
     });
+    describe("When GET the project endpoint with a start index larger than 4294967295", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?start=4294967296", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
+    describe("When GET the project endpoint with a count larger than 1000", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?count=1001", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
 });
 
 describe("Given a Rest Client and credentials", function () {
