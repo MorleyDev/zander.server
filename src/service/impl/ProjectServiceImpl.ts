@@ -46,6 +46,14 @@ module service.impl {
         public paged(start: number, count: number): Q.IPromise<model.db.Project[]> {
             return this.projectRepository.getProjectCollection(start, count);
         }
+        
+        public countContainsName(filter: string) {
+            return this.projectRepository.getProjectCountFilterByName(filter);
+        }
+        
+        public pagedContainsName(filter: string, start: number, count: number): Q.IPromise<model.db.Project[]> {
+            return this.projectRepository.getProjectCollectionFilterByName(filter, start, count);
+        }
     }
     
     export class UpdateProjectServiceImpl implements UpdateProjectService {

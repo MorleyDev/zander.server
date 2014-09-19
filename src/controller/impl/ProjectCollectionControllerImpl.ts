@@ -43,8 +43,18 @@ module controller.impl {
             var startIndex = request.query["start"] || 0;
             var reqCount = request.query["count"] || 100;
             
-            return this.getProjectCollectionService.paged(startIndex,reqCount).then((result) => {
-                return this.getProjectCollectionService.count().then((count) => {
+            return ((): Q.IPromise<number> => {
+                if (request.query["name.contains"])
+                    return this.getProjectCollectionService.countContainsName(request.query["name.contains"]);
+    
+                return this.getProjectCollectionService.count();
+            })().then((count) => {
+                return ((): Q.IPromise<model.db.Project[]> => {
+                    if (request.query["name.contains"])
+                        return this.getProjectCollectionService.pagedContainsName(request.query["name.contains"], startIndex, reqCount);
+        
+                    return this.getProjectCollectionService.paged(startIndex,reqCount);
+                })().then((result) => {
                     return new model.HttpResponse(200, {
                         "_count": result.length,
                         "_total": count,

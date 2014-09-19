@@ -9,7 +9,12 @@ module service {
     
     export interface GetProjectCollectionService {
         count() : Q.IPromise<number>;
+        
+        countContainsName(filter: string);
+        
         paged(start: number, count: number): Q.IPromise<model.db.Project[]>;
+        
+        pagedContainsName(filter: string, start: number, count: number): Q.IPromise<model.db.Project[]>;
     }
 
     export interface UpdateProjectService {

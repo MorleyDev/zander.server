@@ -36,6 +36,21 @@ module data.impl {
                 return rows.map((row) => { return row["name"]; });
             });
         }
+        
+        public getProjectCountFilterByName(nameFilter: string) : Q.IPromise<number> {
+            return this._database.query("SELECT COUNT(*) FROM Projects WHERE name LIKE ?", ['%'+nameFilter+'%'])
+                .then((result: any) => {
+                    return result[0]["COUNT(*)"];
+                });
+        }
+
+        public getProjectCollectionFilterByName(nameFilter: string, start: number, count: number): Q.IPromise<model.db.Project[]> {
+        
+            return this._database.query("SELECT name FROM Projects WHERE name LIKE ? ORDER BY name LIMIT ?,?", 
+                                        ['%'+nameFilter+'%', start,count]).then((rows:any[]) => {
+                    return rows.map((row) => { return row["name"]; });
+                });
+        }
 
         public updateProject(name:string, git:string):Q.IPromise<void> {
             return this._database.update("Projects", { git: git }, { name: name });
