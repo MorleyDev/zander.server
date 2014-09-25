@@ -33,7 +33,7 @@ describe("Given a rest client and user", function () {
         });
     });
 
-    var projectName = "some-project";
+    var projectName = models.ValidProjectName();
     var projectGit = "git://some@project-git/addr";
 
     describe("When getting a non-existent project", function () {
@@ -71,7 +71,7 @@ describe("Given a rest client and user", function () {
         });
     });
 
-    describe("When creating a project", function () {
+    describe("When creating a project named " + projectName, function () {
 
         var response;
         var objectResponse;
@@ -90,7 +90,7 @@ describe("Given a rest client and user", function () {
         });
     });
 
-    describe("When creating a project that already exists", function () {
+    describe("When creating a project that already exists called" + projectName, function () {
 
         var response;
         before(function(done) {
@@ -104,7 +104,7 @@ describe("Given a rest client and user", function () {
         });
     });
 
-    describe("When updating the created project as another user", function () {
+    describe("When updating the created project " + projectName + " as another user", function () {
 
         var response;
         var objectResponse;
@@ -120,7 +120,7 @@ describe("Given a rest client and user", function () {
         });
     });
 
-    describe("When getting the created project without any credentials", function () {
+    describe("When getting the created project " + projectName + " without any credentials", function () {
 
         var response;
         var objectResponse;
@@ -140,7 +140,7 @@ describe("Given a rest client and user", function () {
     });
 
     var newGitUrl = "http://some_other_git/syr.sad/asf.git";
-    describe("When updating the created project", function () {
+    describe("When updating the created project" + projectName, function () {
 
         var response;
         var objectResponse;
@@ -159,7 +159,7 @@ describe("Given a rest client and user", function () {
         });
     });
 
-    describe("When getting the updated project without any credentials", function () {
+    describe("When getting the updated project " + projectName + " without any credentials", function () {
 
         var response;
         var objectResponse;
@@ -200,7 +200,7 @@ describe("Given a rest client and user", function () {
         });
     });
 
-    describe("When deleting the project as another user", function () {
+    describe("When deleting the project " + projectName + " as another user", function () {
 
         var response;
         before(function(done) {
@@ -214,7 +214,7 @@ describe("Given a rest client and user", function () {
         });
     });
 
-    describe("When deleting the project", function () {
+    describe("When deleting the project" + projectName, function () {
 
         var response;
         before(function(done) {
@@ -228,7 +228,7 @@ describe("Given a rest client and user", function () {
         });
     });
 
-    describe("When getting the deleted project without any credentials", function () {
+    describe("When getting the deleted project " + projectName + " without any credentials", function () {
 
         var response;
         before(function(done) {
@@ -242,7 +242,7 @@ describe("Given a rest client and user", function () {
         });
     });
 
-    describe("When the user who created a project is deleted and then the project is retrieved", function () {
+    describe("When the user who created a project is deleted and the project is retrieved", function () {
         var response;
         before(function (done) {
             client.post("/project", models.ProjectCreatePostDto(projectName, projectGit), function (err, req, res, obj) {

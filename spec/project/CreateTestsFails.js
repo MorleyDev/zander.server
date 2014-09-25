@@ -69,7 +69,7 @@ describe("Given a Rest Client and credentials", function () {
         var response;
 
         before(function (done) {
-            client.post("/project", { "username" : "some_username" }, function (err, req, res, obj) {
+            client.post("/project", { "username" : models.ValidProjectName() }, function (err, req, res, obj) {
                 response = res;
                 done();
             });

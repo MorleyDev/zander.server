@@ -183,4 +183,30 @@ describe("Given a Rest Client and credentials", function () {
             assert.equal(response.statusCode, 404);
         });
     });
+    describe("When GET the project endpoint with a name.contains filter containing invalid characters", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?name.contains=a@h", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 200);
+        });
+    });
+    describe("When GET the project endpoint with a name.contains filter containing too many characters", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?name.contains=abcdefghiklmnopqrstuv", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 200);
+        });
+    });
 });
