@@ -69,7 +69,7 @@ describe("Given a Rest Client and credentials", function () {
         var response;
 
         before(function (done) {
-            client.post("/project", { "username" : "some_username" }, function (err, req, res, obj) {
+            client.post("/project", { "username" : models.ValidProjectName() }, function (err, req, res, obj) {
                 response = res;
                 done();
             });
@@ -82,7 +82,7 @@ describe("Given a Rest Client and credentials", function () {
         var response;
 
         before(function (done) {
-            client.post("/project", models.ProjectCreatePostDto("u", "sfaksjhfhkj"), function (err, req, res, obj) {
+            client.post("/project", models.ProjectCreatePostDto(models.InvalidShortProjectName(), "sfaksjhfhkj"), function (err, req, res, obj) {
                 response = res;
                 done();
             });
@@ -95,7 +95,7 @@ describe("Given a Rest Client and credentials", function () {
         var response;
 
         before(function (done) {
-            client.post("/project", models.ProjectCreatePostDto("abcdghjkilkhgfyhjuika", "sfaksjhfhkj"), function (err, req, res, obj) {
+            client.post("/project", models.ProjectCreatePostDto(models.InvalidLongProjectName(), "sfaksjhfhkj"), function (err, req, res, obj) {
                 response = res;
                 done();
             });
@@ -104,11 +104,13 @@ describe("Given a Rest Client and credentials", function () {
             assert.equal(response.statusCode, 400);
         });
     });
-    describe("When POST the project endpoint with a name containing invalid characters", function () {
+    
+    var invalidCharProjectName = models.InvalidCharactersProjectName();
+    describe("When POST the project endpoint with a name " + invalidCharProjectName + " containing invalid characters", function () {
         var response;
 
         before(function (done) {
-            client.post("/project", models.ProjectCreatePostDto("a@hjkilkhgfyhjuika", "sfaksjhfhkj"), function (err, req, res, obj) {
+            client.post("/project", models.ProjectCreatePostDto(invalidCharProjectName, "sfaksjhfhkj"), function (err, req, res, obj) {
                 response = res;
                 done();
             });

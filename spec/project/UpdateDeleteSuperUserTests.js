@@ -10,7 +10,7 @@ describe("Given a rest client and super user", function () {
 
     var godClient;
     var noCredentialClient;
-    var projectName = "some-project";
+    var projectName = models.ValidProjectName();
     var projectGit = "git://some@project-git/addr";
 
     before(function(done) {
@@ -34,7 +34,7 @@ describe("Given a rest client and super user", function () {
 
         var response;
         before(function(done) {
-            godClient.put("/project/" + projectName, models.ProjectUpdatePutDto("http://some_other_git/syr.sad/asf.git"), function (err, req, res, obj) {
+            godClient.put("/project/" + encodeURI(projectName), models.ProjectUpdatePutDto("http://some_other_git/syr.sad/asf.git"), function (err, req, res, obj) {
                 response = res;
                 done();
             });
@@ -48,7 +48,7 @@ describe("Given a rest client and super user", function () {
 
         var response;
         before(function(done) {
-            godClient.del("/project/" + projectName, function (err, req, res, obj) {
+            godClient.del("/project/" + encodeURI(projectName), function (err, req, res, obj) {
                 response = res;
                 done();
             });
@@ -62,7 +62,7 @@ describe("Given a rest client and super user", function () {
 
         var response;
         before(function(done) {
-            noCredentialClient.get("/project/" + projectName, function (err, req, res, obj) {
+            noCredentialClient.get("/project/" + encodeURI(projectName), function (err, req, res, obj) {
                 response = res;
                 done();
             });

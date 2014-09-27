@@ -45,7 +45,7 @@ describe("Given a Rest Client and credentials", function () {
 
     var configuration = require(__dirname + "/../config.json");
 
-    var project = "some-project";
+    var project = models.ValidProjectName();
 
     var client;
     before(function (done) {
@@ -60,7 +60,7 @@ describe("Given a Rest Client and credentials", function () {
         var response;
 
         before(function (done) {
-            client.put("/project/" + project, { }, function (err, req, res, obj) {
+            client.put("/project/" + encodeURI(project), { }, function (err, req, res, obj) {
                 response = res;
                 done();
             });
@@ -73,7 +73,7 @@ describe("Given a Rest Client and credentials", function () {
         var response;
 
         before(function (done) {
-            client.put("/project/" + project, models.ProjectUpdatePutDto(""), function (err, req, res, obj) {
+            client.put("/project/" + encodeURI(project), models.ProjectUpdatePutDto(""), function (err, req, res, obj) {
                 response = res;
                 done();
             });
