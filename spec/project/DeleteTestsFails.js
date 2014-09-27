@@ -1,5 +1,6 @@
 var assert = require("chai").assert;
 var restify = require("restify");
+var models = require("../models/ProjectDtos.js");
 
 describe("Given a Rest Client and no credentials", function () {
     "use strict";
@@ -51,17 +52,18 @@ describe("Given a Rest Client and super credentials", function () {
         client.basicAuth(configuration.goduser.name, configuration.goduser.password);
         done();
     });
-    describe("When DELETE an invalid project name", function () {
+    
+    var invalidProjectName = models.InvalidProjectName();
+    describe("When DELETE an invalid project name " + invalidProjectName, function () {
         var response;
         before(function (done) {
-            client.del("/project/1", function (err, req, res, obj) {
+            client.del("/project/" + encodeURI(invalidProjectName), function (err, req, res, obj) {
                 response = res;
                 done();
             });
         });
         it("Then a 400 Bad Response is returned", function () {
             assert.equal(response.statusCode, 400);
-
         })
     })
 });

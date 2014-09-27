@@ -1,5 +1,6 @@
 var assert = require("chai").assert;
 var restify = require("restify");
+var models = require("../models/ProjectDtos.js");
 
 describe("Given a Rest Client and no credentials", function () {
     "use strict";
@@ -183,30 +184,43 @@ describe("Given a Rest Client and credentials", function () {
             assert.equal(response.statusCode, 404);
         });
     });
-    describe("When GET the project endpoint with a name.contains filter containing invalid characters", function () {
+    var invalidCharactersProjectName = models.InvalidCharactersProjectName();
+    describe("When GET the project endpoint with a name.contains filter " + invalidCharactersProjectName + " containing invalid characters", function () {
         var response;
 
         before(function (done) {
-            client.get("/project?name.contains=a@h", function (err, req, res, obj) {
+            client.get("/project?name.contains=" + encodeURI(invalidCharactersProjectName), function (err, req, res, obj) {
                 response = res;
                 done();
             });
         });
         it("Then a 400 Bad Request response is returned", function () {
-            assert.equal(response.statusCode, 200);
+            assert.equal(response.statusCode, 400);
+        });
+    });describe("When GET the project endpoint with an empty name.contains filter", function () {
+        var response;
+
+        before(function (done) {
+            client.get("/project?name.contains=&startIndex=0", function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
         });
     });
     describe("When GET the project endpoint with a name.contains filter containing too many characters", function () {
         var response;
 
         before(function (done) {
-            client.get("/project?name.contains=abcdefghiklmnopqrstuv", function (err, req, res, obj) {
+            client.get("/project?name.contains=" + encodeURI(models.InvalidLongProjectName()), function (err, req, res, obj) {
                 response = res;
                 done();
             });
         });
         it("Then a 400 Bad Request response is returned", function () {
-            assert.equal(response.statusCode, 200);
+            assert.equal(response.statusCode, 400);
         });
     });
 });

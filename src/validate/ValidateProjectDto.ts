@@ -6,8 +6,8 @@ module validate {
         if (name.length < 3 || name.length > 20)
             return new ValidationResult(false, "Project Name Not Between 3-20 Characters");
 
-        if (!name.match("^[a-zA-Z0-9_\\-]*$"))
-            return new ValidationResult(false, "Project Name Must Only Contain Alphanumeric Characters or Underscore");
+        if (!name.match("^[a-zA-Z0-9_\\-\\.]*$"))
+            return new ValidationResult(false, "Project Name Must Only Contain Alphanumeric Characters, - or _");
 
         return new ValidationResult(true);
     }

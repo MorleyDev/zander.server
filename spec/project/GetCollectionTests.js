@@ -81,6 +81,29 @@ describe("Given a Rest Client and credentials with created projects", function (
         });
     });
     
+    describe("When GET the project endpoint with a name.contains filter containing one character", function () {
+        var response;
+        var objectResponse;
+
+        before(function (done) {
+            client.get("/project?name.contains=1", function (err, req, res, obj) {
+                response = res;
+                objectResponse = obj;
+                done();
+            });
+        });
+        it("Then the expected dto is returned", function () {
+            var expectedProjects = createdProjects.filter(function (project) {
+                return project.name.indexOf("1") >= 0;
+            });
+            
+            assert.deepEqual(objectResponse, models.ProjectGetCollectionResponseDto(expectedProjects.length, expectedProjects));
+        });
+        it("Then a 200 OK response is returned", function () {
+            assert.equal(response.statusCode, 200);
+        });
+    });
+    
     describe("When GET the project endpoint", function () {
         var response;
         var objectResponse;

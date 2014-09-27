@@ -16,6 +16,17 @@ module validate.impl {
                     return new validate.ValidationResult(false, "Count must be a positive integeral");
                 
             }
+            if (input.query['name.contains'] != null) {
+                
+                if (input.query['name.contains'].length < 1)
+                    return new ValidationResult(false, "Project Name contains filter cannot be specified as empty");
+                    
+                if (input.query['name.contains'].length > 20)
+                    return new ValidationResult(false, "Project Name cannot be longer than 20 characters");
+                    
+                if (!input.query['name.contains'].match("^[a-zA-Z0-9_\\-\\.]*$"))
+                    return new ValidationResult(false, "Project Name can only contain alphanumeric characters, ., - or _");
+            }
             return new validate.ValidationResult(true);
         }
     }

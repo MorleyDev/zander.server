@@ -41,7 +41,7 @@ describe("Given a rest client and user", function () {
         var response;
         var objectResponse;
         before(function(done) {
-            client.get("/project/" + projectName, function (err, req, res, obj) {
+            client.get("/project/" + encodeURI(projectName), function (err, req, res, obj) {
                 response = res;
                 objectResponse = obj;
                 done();
@@ -109,7 +109,7 @@ describe("Given a rest client and user", function () {
         var response;
         var objectResponse;
         before(function(done) {
-            otherUserClient.put("/project/" + projectName, models.ProjectUpdatePutDto("http://ignore/me"), function (err, req, res, obj) {
+            otherUserClient.put("/project/" + encodeURI(projectName), models.ProjectUpdatePutDto("http://ignore/me"), function (err, req, res, obj) {
                 response = res;
                 objectResponse = obj;
                 done();
@@ -125,7 +125,7 @@ describe("Given a rest client and user", function () {
         var response;
         var objectResponse;
         before(function(done) {
-            noCredentialClient.get("/project/" + projectName, function (err, req, res, obj) {
+            noCredentialClient.get("/project/" + encodeURI(projectName), function (err, req, res, obj) {
                 response = res;
                 objectResponse = obj;
                 done();
@@ -145,7 +145,7 @@ describe("Given a rest client and user", function () {
         var response;
         var objectResponse;
         before(function(done) {
-            client.put("/project/" + projectName, models.ProjectUpdatePutDto(newGitUrl), function (err, req, res, obj) {
+            client.put("/project/" + encodeURI(projectName), models.ProjectUpdatePutDto(newGitUrl), function (err, req, res, obj) {
                 response = res;
                 objectResponse = obj;
                 done();
@@ -164,7 +164,7 @@ describe("Given a rest client and user", function () {
         var response;
         var objectResponse;
         before(function(done) {
-            noCredentialClient.get("/project/" + projectName, function (err, req, res, obj) {
+            noCredentialClient.get("/project/" + encodeURI(projectName), function (err, req, res, obj) {
                 response = res;
                 objectResponse = obj;
                 done();
@@ -204,7 +204,7 @@ describe("Given a rest client and user", function () {
 
         var response;
         before(function(done) {
-            otherUserClient.del("/project/" + projectName, function (err, req, res, obj) {
+            otherUserClient.del("/project/" + encodeURI(projectName), function (err, req, res, obj) {
                 response = res;
                 done();
             });
@@ -214,11 +214,11 @@ describe("Given a rest client and user", function () {
         });
     });
 
-    describe("When deleting the project" + projectName, function () {
+    describe("When deleting the project " + projectName, function () {
 
         var response;
         before(function(done) {
-            client.del("/project/" + projectName, function (err, req, res, obj) {
+            client.del("/project/" + encodeURI(projectName), function (err, req, res, obj) {
                 response = res;
                 done();
             });
@@ -232,7 +232,7 @@ describe("Given a rest client and user", function () {
 
         var response;
         before(function(done) {
-            noCredentialClient.get("/project/" + projectName, function (err, req, res, obj) {
+            noCredentialClient.get("/project/" + encodeURI(projectName), function (err, req, res, obj) {
                 response = res;
                 done();
             });
