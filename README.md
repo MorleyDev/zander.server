@@ -159,13 +159,21 @@ Possible Status Codes
 | Code | Description |
 |------|-----|------|
 | 201 CREATED | Successfully created the project |
-| 400 BAD REQUEST | Failed to specify the name or git url, or project name was invalid. Project name must be between 3 and 20 characters long, and only contain alphanumeric characters, - and _ |
+| 400 BAD REQUEST | Failed to specify the name or git url, or project name was invalid. Project name must be between 3 and 20 characters long, and only contain alphanumeric characters, ., - and _ |
 | 401 UNAUTHORIZED | Failed to specify the authorization header |
 Notes: Any user can create a project.
 
 ####Get Projects
 * Url: /project
-* Query string values: start (default: 0), count (default: 100)
+* Query string values: 
+ * start (default: 0)
+ * count (default: 100)
+ * name.contains (defaults to any name)
+* Query string limits:
+ * 0 <= start < 4294967296)
+ * 0 < count < 1000
+ * 0 < name.contains.length <= 20
+ * name.contains only contains valid project characters
 * Expected Headers:
  * Content-Type: application/json
 * Http Method: GET
@@ -186,6 +194,7 @@ Success Response Body:
 | Code | Description |
 |------|-----|------|
 | 200 OK | Successfully retrieved the projects |
+| 400 BAD REQUEST | One query string was incorrect.
 
 #### Get Project
 * Url: /project/[name]
@@ -203,6 +212,7 @@ Possible Status Codes
 | Code | Description |
 |------|-----|------|
 | 200 CREATED | Successfully retrieved the project |
+| 400 BAD REQUEST | Project name is invalid |
 | 404 NOT FOUND | The specified project does not exist |
 
 Notes: Authentication is not needed to read project details.
@@ -231,7 +241,7 @@ Possible Status Codes
 | Code | Description |
 |------|-----|------|
 | 200 OK | Successfully updated the project |
-| 400 BAD REQUEST | Did not specify the git url in the request body |
+| 400 BAD REQUEST | Did not specify the git url in the request body or project name is invalid |
 | 401 UNAUTHORIZED | Failure to specify the Authorization header |
 | 403 FORBIDDEN | The authenticated user does not have permission to write to this project |
 | 404 NOT FOUND | The specified project does not exist |
@@ -250,6 +260,7 @@ Possible Status Codes
 | Code | Description |
 |------|-----|------|
 | 204 NO CONTENT | Successfully deleted the project |
+| 400 BAD REQUEST | Project name is invalid |
 | 401 UNAUTHORIZED | Failure to specify the Authorization header |
 | 403 FORBIDDEN | The authenticated user does not have permission to write to this project |
 | 404 NOT FOUND | The specified project does not exist |
