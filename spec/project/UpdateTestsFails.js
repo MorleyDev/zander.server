@@ -52,7 +52,7 @@ describe("Given a Rest Client and credentials", function () {
         client = restify.createJsonClient({  url: "http://localhost:" + configuration.port });
         client.basicAuth(configuration.goduser.name, configuration.goduser.password);
 
-        client.post("/project", models.ProjectCreatePostDto(project, "http://some.git/url"), function (err, req, res, obj) {
+        client.post("/project", models.ProjectCreatePostDto(project, models.GitVcs("http://some.git/url")), function (err, req, res, obj) {
             done();
         });
     });
@@ -73,7 +73,7 @@ describe("Given a Rest Client and credentials", function () {
         var response;
 
         before(function (done) {
-            client.put("/project/" + encodeURI(project), models.ProjectUpdatePutDto(""), function (err, req, res, obj) {
+            client.put("/project/" + encodeURI(project), models.ProjectUpdatePutDto(models.GitVcs("")), function (err, req, res, obj) {
                 response = res;
                 done();
             });

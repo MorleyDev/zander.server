@@ -1,30 +1,20 @@
-module.exports.ProjectCreatePostDto = function (name, git) {
+module.exports.ProjectCreatePostDto = function (name, src) {
     return {
-        "src": {
-            "vcs": "git",
-            "href": git
-        },
-        "git" : git,
+        "src": src,
         "name" : name
     };
 };
 
-module.exports.ProjectCreateResponseDto = function (href, git) {
+module.exports.ProjectCreateResponseDto = function (href, src) {
     return {
         "_href": href,
-        "src": {
-            "vcs": "git",
-            "href": git
-        }
+        "src": src
     };
 };
 
-module.exports.ProjectGetResponseDto = function (git) {
+module.exports.ProjectGetResponseDto = function (src) {
     return {
-        "src": {
-            "vcs": "git",
-            "href": git
-        }
+        "src": src
     };
 };
 
@@ -36,21 +26,15 @@ module.exports.ProjectGetCollectionResponseDto = function (total, projects) {
     };
 };
 
-module.exports.ProjectUpdatePutDto = function (git) {
+module.exports.ProjectUpdatePutDto = function (src) {
     return {
-        "src": {
-            "vcs": "git",
-            "href": git
-        }
+        "src": src
     };
 };
 
-module.exports.ProjectUpdatePutResponseDto = function (git) {
+module.exports.ProjectUpdatePutResponseDto = function (src) {
     return {
-        "src": {
-            "vcs": "git",
-            "href": git
-        }
+        "src": src
     };
 };
 
@@ -110,4 +94,22 @@ module.exports.InvalidProjectName = function () {
         return this.InvalidShortProjectName();
 
     return this.InvalidCharactersProjectName();
+}
+
+module.exports.InvalidVcs = function () {
+    var validCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var length = Math.floor(1 + Math.random() * 18);
+    var vcs = "";
+    for (var i = 0; i < length; ++i) {
+        var index = Math.floor(Math.random() * validCharacters.length);
+        vcs += validCharacters.charAt(index);
+    }
+    return vcs;
+}
+
+module.exports.GitVcs = function (href) {
+    return {
+        "vcs": "git",
+        "href": href
+    };
 }

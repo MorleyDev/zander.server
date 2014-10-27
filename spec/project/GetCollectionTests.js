@@ -37,7 +37,7 @@ describe("Given a Rest Client and credentials with created projects", function (
             }
             
             godClient.post("/project", 
-                models.ProjectCreatePostDto(createdProjects[index], "http://github.com/some/project.git"), 
+                models.ProjectCreatePostDto(createdProjects[index], models.GitVcs("http://github.com/some/project.git")), 
                 function () {
                     createProject(index+1);
                 });
