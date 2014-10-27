@@ -142,14 +142,20 @@ Expected Request Body:
 
     {
     	"name" : "[name]",
-    	"git" : "[git url]"
+    	"src": {
+    	    "vcs": "git",
+    	    "href": "[git url]"
+    	}
     }
 
 Success Response Body:
 
     {
     	"name" : "[name]",
-    	"git" : "[git url]",
+    	"src": {
+    	    "vcs": "git",
+    	    "href": "[git url]"
+    	},
     	"_href" : "$(serverhost)/project/[name]"
     }
 
@@ -203,7 +209,10 @@ Success Response Body:
 Success Response Body: 
 
     {
-        "git" : "[git url]"
+    	"src": {
+    	    "vcs": "git",
+    	    "href": "[git url]"
+    	}
     }
 
 Possible Status Codes
@@ -227,13 +236,19 @@ Notes: Authentication is not needed to read project details.
 Expected Request Body: 
 
     {
-        "git" : "[git url]"
+    	"src": {
+    	    "vcs": "git",
+    	    "href": "[git url]"
+    	}
     }
     
 Success Response Body: 
 
     {
-            "git" : "[git url]"
+    	"src": {
+    	    "vcs": "git",
+    	    "href": "[git url]"
+    	}
     }
     
 Possible Status Codes
