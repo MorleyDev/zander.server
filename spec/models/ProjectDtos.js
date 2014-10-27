@@ -1,5 +1,9 @@
 module.exports.ProjectCreatePostDto = function (name, git) {
     return {
+        "src": {
+            "vcs": "git",
+            "href": git
+        },
         "git" : git,
         "name" : name
     };
@@ -8,13 +12,19 @@ module.exports.ProjectCreatePostDto = function (name, git) {
 module.exports.ProjectCreateResponseDto = function (href, git) {
     return {
         "_href": href,
-        "git": git
+        "src": {
+            "vcs": "git",
+            "href": git
+        }
     };
 };
 
 module.exports.ProjectGetResponseDto = function (git) {
     return {
-        "git" : git
+        "src": {
+            "vcs": "git",
+            "href": git
+        }
     };
 };
 
@@ -28,13 +38,19 @@ module.exports.ProjectGetCollectionResponseDto = function (total, projects) {
 
 module.exports.ProjectUpdatePutDto = function (git) {
     return {
-        "git" : git
+        "src": {
+            "vcs": "git",
+            "href": git
+        }
     };
 };
 
 module.exports.ProjectUpdatePutResponseDto = function (git) {
     return {
-        "git" : git
+        "src": {
+            "vcs": "git",
+            "href": git
+        }
     };
 };
 

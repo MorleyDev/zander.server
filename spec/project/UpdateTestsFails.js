@@ -56,7 +56,7 @@ describe("Given a Rest Client and credentials", function () {
             done();
         });
     });
-    describe("When PUT the project endpoint without a git url", function () {
+    describe("When PUT the project endpoint without a src", function () {
         var response;
 
         before(function (done) {
@@ -69,7 +69,7 @@ describe("Given a Rest Client and credentials", function () {
             assert.equal(response.statusCode, 400);
         });
     });
-    describe("When PUT the project endpoint without an empty git url", function () {
+    describe("When PUT the project endpoint with an empty git url", function () {
         var response;
 
         before(function (done) {

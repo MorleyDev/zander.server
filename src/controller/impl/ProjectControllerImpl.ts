@@ -29,7 +29,12 @@ module controller.impl {
         public put(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             return this.updateProjectService.byName(request.parameters.target, request.body)
                 .then((project:model.db.Project) => {
-                    return Q(new model.HttpResponse(200, { "git": project.git }));
+                    return Q(new model.HttpResponse(200, { 
+                        "src": {
+                            "vcs": "git",
+                            "href": project.git
+                        }
+                    }));
                 });
         }
 
@@ -44,10 +49,15 @@ module controller.impl {
         public get(request:model.HttpRequest):Q.IPromise<model.HttpResponse> {
             return this.getProjectService.byName(request.parameters.target)
                 .then((project:model.db.Project) => {
-                    if (project)
-                        return new model.HttpResponse(200, { "git": project.git });
-
-                    return new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Project not found" });
+                    if (!project)
+                        return new model.HttpResponse(404, { "code": "ResourceNotFound", "message": "Project not found" });
+                    
+                    return new model.HttpResponse(200, { 
+                        "src": {
+                            "vcs": "git",
+                            "href": project.git
+                        }
+                    });
                 });
         }
     }

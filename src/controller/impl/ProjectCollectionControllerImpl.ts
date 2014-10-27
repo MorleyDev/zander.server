@@ -34,7 +34,10 @@ module controller.impl {
 
                     return new model.HttpResponse(201, {
                         "_href": this.host + "/project/" + project.name,
-                        "git": project.git
+                        "src": {
+                            "vcs": "git",
+                            "href": project.git
+                        }
                     });
                 });
         }
