@@ -52,11 +52,11 @@ describe("Given a Rest Client and credentials", function () {
         client = restify.createJsonClient({  url: "http://localhost:" + configuration.port });
         client.basicAuth(configuration.goduser.name, configuration.goduser.password);
 
-        client.post("/project", models.ProjectCreatePostDto(project, "http://some.git/url"), function (err, req, res, obj) {
+        client.post("/project", models.ProjectCreatePostDto(project, models.GitVcs("http://some.git/url")), function (err, req, res, obj) {
             done();
         });
     });
-    describe("When PUT the project endpoint without a git url", function () {
+    describe("When PUT the project endpoint without a src", function () {
         var response;
 
         before(function (done) {
@@ -69,11 +69,24 @@ describe("Given a Rest Client and credentials", function () {
             assert.equal(response.statusCode, 400);
         });
     });
-    describe("When PUT the project endpoint without an empty git url", function () {
+    describe("When PUT the project endpoint with an empty git url", function () {
         var response;
 
         before(function (done) {
-            client.put("/project/" + encodeURI(project), models.ProjectUpdatePutDto(""), function (err, req, res, obj) {
+            client.put("/project/" + encodeURI(project), models.ProjectUpdatePutDto(models.GitVcs("")), function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
+    describe("When PUT the project endpoint with an invalid vcs", function () {
+        var response;
+
+        before(function (done) {
+            client.put("/project/" + encodeURI(project), models.ProjectUpdatePutDto(models.InvalidVcs()), function (err, req, res, obj) {
                 response = res;
                 done();
             });

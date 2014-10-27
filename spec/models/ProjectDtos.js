@@ -1,20 +1,20 @@
-module.exports.ProjectCreatePostDto = function (name, git) {
+module.exports.ProjectCreatePostDto = function (name, src) {
     return {
-        "git" : git,
+        "src": src,
         "name" : name
     };
 };
 
-module.exports.ProjectCreateResponseDto = function (href, git) {
+module.exports.ProjectCreateResponseDto = function (href, src) {
     return {
         "_href": href,
-        "git": git
+        "src": src
     };
 };
 
-module.exports.ProjectGetResponseDto = function (git) {
+module.exports.ProjectGetResponseDto = function (src) {
     return {
-        "git" : git
+        "src": src
     };
 };
 
@@ -26,57 +26,34 @@ module.exports.ProjectGetCollectionResponseDto = function (total, projects) {
     };
 };
 
-module.exports.ProjectUpdatePutDto = function (git) {
+module.exports.ProjectUpdatePutDto = function (src) {
     return {
-        "git" : git
+        "src": src
     };
 };
 
-module.exports.ProjectUpdatePutResponseDto = function (git) {
+module.exports.ProjectUpdatePutResponseDto = function (src) {
     return {
-        "git" : git
+        "src": src
     };
-};
-
-module.exports.ProjectNameValidCharacters = function () { 
-    return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_.1234567890"; 
-};
-
-module.exports.ProjectNameInvalidCharacters = function () { 
-    return " @#\"\'£$^*!"; 
 };
 
 module.exports.ValidProjectName = function () {
-    var validCharacters = this.ProjectNameValidCharacters();
-    var length = Math.floor(3 + Math.random() * 18);
-    var name = "";
-    for (var i = 0; i < length; ++i) {
-        var index = Math.floor(Math.random() * validCharacters.length);
-        name += validCharacters.charAt(index);
-    }
-    return name;
+    return GenerateRandomString(validProjectNameCharacters, 3, 20);
 }
 
 module.exports.InvalidShortProjectName = function () {
-    var validCharacters = this.ProjectNameValidCharacters();
-    var name = "";
-    name += validCharacters.charAt(Math.floor(Math.random() * validCharacters.length));
-    return name;
+    return GenerateRandomString(validProjectNameCharacters, 1, 2);
 }
 
 module.exports.InvalidLongProjectName = function () {
-    var validCharacters = this.ProjectNameValidCharacters();
-    var length = 21 + Math.floor(Math.random() * 100);
-    var name = "";
-    for (var i = 0; i < length; ++i) {
-        var index = Math.floor(Math.random() * validCharacters.length);
-        name += validCharacters.charAt(index);
-    }
-    return name;
+    return GenerateRandomString(validProjectNameCharacters, 21, 100);
 }
 
+var validProjectNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_.1234567890";
+
 module.exports.InvalidCharactersProjectName = function () {
-    var invalidCharacters = this.ProjectNameInvalidCharacters();
+    var invalidCharacters = " @\"\'£$^*!";
     var validProjectName = this.ValidProjectName();
     var charToReplaceIndex = Math.floor(Math.random() * validProjectName.length);
     
@@ -94,4 +71,33 @@ module.exports.InvalidProjectName = function () {
         return this.InvalidShortProjectName();
 
     return this.InvalidCharactersProjectName();
+}
+
+module.exports.InvalidVcs = function () {
+    var vcs = GenerateRandomString("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", 1,100);
+    return { 
+        "vcs": vcs, 
+        "href":"http://someurl/maybegit.whoknows"
+    };
+}
+
+module.exports.GitVcs = function (href) {
+    return this.Vcs("git", href);
+}
+
+module.exports.Vcs = function (vcs, href) {
+    return {
+        "vcs": vcs,
+        "href": href
+    };
+}
+
+var GenerateRandomString = function (characters, minLength, maxLength) {
+    var length = Math.floor(minLength + Math.random() * (maxLength - minLength));
+    var vcs = "";
+    for (var i = 0; i < length; ++i) {
+        var index = Math.floor(Math.random() * characters.length);
+        vcs += characters.charAt(index);
+    }
+    return vcs;
 }

@@ -24,7 +24,7 @@ describe("Given a rest client and super user", function () {
             var otherUserClient = restify.createJSONClient({ url: "http://localhost:" + configuration.port });
             otherUserClient.basicAuth(otherUsername, password);
 
-            otherUserClient.post("/project", models.ProjectCreatePostDto(projectName, projectGit), function (err, req, res, obj) {
+            otherUserClient.post("/project", models.ProjectCreatePostDto(projectName, models.GitVcs(projectGit)), function (err, req, res, obj) {
                 done();
             });
         });
@@ -34,7 +34,7 @@ describe("Given a rest client and super user", function () {
 
         var response;
         before(function(done) {
-            godClient.put("/project/" + encodeURI(projectName), models.ProjectUpdatePutDto("http://some_other_git/syr.sad/asf.git"), function (err, req, res, obj) {
+            godClient.put("/project/" + encodeURI(projectName), models.ProjectUpdatePutDto(models.GitVcs("http://some_other_git/syr.sad/asf.git")), function (err, req, res, obj) {
                 response = res;
                 done();
             });

@@ -76,14 +76,14 @@ describe("Given a rest client and user", function () {
         var response;
         var objectResponse;
         before(function(done) {
-            client.post("/project", models.ProjectCreatePostDto(projectName, projectGit), function (err, req, res, obj) {
+            client.post("/project", models.ProjectCreatePostDto(projectName, models.GitVcs(projectGit)), function (err, req, res, obj) {
                 response = res;
                 objectResponse = obj;
                 done();
             });
         });
         it("Then the expected response body was returned", function () {
-            assert.deepEqual(objectResponse, models.ProjectCreateResponseDto(configuration.host + "/project/" + projectName, projectGit));
+            assert.deepEqual(objectResponse, models.ProjectCreateResponseDto(configuration.host + "/project/" + projectName, models.GitVcs(projectGit)));
         });
         it("Then the expected response of 201 Created is returned", function () {
             assert.equal(response.statusCode, 201);
@@ -94,7 +94,7 @@ describe("Given a rest client and user", function () {
 
         var response;
         before(function(done) {
-            client.post("/project", models.ProjectCreatePostDto(projectName, projectGit), function (err, req, res, obj) {
+            client.post("/project", models.ProjectCreatePostDto(projectName, models.GitVcs(projectGit)), function (err, req, res, obj) {
                 response = res;
                 done();
             });
@@ -109,7 +109,7 @@ describe("Given a rest client and user", function () {
         var response;
         var objectResponse;
         before(function(done) {
-            otherUserClient.put("/project/" + encodeURI(projectName), models.ProjectUpdatePutDto("http://ignore/me"), function (err, req, res, obj) {
+            otherUserClient.put("/project/" + encodeURI(projectName), models.ProjectUpdatePutDto(models.GitVcs("http://ignore/me")), function (err, req, res, obj) {
                 response = res;
                 objectResponse = obj;
                 done();
@@ -132,7 +132,7 @@ describe("Given a rest client and user", function () {
             });
         });
         it("Then the expected response body was returned", function () {
-            assert.deepEqual(objectResponse, models.ProjectGetResponseDto(projectGit));
+            assert.deepEqual(objectResponse, models.ProjectGetResponseDto(models.GitVcs(projectGit)));
         });
         it("Then the expected response of 200 OK is returned", function () {
             assert.equal(response.statusCode, 200);
@@ -145,14 +145,14 @@ describe("Given a rest client and user", function () {
         var response;
         var objectResponse;
         before(function(done) {
-            client.put("/project/" + encodeURI(projectName), models.ProjectUpdatePutDto(newGitUrl), function (err, req, res, obj) {
+            client.put("/project/" + encodeURI(projectName), models.ProjectUpdatePutDto(models.GitVcs(newGitUrl)), function (err, req, res, obj) {
                 response = res;
                 objectResponse = obj;
                 done();
             });
         });
         it("Then the expected response body was returned", function () {
-            assert.deepEqual(objectResponse, models.ProjectUpdatePutResponseDto(newGitUrl));
+            assert.deepEqual(objectResponse, models.ProjectUpdatePutResponseDto(models.GitVcs(newGitUrl)));
         });
         it("Then the expected response of 200 OK is returned", function () {
             assert.equal(response.statusCode, 200);
@@ -171,7 +171,7 @@ describe("Given a rest client and user", function () {
             });
         });
         it("Then the expected response body was returned", function () {
-            assert.deepEqual(objectResponse, models.ProjectGetResponseDto(newGitUrl));
+            assert.deepEqual(objectResponse, models.ProjectGetResponseDto(models.GitVcs(newGitUrl)));
         });
         it("Then the expected response of 200 OK is returned", function () {
             assert.equal(response.statusCode, 200);
@@ -245,7 +245,7 @@ describe("Given a rest client and user", function () {
     describe("When the user who created a project is deleted and the project is retrieved", function () {
         var response;
         before(function (done) {
-            client.post("/project", models.ProjectCreatePostDto(projectName, projectGit), function (err, req, res, obj) {
+            client.post("/project", models.ProjectCreatePostDto(projectName, models.GitVcs(projectGit)), function (err, req, res, obj) {
                 client.del("/user/" + username, function (err, req, res) {
                     noCredentialClient.get("/project/" + projectName, function (err, req, res, obj) {
                         response = res;

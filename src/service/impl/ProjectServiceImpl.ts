@@ -12,7 +12,7 @@ module service.impl {
                     if (project)
                         return undefined;
 
-                    return this.projectRepository.createProject(user.id, createProject.name, createProject.git)
+                    return this.projectRepository.createProject(user.id, createProject.name, createProject.src.href)
                         .then((project:model.db.Project) => {
                             return project;
                         });
@@ -64,7 +64,7 @@ module service.impl {
         }
 
         public byName(name:string, dto:model.net.UpdateProjectDto):Q.IPromise<model.db.Project> {
-            return this.projectRepository.updateProject(name, dto.git)
+            return this.projectRepository.updateProject(name, dto.src.href)
                 .then(() => {
                     return this.projectRepository.getProject(name);
                 });

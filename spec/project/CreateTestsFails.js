@@ -82,7 +82,7 @@ describe("Given a Rest Client and credentials", function () {
         var response;
 
         before(function (done) {
-            client.post("/project", models.ProjectCreatePostDto(models.InvalidShortProjectName(), "sfaksjhfhkj"), function (err, req, res, obj) {
+            client.post("/project", models.ProjectCreatePostDto(models.InvalidShortProjectName(), models.GitVcs("sfaksjhfhkj")), function (err, req, res, obj) {
                 response = res;
                 done();
             });
@@ -95,7 +95,7 @@ describe("Given a Rest Client and credentials", function () {
         var response;
 
         before(function (done) {
-            client.post("/project", models.ProjectCreatePostDto(models.InvalidLongProjectName(), "sfaksjhfhkj"), function (err, req, res, obj) {
+            client.post("/project", models.ProjectCreatePostDto(models.InvalidLongProjectName(), models.GitVcs("sfaksjhfhkj")), function (err, req, res, obj) {
                 response = res;
                 done();
             });
@@ -110,7 +110,7 @@ describe("Given a Rest Client and credentials", function () {
         var response;
 
         before(function (done) {
-            client.post("/project", models.ProjectCreatePostDto(invalidCharProjectName, "sfaksjhfhkj"), function (err, req, res, obj) {
+            client.post("/project", models.ProjectCreatePostDto(invalidCharProjectName, models.GitVcs("sfaksjhfhkj")), function (err, req, res, obj) {
                 response = res;
                 done();
             });
