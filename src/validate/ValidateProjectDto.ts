@@ -2,9 +2,12 @@ module validate {
 
     export function ValidateCreateProjectDto(dto:model.net.CreateProjectDto):ValidationResult {
         var result = ValidateProjectName(dto.name);
-        if (result.success)
-            return ValidateProjectVcs(dto.src);
+        if (result.success) {
+            if (!dto.src)
+                return new ValidationResult(false, "src not provided");
 
+            return ValidateProjectVcs(dto.src);
+        }
         return result;
     }
     
@@ -29,6 +32,9 @@ module validate {
     }
     
     function ValidateProjectVcs(src:model.net.ProjectSourceDto):ValidationResult {
+        if (src.vcs != "git")
+            return new ValidationResult(false, "unsupported vcs");
+            
         return ValidateProjectGit(src.href);
     }
 

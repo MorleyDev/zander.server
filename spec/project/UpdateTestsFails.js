@@ -82,4 +82,17 @@ describe("Given a Rest Client and credentials", function () {
             assert.equal(response.statusCode, 400);
         });
     });
+    describe("When PUT the project endpoint with an invalid vcs", function () {
+        var response;
+
+        before(function (done) {
+            client.put("/project/" + encodeURI(project), models.ProjectUpdatePutDto(models.InvalidVcs()), function (err, req, res, obj) {
+                response = res;
+                done();
+            });
+        });
+        it("Then a 400 Bad Request response is returned", function () {
+            assert.equal(response.statusCode, 400);
+        });
+    });
 });

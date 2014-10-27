@@ -43,7 +43,7 @@ module.exports.ProjectNameValidCharacters = function () {
 };
 
 module.exports.ProjectNameInvalidCharacters = function () { 
-    return " @#\"\'£$^*!"; 
+    return " @\"\'£$^*!"; 
 };
 
 module.exports.ValidProjectName = function () {
@@ -104,12 +104,19 @@ module.exports.InvalidVcs = function () {
         var index = Math.floor(Math.random() * validCharacters.length);
         vcs += validCharacters.charAt(index);
     }
-    return vcs;
+    return { 
+        "vcs": vcs, 
+        "href":"http://someurl/maybegit.whoknows"
+    };
 }
 
 module.exports.GitVcs = function (href) {
+    return this.Vcs("git", href);
+}
+
+module.exports.Vcs = function (vcs, href) {
     return {
-        "vcs": "git",
+        "vcs": vcs,
         "href": href
     };
 }
