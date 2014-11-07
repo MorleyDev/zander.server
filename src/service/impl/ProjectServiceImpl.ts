@@ -12,10 +12,7 @@ module service.impl {
                     if (project)
                         return undefined;
 
-                    return this.projectRepository.createProject(user.id, createProject.name, createProject.src.href)
-                        .then((project:model.db.Project) => {
-                            return project;
-                        });
+                    return this.projectRepository.createProject(user.id, createProject.name, createProject.src.href);
                 });
         }
     }
