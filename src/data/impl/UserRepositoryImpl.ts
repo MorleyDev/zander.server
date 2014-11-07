@@ -1,5 +1,6 @@
 module data.impl {
     var uuid:UUID = require("uuid");
+    var Q = require('q');
 
     export class UserRepositoryImpl implements UserRepository {
         private _hashType:string;
@@ -29,10 +30,9 @@ module data.impl {
         }
 
         public updateUser(id:string, email:string, password:string):Q.IPromise<void> {
-            return this._database.update("Users", { email: email }, { id: id })
-                .then(() => {
-                    return this._database.update("Users", { password: HashPassword(this._hashType, id, password) }, { id: id });
-                });
+            return Q.all([this._database.update("Users", { email: email }, { id: id }),
+                          this._database.update("Users", { password: HashPassword(this._hashType, id, password) }, { id: id })])
+                    .then();
         }
 
         public deleteUser(username:string):Q.IPromise<void> {
